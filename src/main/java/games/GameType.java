@@ -21,6 +21,10 @@ import games.connect4.gui.Connect4GUIManager;
 import games.diamant.*;
 import games.dominion.gui.DominionGUIManager;
 import games.dotsboxes.*;
+import games.everdell.EverdellForwardModel;
+import games.everdell.gui.EverdellGUIManager;
+import games.everdell.EverdellGameState;
+import games.everdell.EverdellParameters;
 import games.explodingkittens.*;
 import games.explodingkittens.gui.ExplodingKittensGUIManager;
 import games.hanabi.HanabiForwardModel;
@@ -214,7 +218,11 @@ public enum GameType {
     WarOfTheToads(2, 2,
             Arrays.asList(Strategy, Abstract, Cards),
             Collections.singletonList(TrickTaking),
-            ToadGameState.class, ToadForwardModel.class, ToadParameters.class, ToadGUIManager.class);
+            ToadGameState.class, ToadForwardModel.class, ToadParameters.class, ToadGUIManager.class),
+    Everdell(2,4,
+            Arrays.asList(Strategy,Cards),
+            Arrays.asList(Memory, GridMovement, ModularBoard),
+            EverdellGameState.class, EverdellForwardModel.class, EverdellParameters.class, EverdellGUIManager.class);
 
 
     // Core classes where the game is defined
