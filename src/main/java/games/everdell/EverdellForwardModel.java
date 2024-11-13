@@ -4,11 +4,17 @@ import core.AbstractGameState;
 import core.CoreConstants;
 import core.StandardForwardModel;
 import core.actions.AbstractAction;
+import core.components.Counter;
 import core.components.Deck;
 import games.everdell.actions.EverdellAction;
+import games.everdell.actions.MoveSeason;
+import games.everdell.actions.PlaceWorker;
+import games.everdell.actions.PlayCard;
 import games.everdell.components.EverdellCard;
+import games.everdell.EverdellParameters.ResourceTypes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,16 +46,16 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellGameState state = (EverdellGameState) firstState;
         EverdellParameters parameters = (EverdellParameters) state.getGameParameters();
 
-        state.pebbles = new int[state.getNPlayers()];
-        state.twigs = new int[state.getNPlayers()];
-        state.resin = new int[state.getNPlayers()];
-        state.berries = new int[state.getNPlayers()];
-        state.cards = new int[state.getNPlayers()];
-        state.workers = new int[state.getNPlayers()];
-        state.pointTokens = new int[state.getNPlayers()];
-        state.currentSeason = EverdellParameters.Seasons.WINTER;
+
+        state.PlayerResources = new HashMap<>();
+        state.cardCount = new Counter[state.getNPlayers()];
+        state.workers = new Counter[state.getNPlayers()];
+        state.pointTokens = new Counter[state.getNPlayers()];
+        state.currentSeason = new EverdellParameters.Seasons[state.getNPlayers()];
 
         state.playerHands = new ArrayList<>();
+        state.playerVillage = new ArrayList<>(state.getNPlayers());
+
 
 
 
@@ -72,22 +78,37 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Add Cards to the player hands
         // and set up player resources
-        for (int i = 0; i < state.getNPlayers(); i++) {
-            state.pebbles[i] = 0;
-            state.twigs[i] = 0;
-            state.resin[i] = 0;
-            state.berries[i] = 0;
-            state.cards[i] = 5+i;
-            state.workers[i] = 2;
-            state.pointTokens[i] = 0;
 
+        state.PlayerResources.put(ResourceTypes.TWIG, new Counter[state.getNPlayers()]);
+        state.PlayerResources.put(ResourceTypes.PEBBLE, new Counter[state.getNPlayers()]);
+        state.PlayerResources.put(ResourceTypes.BERRY, new Counter[state.getNPlayers()]);
+        state.PlayerResources.put(ResourceTypes.RESIN, new Counter[state.getNPlayers()]);
+
+        for (int i = 0; i < state.getNPlayers(); i++) {
+
+            state.PlayerResources.get(ResourceTypes.TWIG)[i] = new Counter();
+            state.PlayerResources.get(ResourceTypes.PEBBLE)[i] = new Counter();
+            state.PlayerResources.get(ResourceTypes.BERRY)[i] = new Counter();
+            state.PlayerResources.get(ResourceTypes.RESIN)[i] = new Counter();
+
+            state.cardCount[i] = new Counter(8,"Player "+(i+1)+" Card Count");
+            state.workers[i] = new Counter("Player "+(i+1)+" Workers");
+            state.pointTokens[i] = new Counter("Player "+(i+1)+" Point Tokens");
+            state.currentSeason[i] = EverdellParameters.Seasons.WINTER;
+
+            state.cardCount[i].increment(5+i);
+            state.workers[i].increment(2);
+
+
+            state.playerVillage.add(new Deck<>("Player Village",i, CoreConstants.VisibilityMode.VISIBLE_TO_ALL));
             state.playerHands.add(new Deck<>("Player Hand", i, CoreConstants.VisibilityMode.VISIBLE_TO_OWNER));
-            for (int j = 0; j < state.cards[i]; j++) {
+            for (int j = 0; j < state.cardCount[i].getValue(); j++) {
                 EverdellCard card = state.cardDeck.draw();
                 state.playerHands.get(i).add(card);
             }
         }
         System.out.println(state.playerHands);
+        System.out.println(state.playerVillage);
 
     }
 
@@ -99,7 +120,9 @@ public class EverdellForwardModel extends StandardForwardModel {
     protected List<AbstractAction> _computeAvailableActions(AbstractGameState gameState) {
         List<AbstractAction> actions = new ArrayList<>();
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
-        actions.add(new EverdellAction());
+        actions.add(new PlaceWorker());
+        actions.add(new PlayCard());
+        actions.add(new MoveSeason());
         return actions;
     }
 }

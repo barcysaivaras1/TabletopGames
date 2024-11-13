@@ -22,31 +22,21 @@ import java.util.HashMap;
 public class EverdellParameters extends AbstractParameters {
 
 
-    enum Resources {
-        WOOD, RESIN, PEBBLE, BERRY, TWIG
+    public enum ResourceTypes {
+        RESIN, PEBBLE, BERRY, TWIG
     }
 
-    enum Seasons {
+    public enum Seasons {
         SPRING, SUMMER, FALL, WINTER
     }
-    enum number_of_cards_at_start{
-        Player1(5), Player2(6), Player3(7), Player4(8);
 
-        private final int value;
-        number_of_cards_at_start(int value){
-            this.value = value;
-        }
-        public int getNumOfCards(){
-            return value;
-        }
-    }
 
     public HashMap<EverdellCard.CardType, Color> cardColour = new HashMap<EverdellCard.CardType, Color>() {{
-        put(EverdellCard.CardType.BLUE_GOVERNANCE, Color.BLUE);
-        put(EverdellCard.CardType.GREEN_PRODUCTION, Color.GREEN);
-        put(EverdellCard.CardType.PURPLE_PROSPERITY, Color.MAGENTA);
-        put(EverdellCard.CardType.RED_DESTINATION, Color.RED);
-        put(EverdellCard.CardType.TAN_TRAVELER, Color.ORANGE);
+        put(EverdellCard.CardType.BLUE_GOVERNANCE, new Color(45, 114, 173));
+        put(EverdellCard.CardType.GREEN_PRODUCTION, new Color(48, 126, 38));
+        put(EverdellCard.CardType.PURPLE_PROSPERITY, new Color(152, 53, 190));
+        put(EverdellCard.CardType.RED_DESTINATION, new Color(201, 23, 23));
+        put(EverdellCard.CardType.TAN_TRAVELER, new Color(162, 131, 93));
     }};
 
 

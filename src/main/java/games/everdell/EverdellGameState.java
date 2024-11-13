@@ -3,13 +3,13 @@ package games.everdell;
 import core.AbstractGameState;
 import core.AbstractParameters;
 import core.components.Component;
+import core.components.Counter;
 import core.components.Deck;
 import games.GameType;
 import games.everdell.components.EverdellCard;
+import games.everdell.EverdellParameters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>The game state encapsulates all game information. It is a data-only class, with game functionality present
@@ -27,15 +27,14 @@ public class EverdellGameState extends AbstractGameState {
     protected Deck<EverdellCard> cardDeck;
     public  Deck<EverdellCard> meadowDeck;
     public List<Deck<EverdellCard>> playerHands;
-    public EverdellParameters.Seasons currentSeason;
+    public List<Deck<EverdellCard>> playerVillage;
+    public EverdellParameters.Seasons[] currentSeason;
 
-    public int[] twigs;
-    public int[] pebbles;
-    public int[] resin;
-    public int[] berries;
-    public int[] cards;
-    public int[] workers;
-    public int[] pointTokens;
+    public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
+
+    public Counter[] cardCount;
+    public Counter[] workers;
+    public Counter[] pointTokens;
 
 
 
@@ -118,16 +117,19 @@ public class EverdellGameState extends AbstractGameState {
         return 0;
     }
 
+
+
     @Override
-    protected boolean _equals(Object o) {
-        // TODO: compare all variables in the state
-        return o instanceof EverdellGameState;
+    public boolean _equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EverdellGameState state = (EverdellGameState) o;
+        return Objects.equals(cardDeck, state.cardDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && Objects.deepEquals(currentSeason, state.currentSeason) && Objects.equals(PlayerResources, state.PlayerResources) && Objects.deepEquals(cardCount, state.cardCount) && Objects.deepEquals(workers, state.workers) && Objects.deepEquals(pointTokens, state.pointTokens);
     }
 
     @Override
     public int hashCode() {
-        // TODO: include the hash code of all variables
-        return super.hashCode();
+        return Objects.hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens));
     }
 
     // TODO: Consider the methods below for possible implementation
