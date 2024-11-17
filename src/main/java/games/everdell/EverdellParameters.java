@@ -27,7 +27,7 @@ public class EverdellParameters extends AbstractParameters {
     }
 
     public enum Seasons {
-        SPRING, SUMMER, FALL, WINTER
+        WINTER, SPRING, SUMMER, AUTUMN
     }
 
     public enum Locations{
@@ -45,7 +45,7 @@ public class EverdellParameters extends AbstractParameters {
     }};
 
 
-    HashMap<EverdellCard.CardType, Integer> villageCardCount = new HashMap<EverdellCard.CardType, Integer>() {{
+    HashMap<EverdellCard.CardType, Integer> everdellCardCount = new HashMap<EverdellCard.CardType, Integer>() {{
         put(EverdellCard.CardType.BLUE_GOVERNANCE, 10);
         put(EverdellCard.CardType.GREEN_PRODUCTION, 10);
         put(EverdellCard.CardType.PURPLE_PROSPERITY, 10);

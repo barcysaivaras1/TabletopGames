@@ -4,6 +4,7 @@ import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
 import games.everdell.EverdellGameState;
+import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.Seasons;
 
 /**
@@ -42,16 +43,34 @@ public class MoveSeason extends AbstractAction {
 
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.workers[0].getValue() == 0){
-            Seasons currentSeason = state.currentSeason[0];
+        if(state.workers[state.playerTurn].getValue() == 0 && state.currentSeason[state.playerTurn] != Seasons.AUTUMN){
+            Seasons currentSeason = state.currentSeason[state.playerTurn];
             Seasons newSeason = Seasons.values()[(currentSeason.ordinal() + 1) % Seasons.values().length];
-            state.currentSeason[0] = newSeason;
-            System.out.println("It is now " + state.currentSeason[0]);
+            state.currentSeason[state.playerTurn] = newSeason;
+
+            //Increment workers
+            //Autumn has a special case of incrementing by 2
+            if(currentSeason == Seasons.AUTUMN){
+                state.workers[state.playerTurn].increment(2);
+            } else {
+                state.workers[state.playerTurn].increment();
+            }
+
+            //Bring back all workers
+            for (var location : EverdellParameters.Locations.values()) {
+                System.out.println("We are at : "+ location +" and the players on location are: "+ state.resourceLocations.get(location).playersOnLocation);
+
+                //If no players are on the location, skip
+                if(state.resourceLocations.get(location).playersOnLocation.isEmpty()) continue;
+
+                //If player is on the location, remove them and increment their workers
+                state.resourceLocations.get(location).playersOnLocation.remove(state.playerTurn);
+                state.workers[state.playerTurn].increment();
+            }
+
+            System.out.println("It is now " + state.currentSeason[state.playerTurn]);
             return true;
         }
-        System.out.println("You still have workers to play!");
-
-
         return false;
     }
 

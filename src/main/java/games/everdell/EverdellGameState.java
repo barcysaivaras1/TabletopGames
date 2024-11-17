@@ -27,7 +27,7 @@ public class EverdellGameState extends AbstractGameState {
      * @param gameParameters - game parameters.
      * @param nPlayers       - number of players in the game
      */
-    protected Deck<EverdellCard> cardDeck;
+    public Deck<EverdellCard> cardDeck;
     public  Deck<EverdellCard> meadowDeck;
     public List<Deck<EverdellCard>> playerHands;
     public List<Deck<EverdellCard>> playerVillage;

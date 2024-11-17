@@ -72,7 +72,7 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.resourceLocations.put(location,new EverdellLocation(location, k-> {
                     state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
                     if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
                     }
                     state.cardCount[state.playerTurn].increment();
                     return k;
@@ -85,10 +85,10 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.resourceLocations.put(location,new EverdellLocation(location, k-> {
                     state.pointTokens[state.playerTurn].increment();
                     if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()-1){
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
                     } else if (state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
                     }
                     state.cardCount[state.playerTurn].increment(2);
                     return k;
@@ -101,7 +101,7 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.resourceLocations.put(location,new EverdellLocation(location, k-> {
                     state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
                     if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
                     }
                     state.cardCount[state.playerTurn].increment();
                     return k;
@@ -114,7 +114,7 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.resourceLocations.put(location,new EverdellLocation(location, k-> {
                     state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment();
                     if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.meadowDeck.draw());
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
                     }
                     state.cardCount[state.playerTurn].increment();
                     return k;
@@ -125,13 +125,15 @@ public class EverdellForwardModel extends StandardForwardModel {
 
 
         //Set up the deck to be drawn from
-        state.cardDeck = new Deck<>("Village Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
-        for(Map.Entry<EverdellCard.CardType, Integer> entry : parameters.villageCardCount.entrySet()){
+        state.cardDeck = new Deck<>("Card Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
+        for(Map.Entry<EverdellCard.CardType, Integer> entry : parameters.everdellCardCount.entrySet()){
             for(int i = 0; i < entry.getValue(); i++){
                 EverdellCard card = new EverdellCard(entry.getKey());
-                state.cardDeck.add(card);
+                state.cardDeck.add(card,0);
             }
         }
+        System.out.println(state.cardDeck.getSize());
+        System.out.println(state.cardDeck);
         state.cardDeck.shuffle(state.getRnd());
 
         //Add Cards to the meadow deck

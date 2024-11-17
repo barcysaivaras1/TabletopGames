@@ -36,13 +36,11 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.cardCount[0].getValue() > 0){
+        if(state.cardCount[0].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
             state.cardCount[0].decrement();
             state.playerVillage.get(0).add(state.playerHands.get(0).get(0));
             state.playerHands.get(0).remove(0);
             System.out.println("You have placed a card");
-            System.out.println(state.playerHands);
-            System.out.println(state.playerVillage.get(0));
             return true;
         }
         System.out.println("You have no cards left");
