@@ -5,7 +5,10 @@ import core.actions.AbstractAction;
 import core.components.Counter;
 import core.components.Component;
 import games.everdell.EverdellGameState;
+import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
+
+import java.util.function.Function;
 
 /**
  * <p>Actions are unit things players can do in the game (e.g. play a card, move a pawn, roll dice, attack etc.).</p>
@@ -36,9 +39,12 @@ public class PlaceWorker extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.workers[0].getValue() > 0){
+        if(state.workers[0].getValue() > 0 && state.resourceLocations.get(state.currentLocation).isLocationFreeForPlayer(gs)){
             state.workers[0].decrement();
             System.out.println("Player now has "+ state.workers[0].getValue());
+            EverdellLocation location = state.resourceLocations.get(state.currentLocation);
+            location.locationEffect.apply(state.currentLocation);
+            location.playersOnLocation.add(((EverdellGameState) gs).playerTurn);
             return true;
         }
         System.out.println("No workers available");

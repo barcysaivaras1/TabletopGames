@@ -51,22 +51,24 @@ public class EverdellGUIManager extends AbstractGUIManager {
         // TODO: set up GUI components and add to `parent`
 
         //Main Panel
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3,1));
-        panel.setBackground(Color.LIGHT_GRAY);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridLayout(3,1));
+        mainPanel.setBackground(Color.LIGHT_GRAY);
 
         //Meadow Cards Panel
-        panel.add(meadowCardsPanel(gameState,param));
+        mainPanel.add(meadowCardsPanel(gameState,param));
 
         //Player Village Cards Panel
         JPanel villageCardPanel = new JPanel();
         createVillageCardPanel(gameState,param,villageCardPanel);
-        panel.add(villageCardPanel);
+        mainPanel.add(villageCardPanel);
 
         //Player Cards Panel
         JPanel playerCardPanel = new JPanel();
         createPlayerCardPanel(gameState,playerCardPanel);
-        panel.add(playerCardPanel);
+        mainPanel.add(playerCardPanel);
+
+
 
         //Info Panel
         JPanel infoPanel = createGameStateInfoPanel("Everdell", gameState, 400, defaultInfoPanelHeight);
@@ -75,15 +77,21 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JPanel playerInfoPanel = new JPanel();
         createPlayerResourceInfoPanel(gameState,playerInfoPanel);
 
+        //Worker Placement Options Panel
+        JPanel workerPlacementPanel = new JPanel();
+        createWorkerPlacementPanel(gameState,workerPlacementPanel,playerInfoPanel);
 
-        //Player Possible Actions Panel
-        JPanel actionPanel = playerActionsPanel(gameState,playerInfoPanel,villageCardPanel,playerCardPanel);
+
 
         //Add all panels to parent
         parent.setLayout(new BorderLayout());
+
+        //Player Possible Actions Panel
+        JPanel actionPanel = playerActionsPanel(gameState,playerInfoPanel,villageCardPanel,playerCardPanel,mainPanel,workerPlacementPanel);
+
         parent.add(infoPanel, BorderLayout.NORTH);
         parent.add(playerInfoPanel, BorderLayout.WEST);
-        parent.add(panel, BorderLayout.CENTER);
+        parent.add(mainPanel, BorderLayout.CENTER);
         parent.add(actionPanel, BorderLayout.SOUTH);
         parent.setPreferredSize(new Dimension(400,400));
         parent.revalidate();
@@ -113,6 +121,42 @@ public class EverdellGUIManager extends AbstractGUIManager {
             playerPanel.add(new JLabel(gameState.pointTokens[i].getValue() + " Point Tokens"));
             panel.add(playerPanel);
         }
+    }
+
+
+    //Displays the possible locations that the player can place their worker
+    private void createWorkerPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
+        panel.removeAll();
+        panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(147, 136, 40));
+        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            panel.removeAll();
+            createPlayerCardPanel(gameState,panel);
+        });
+        panel.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,gameState.resourceLocations.size()));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : gameState.resourceLocations.keySet()){
+            JButton button = new JButton(location.name());
+            if(!gameState.resourceLocations.get(location).isLocationFreeForPlayer(gameState)) {
+                button.setBackground(Color.LIGHT_GRAY);
+            }
+
+            button.addActionListener(k -> {
+                gameState.currentLocation = location;
+                new PlaceWorker().execute(gameState);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                panel.removeAll();
+                createPlayerCardPanel(gameState,panel);
+            });
+            locationPanel.add(button);
+        }
+        panel.add(locationPanel,BorderLayout.CENTER);
     }
 
     private void createVillageCardPanel(EverdellGameState gameState, EverdellParameters params, JPanel panel){
@@ -165,7 +209,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
         panel.removeAll();
-
+        panel.setLayout(new FlowLayout());
         panel.setBackground(Color.BLACK);
         panel.add(new JLabel("Player Cards"));
         for(EverdellCard card : gameState.playerHands.get(0)){
@@ -177,7 +221,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
     }
 
     //Displays the possible actions that the player can take
-    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel){
+    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel, JPanel mainPanel, JPanel workerPlacementPanel){
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -193,8 +237,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
 //        cardActionPanel.setPreferredSize(new Dimension(200, 50));
         JButton placeWorkerButton = new JButton("Place Worker");
         placeWorkerButton.addActionListener(k -> {
-            new PlaceWorker().execute(gameState);
-            createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                playerCardPanel.removeAll();
+                createWorkerPlacementPanel(gameState,playerCardPanel,playerInfoPanel);
         });
         workerActionPanel.add(placeWorkerButton);
 

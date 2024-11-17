@@ -30,6 +30,11 @@ public class EverdellParameters extends AbstractParameters {
         SPRING, SUMMER, FALL, WINTER
     }
 
+    public enum Locations{
+        THREE_WOOD,TWO_WOOD_ONE_CARD,TWO_RESIN,ONE_RESIN_ONE_CARD,
+        TWO_CARD_ONE_POINT,ONE_PEBBLE,ONE_BERRY,ONE_BERRY_ONE_CARD
+    }
+
 
     public HashMap<EverdellCard.CardType, Color> cardColour = new HashMap<EverdellCard.CardType, Color>() {{
         put(EverdellCard.CardType.BLUE_GOVERNANCE, new Color(45, 114, 173));

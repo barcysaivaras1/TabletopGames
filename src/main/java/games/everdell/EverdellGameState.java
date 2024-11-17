@@ -8,8 +8,11 @@ import core.components.Deck;
 import games.GameType;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
+import games.everdell.EverdellParameters.Locations;
+import games.everdell.components.EverdellLocation;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * <p>The game state encapsulates all game information. It is a data-only class, with game functionality present
@@ -30,11 +33,17 @@ public class EverdellGameState extends AbstractGameState {
     public List<Deck<EverdellCard>> playerVillage;
     public EverdellParameters.Seasons[] currentSeason;
 
+    public HashMap<Locations,EverdellLocation> resourceLocations;
+
     public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
 
     public Counter[] cardCount;
     public Counter[] workers;
     public Counter[] pointTokens;
+
+    public Locations currentLocation;
+
+    public int playerTurn;
 
 
 
