@@ -33,6 +33,8 @@ public class EverdellGameState extends AbstractGameState {
     public List<Deck<EverdellCard>> playerVillage;
     public EverdellParameters.Seasons[] currentSeason;
 
+    public ArrayList<EverdellCard> cardSelection;
+
     public HashMap<Locations,EverdellLocation> resourceLocations;
 
     public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
@@ -41,7 +43,11 @@ public class EverdellGameState extends AbstractGameState {
     public Counter[] workers;
     public Counter[] pointTokens;
 
+    //These values are used to indicate what the player has selected in their turn
+    //I'm not sure what is better. To use it like this or try to send the actions values instead?
+    //I think this keeps things more organised
     public Locations currentLocation;
+    public EverdellCard currentCard;
 
     public int playerTurn;
 

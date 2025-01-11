@@ -20,8 +20,12 @@ import org.w3c.dom.css.RGBColor;
 import players.human.ActionController;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * <p>This class allows the visualisation of the game. The game components (accessible through {@link Game#getGameState()}
@@ -56,7 +60,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
         mainPanel.setBackground(Color.LIGHT_GRAY);
 
         //Meadow Cards Panel
-        mainPanel.add(meadowCardsPanel(gameState,param));
+        JPanel meadowCardsPanel = new JPanel();
+        createMeadowCardsPanel(gameState, meadowCardsPanel);
+        mainPanel.add(meadowCardsPanel);
 
         //Player Village Cards Panel
         JPanel villageCardPanel = new JPanel();
@@ -87,7 +93,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         parent.setLayout(new BorderLayout());
 
         //Player Possible Actions Panel
-        JPanel actionPanel = playerActionsPanel(gameState,playerInfoPanel,villageCardPanel,playerCardPanel,mainPanel,workerPlacementPanel);
+        JPanel actionPanel = playerActionsPanel(gameState,playerInfoPanel,villageCardPanel,playerCardPanel,meadowCardsPanel);
 
         parent.add(infoPanel, BorderLayout.NORTH);
         parent.add(playerInfoPanel, BorderLayout.WEST);
@@ -186,13 +192,15 @@ public class EverdellGUIManager extends AbstractGUIManager {
         }
     }
 
-    private JPanel meadowCardsPanel(EverdellGameState gameState, EverdellParameters params){
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4,2,40 ,40));
+    private void createMeadowCardsPanel(EverdellGameState gameState, JPanel panel){
+
+        panel.removeAll();
+
+        //panel.add(new JLabel("Meadow Cards", SwingConstants.CENTER), BorderLayout.NORTH);
+        EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
+
+        panel.setLayout(new GridLayout(4,2));
         panel.setBackground(Color.gray);
-        mainPanel.add(new JLabel("Meadow Cards", SwingConstants.CENTER), BorderLayout.NORTH);
         for(EverdellCard card : gameState.meadowDeck){
             JPanel cardPanel = new JPanel();
             cardPanel.setBackground(params.cardColour.get(card.cardType));
@@ -200,8 +208,6 @@ public class EverdellGUIManager extends AbstractGUIManager {
             cardPanel.setPreferredSize(new Dimension(50, 100));
             panel.add(cardPanel);
         }
-        mainPanel.add(panel, BorderLayout.CENTER);
-        return mainPanel;
     }
 
     //Displays the cards that the player has in their hand
@@ -220,8 +226,54 @@ public class EverdellGUIManager extends AbstractGUIManager {
         }
     }
 
+    private void turnPlayerCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel, Consumer<EverdellCard> buttonAction){
+        //Convert Player Cards into Buttons
+        EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
+
+        playerCardPanel.removeAll();
+        playerCardPanel.setLayout(new FlowLayout());
+        playerCardPanel.setBackground(Color.BLACK);
+        playerCardPanel.add(new JLabel("Player Cards"));
+        for(EverdellCard card : gameState.playerHands.get(0)){
+            JButton cardButton = new JButton(card.cardType.name());
+            cardButton.setBackground(params.cardColour.get(card.cardType));
+            cardButton.setBorder(new LineBorder(Color.green, 2));
+            cardButton.setPreferredSize(new Dimension(150, 30));
+
+            cardButton.addActionListener(k -> {
+                buttonAction.accept(card);
+            });
+
+
+            playerCardPanel.add(cardButton);
+        }
+    }
+
+
+    private void turnMeadowCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel, Consumer<EverdellCard> buttonAction){
+        //Convert Player Cards into Buttons
+        EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
+
+        meadowPanel.removeAll();
+        //Convert Meadow Cards into Buttons
+        for(EverdellCard card : gameState.meadowDeck){
+            JButton cardButton = new JButton();
+            cardButton.setBackground(params.cardColour.get(card.cardType));
+            JLabel cardLabel = new JLabel(card.cardType.name(), SwingConstants.CENTER);
+            cardButton.setBorder(new LineBorder(Color.green, 2));
+            cardButton.add(cardLabel);
+            cardButton.setPreferredSize(new Dimension(50, 100));
+            cardButton.setHorizontalAlignment(SwingConstants.CENTER);
+
+            cardButton.addActionListener(k -> {
+                buttonAction.accept(card);
+            });
+            meadowPanel.add(cardButton);
+        }
+    }
+
     //Displays the possible actions that the player can take
-    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel, JPanel mainPanel, JPanel workerPlacementPanel){
+    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel, JPanel meadowCardsPanel){
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -245,16 +297,46 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         JButton playCardButton = new JButton("Play Card");
         playCardButton.addActionListener(k -> {
-            new PlayCard().execute(gameState);
-            createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-            createVillageCardPanel(gameState,(EverdellParameters) gameState.getGameParameters(),villagePanel);
-            createPlayerCardPanel(gameState,playerCardPanel);
+            //Make player cards available for selection via buttons
+            turnPlayerCardsIntoButtons(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, card -> {
+                //Define which card needs to be placed
+                gameState.currentCard = card;
+
+                //Place the card
+                new PlayCard().execute(gameState);
+
+                //Redraw the Panels
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                createVillageCardPanel(gameState,(EverdellParameters) gameState.getGameParameters(),villagePanel);
+                createPlayerCardPanel(gameState,playerCardPanel);
+                createMeadowCardsPanel(gameState,meadowCardsPanel);
+            });
+
+            //Make meadow cards available for selection via buttons
+            turnMeadowCardsIntoButtons(gameState, playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, card ->{
+                //Define which card needs to be placed
+                gameState.currentCard = card;
+
+                //Place the card
+                new PlayCard().execute(gameState);
+
+                //Redraw the Panels
+                createMeadowCardsPanel(gameState,meadowCardsPanel);
+                createPlayerCardPanel(gameState,playerCardPanel);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                createVillageCardPanel(gameState,(EverdellParameters) gameState.getGameParameters(),villagePanel);
+            });
         });
         cardActionPanel.add(playCardButton);
 
         JButton moveSeasonButton = new JButton("Move Season");
         moveSeasonButton.addActionListener(k -> {
             new MoveSeason().execute(gameState);
+
+            //If it is summer, the player must draw 2 cards from the meadow
+            if(gameState.currentSeason[gameState.playerTurn] == EverdellParameters.Seasons.SUMMER){
+                summerEventGUI(gameState, playerCardPanel, playerInfoPanel, villagePanel, meadowCardsPanel);
+            }
             createPlayerResourceInfoPanel(gameState,playerInfoPanel);
         });
         seasonActionPanel.add(moveSeasonButton);
@@ -281,6 +363,42 @@ public class EverdellGUIManager extends AbstractGUIManager {
         panel.add(seasonActionPanel, gbc);
 
         return panel;
+    }
+
+
+    private void summerEventGUI(EverdellGameState state,JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel){
+        state.cardSelection = new ArrayList<EverdellCard>();
+
+        //When it is summer, the player will be given the choice to grab 2 cards from the meadow into their hand(Depending on how many cards they have)
+
+        if(state.playerHands.get(state.playerTurn).getSize() >=  state.playerHands.get(state.playerTurn).getCapacity()){
+            //Players hand is full, we do nothing
+            return;
+        }
+        else if(state.playerHands.get(state.playerTurn).getSize() ==  state.playerHands.get(state.playerTurn).getCapacity()-1){
+            //Allow the player to pick 1 card
+            turnMeadowCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, card -> {
+                state.cardSelection.add(card);
+                new MoveSeason().summerEvent(state);
+                //Redraw the Panels
+                createMeadowCardsPanel(state,meadowPanel);
+                createPlayerCardPanel(state,playerCardPanel);
+                createPlayerResourceInfoPanel(state,playerInfoPanel);
+            });
+        }
+        else{
+            //Allow the player to pick 2 cards
+            turnMeadowCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, card -> {
+                state.cardSelection.add(card);
+                if(state.cardSelection.size() == 2){
+                    new MoveSeason().summerEvent(state);
+                    //Redraw the Panels
+                    createMeadowCardsPanel(state,meadowPanel);
+                    createPlayerCardPanel(state,playerCardPanel);
+                    createPlayerResourceInfoPanel(state,playerInfoPanel);
+                }
+            });
+        }
     }
 
     /**

@@ -6,6 +6,9 @@ import core.components.Component;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.Seasons;
+import games.everdell.components.EverdellCard;
+
+import java.util.ArrayList;
 
 /**
  * <p>Actions are unit things players can do in the game (e.g. play a card, move a pawn, roll dice, attack etc.).</p>
@@ -43,36 +46,74 @@ public class MoveSeason extends AbstractAction {
 
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.workers[state.playerTurn].getValue() == 0 && state.currentSeason[state.playerTurn] != Seasons.AUTUMN){
+        if (state.workers[state.playerTurn].getValue() == 0 && state.currentSeason[state.playerTurn] != Seasons.AUTUMN) {
             Seasons currentSeason = state.currentSeason[state.playerTurn];
             Seasons newSeason = Seasons.values()[(currentSeason.ordinal() + 1) % Seasons.values().length];
             state.currentSeason[state.playerTurn] = newSeason;
 
             //Increment workers
             //Autumn has a special case of incrementing by 2
-            if(currentSeason == Seasons.AUTUMN){
-                state.workers[state.playerTurn].increment(2);
-            } else {
-                state.workers[state.playerTurn].increment();
+            switch (newSeason) {
+                case SPRING:
+                    //Production event
+                    state.workers[state.playerTurn].increment();
+                    productionEvent(state);
+                    break;
+                case SUMMER:
+                    //Draw 2 from the meadow
+                    state.workers[state.playerTurn].increment();
+                    break;
+                case AUTUMN:
+                    //Production event
+                    state.workers[state.playerTurn].increment(2);
+                    productionEvent(state);
+                    break;
             }
 
-            //Bring back all workers
-            for (var location : EverdellParameters.Locations.values()) {
-                System.out.println("We are at : "+ location +" and the players on location are: "+ state.resourceLocations.get(location).playersOnLocation);
+                //Bring back all workers
+                for (var location : state.resourceLocations.keySet()) {
+                    System.out.println(location);
+                    System.out.println("We are at : " + location + " and the players on location are: " + state.resourceLocations.get(location).playersOnLocation);
 
-                //If no players are on the location, skip
-                if(state.resourceLocations.get(location).playersOnLocation.isEmpty()) continue;
+                    //If no players are on the location, skip
+                    if (state.resourceLocations.get(location).playersOnLocation.isEmpty()) continue;
 
-                //If player is on the location, remove them and increment their workers
-                state.resourceLocations.get(location).playersOnLocation.remove(state.playerTurn);
-                state.workers[state.playerTurn].increment();
+                    //If player is on the location, remove them and increment their workers
+                    state.resourceLocations.get(location).playersOnLocation.remove(state.playerTurn);
+                    state.workers[state.playerTurn].increment();
+                }
+
+                System.out.println("It is now " + state.currentSeason[state.playerTurn]);
+                return true;
             }
-
-            System.out.println("It is now " + state.currentSeason[state.playerTurn]);
-            return true;
-        }
-        return false;
+            return false;
     }
+
+    private void productionEvent(EverdellGameState state){
+        System.out.println("Production Event");
+        //Iterate through all players
+        for(int i = 0; i<state.getNPlayers(); i++){
+            //Check if player has a production building
+            for(var card : state.playerVillage.get(i).getComponents()){
+                if(card.cardType == EverdellCard.CardType.GREEN_PRODUCTION){
+                    //Apply production effect
+                    card.cardType.applyCardEffect.apply(state);
+                }
+            }
+        }
+
+    }
+
+    public void summerEvent(EverdellGameState state){
+        //Take cards from meadow and place in player hand
+        //It is assumed that the player has space in their hand
+        for(var c : state.cardSelection){
+            state.playerHands.get(state.playerTurn).add(c);
+            state.meadowDeck.remove(c);
+            state.meadowDeck.add(state.cardDeck.draw());
+        }
+    }
+
 
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.

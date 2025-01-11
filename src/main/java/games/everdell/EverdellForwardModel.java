@@ -63,62 +63,31 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.resourceLocations = new HashMap<>();
 
 
-        //Assigning functions to each location
+        //Creating an EverdellLocation object for each location
         for(var location : Locations.values()){
             if(location == Locations.ONE_BERRY){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(), true));
+                state.resourceLocations.put(location,new EverdellLocation(location,true));
             }
             if(location == Locations.ONE_BERRY_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
-                    if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    }
-                    state.cardCount[state.playerTurn].increment();
-                    return k;
-                }, false));
+                state.resourceLocations.put(location,new EverdellLocation(location,false));
             }
             if(location == Locations.ONE_PEBBLE){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(), false));
+                state.resourceLocations.put(location,new EverdellLocation(location, false));
             }
             if(location == Locations.TWO_CARD_ONE_POINT){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> {
-                    state.pointTokens[state.playerTurn].increment();
-                    if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()-1){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    } else if (state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    }
-                    state.cardCount[state.playerTurn].increment(2);
-                    return k;
-                }, true));
+                state.resourceLocations.put(location,new EverdellLocation(location,true));
             }
             if(location == Locations.TWO_RESIN){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(2), false));
+                state.resourceLocations.put(location,new EverdellLocation(location, false));
             }
             if(location == Locations.TWO_WOOD_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> {
-                    state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
-                    if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    }
-                    state.cardCount[state.playerTurn].increment();
-                    return k;
-                }, true));
+                state.resourceLocations.put(location,new EverdellLocation(location,true));
             }
             if(location == Locations.THREE_WOOD){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(3), false));
+                state.resourceLocations.put(location,new EverdellLocation(location, false));
             }
             if(location == Locations.ONE_RESIN_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location, k-> {
-                    state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment();
-                    if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    }
-                    state.cardCount[state.playerTurn].increment();
-                    return k;
-                }, true));
+                state.resourceLocations.put(location,new EverdellLocation(location, true));
             }
         }
 

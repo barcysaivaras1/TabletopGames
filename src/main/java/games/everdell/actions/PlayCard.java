@@ -4,6 +4,7 @@ import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
 import games.everdell.EverdellGameState;
+import games.everdell.components.EverdellCard;
 
 import java.util.Random;
 
@@ -36,10 +37,26 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.cardCount[0].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
-            state.cardCount[0].decrement();
-            state.playerVillage.get(0).add(state.playerHands.get(0).get(0));
-            state.playerHands.get(0).remove(0);
+        //Only working for the first player, 0 values need to be updated to be playerTurn
+        if(state.cardCount[state.playerTurn].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
+            //Decrement Card counter
+            state.cardCount[state.playerTurn].decrement();
+
+            //Add Card to village
+            state.playerVillage.get(state.playerTurn).add(state.currentCard);
+
+            //Remove card from hand
+            //If we fail to remove that card object from the hand, it means that the card was in the meadow
+            //We remove the card from the meadow and add a new card to the meadow
+            if(!state.playerHands.get(state.playerTurn).remove(state.currentCard)){
+                state.meadowDeck.remove(state.currentCard);
+                state.meadowDeck.add(state.cardDeck.draw());
+            }
+
+
+
+            //Apply Card Effect
+            state.currentCard.cardType.applyCardEffect.apply(state);
             System.out.println("You have placed a card");
             return true;
         }

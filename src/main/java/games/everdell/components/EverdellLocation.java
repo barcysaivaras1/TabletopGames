@@ -13,14 +13,12 @@ public class EverdellLocation {
     boolean shared;
     //boolean occupied;
 
-    Locations location;
-    public Function locationEffect;
+    private Locations location;
 
     public List<Integer> playersOnLocation;
 
-    public EverdellLocation(Locations location, Function locationEffect, boolean shared){
+    public EverdellLocation(Locations location, boolean shared){
         this.location = location;
-        this.locationEffect = locationEffect;
         this.shared = shared;
         this.playersOnLocation = new ArrayList<>();
     }
@@ -40,6 +38,10 @@ public class EverdellLocation {
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
         return (!shared && playersOnLocation.isEmpty()) || (shared && !playersOnLocation.contains(state.playerTurn));
+    }
+
+    public Locations getLocation(){
+        return location;
     }
 
 
