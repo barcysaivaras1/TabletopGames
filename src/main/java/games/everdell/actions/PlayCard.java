@@ -39,8 +39,14 @@ public class PlayCard extends AbstractAction {
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
         if(state.cardCount[state.playerTurn].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
-            //Decrement Card counter
-            state.cardCount[state.playerTurn].decrement();
+            //Check if the player can buy the card
+            if(!checkIfPlayerCanBuyCard(state)){
+                System.out.println("You don't have enough resources to buy this card");
+                return false;
+            }
+
+            //Make the player pay for the resources
+            makePlayerPayForCard(state);
 
             //Add Card to village
             state.playerVillage.get(state.playerTurn).add(state.currentCard);
@@ -52,16 +58,40 @@ public class PlayCard extends AbstractAction {
                 state.meadowDeck.remove(state.currentCard);
                 state.meadowDeck.add(state.cardDeck.draw());
             }
+            //We played the card from our hand
+            else{
+                //Decrement Card counter
+                state.cardCount[state.playerTurn].decrement();
+            }
 
 
 
             //Apply Card Effect
-            state.currentCard.cardType.applyCardEffect.apply(state);
+            state.currentCard.cardDetails.applyCardEffect.apply(state);
             System.out.println("You have placed a card");
             return true;
         }
         System.out.println("You have no cards left");
         return false;
+    }
+
+
+    private Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
+        //Check if the player has enough resources to buy the card
+        for(var resource : state.currentCard.cardDetails.resourceCost.keySet()){
+            if(state.PlayerResources.get(resource)[state.playerTurn].getValue() < state.currentCard.cardDetails.resourceCost.get(resource)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void makePlayerPayForCard(EverdellGameState state){
+        //Make the player pay for the resources
+        for(var resource : state.currentCard.cardDetails.resourceCost.keySet()){
+            state.PlayerResources.get(resource)[state.playerTurn].decrement(state.currentCard.cardDetails.resourceCost.get(resource));
+        }
     }
 
     /**

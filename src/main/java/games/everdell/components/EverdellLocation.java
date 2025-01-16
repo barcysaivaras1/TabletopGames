@@ -2,7 +2,10 @@ package games.everdell.components;
 
 import core.AbstractGameState;
 import games.everdell.EverdellGameState;
+import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.Locations;
+import games.everdell.EverdellParameters.BasicLocations;
+import games.everdell.EverdellParameters.ForestLocations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,18 +14,20 @@ import java.util.function.Function;
 public class EverdellLocation {
 
     boolean shared;
+    int numberOfSpaces;
     //boolean occupied;
 
     private Locations location;
 
+
     public List<Integer> playersOnLocation;
 
-    public EverdellLocation(Locations location, boolean shared){
+    public EverdellLocation(Locations location, int numberOfSpaces){
         this.location = location;
-        this.shared = shared;
+        //this.shared = shared;
+        this.numberOfSpaces = numberOfSpaces;
         this.playersOnLocation = new ArrayList<>();
     }
-
 
 //    public void placeWorkerOnLocation(AbstractGameState gs){
 //        EverdellGameState state = (EverdellGameState) gs;
@@ -37,7 +42,7 @@ public class EverdellLocation {
 
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
-        return (!shared && playersOnLocation.isEmpty()) || (shared && !playersOnLocation.contains(state.playerTurn));
+        return (numberOfSpaces > playersOnLocation.size() && !playersOnLocation.contains(state.playerTurn));
     }
 
     public Locations getLocation(){

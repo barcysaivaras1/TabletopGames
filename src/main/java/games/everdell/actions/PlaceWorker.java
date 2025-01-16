@@ -5,6 +5,9 @@ import core.actions.AbstractAction;
 import core.components.Counter;
 import core.components.Component;
 import games.everdell.EverdellGameState;
+import games.everdell.EverdellParameters;
+import games.everdell.EverdellParameters.BasicEvent;
+import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
 
@@ -39,11 +42,20 @@ public class PlaceWorker extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        if(state.workers[0].getValue() > 0 && state.resourceLocations.get(state.currentLocation).isLocationFreeForPlayer(gs)){
+        //Check if this location is free
+        if(state.workers[0].getValue() > 0 && state.Locations.get(state.currentLocation).isLocationFreeForPlayer(gs)){
+
+            //Check if we meet the requirements for the basic event
+            if(state.currentLocation instanceof EverdellParameters.BasicEvent){
+                if(!canWePlaceOnThisBasicEvent(state)){
+                    return false;
+                }
+            }
+
+
             state.workers[0].decrement();
-            System.out.println("Player now has "+ state.workers[0].getValue());
-            EverdellLocation everdellLocation = state.resourceLocations.get(state.currentLocation);
-            everdellLocation.getLocation().applyLocationEffect.apply(state);
+            EverdellLocation everdellLocation = state.Locations.get(state.currentLocation);
+            everdellLocation.getLocation().applyLocationEffect(state);
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).playerTurn);
             return true;
         }
@@ -52,6 +64,63 @@ public class PlaceWorker extends AbstractAction {
         return false;
     }
 
+    public Boolean canWePlaceOnThisBasicEvent(EverdellGameState state){
+        int target;
+        int counter;
+        switch ((BasicEvent) state.currentLocation){
+            case GREEN_PRODUCTION_EVENT:
+                target = 4;
+                counter = 0;
+                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                    if (card.cardDetails.cardType == EverdellParameters.CardType.GREEN_PRODUCTION){
+                        counter++;
+                    }
+                }
+                if(target <= counter){
+                    return true;
+                }
+                return false;
+            case BLUE_GOVERNANCE_EVENT:
+                target = 3;
+                counter = 0;
+                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                    if (card.cardDetails.cardType == EverdellParameters.CardType.BLUE_GOVERNANCE){
+                        counter++;
+                    }
+                }
+                if(target <= counter){
+                    return true;
+                }
+                return false;
+            case RED_DESTINATION_EVENT:
+                target = 3;
+                counter = 0;
+                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                    if (card.cardDetails.cardType == EverdellParameters.CardType.RED_DESTINATION){
+                        counter++;
+                    }
+                }
+                if(target <= counter){
+                    return true;
+                }
+                return false;
+            case TAN_TRAVELER_EVENT:
+                target = 3;
+                counter = 0;
+                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                    if (card.cardDetails.cardType == EverdellParameters.CardType.TAN_TRAVELER){
+                        counter++;
+                    }
+                }
+                if(target <= counter){
+                    return true;
+                }
+                return false;
+        }
+
+
+        return false;
+    }
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.
      * Make sure the return type is this class (e.g. GTAction) and NOT the super class AbstractAction.

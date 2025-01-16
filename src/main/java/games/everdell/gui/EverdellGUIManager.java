@@ -11,6 +11,10 @@ import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
+import games.everdell.EverdellParameters.ForestLocations;
+import games.everdell.EverdellParameters.BasicLocations;
+import games.everdell.EverdellParameters.BasicEvent;
+
 import gui.AbstractGUIManager;
 import gui.GamePanel;
 
@@ -21,6 +25,7 @@ import players.human.ActionController;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.xml.stream.Location;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Set;
@@ -110,12 +115,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
         panel.removeAll();
         panel.setLayout(new GridLayout(gameState.getNPlayers(), 1));
 
-        Color[] colors = {Color.RED, Color.ORANGE, Color.CYAN, Color.GREEN};
 
         for (int i = 0; i < gameState.getNPlayers(); i++) {
             JPanel playerPanel = new JPanel();
             playerPanel.setLayout(new GridLayout(9, 1));
-            playerPanel.setBackground(colors[i]);
+            playerPanel.setBackground(EverdellParameters.playerColour.get(i));
             playerPanel.add(new JLabel("Player " + (i+1)));
             playerPanel.add(new JLabel("Season : "+gameState.currentSeason[i]));
             playerPanel.add(new JLabel(gameState.PlayerResources.get(ResourceTypes.BERRY)[i].getValue() + " Berries"));
@@ -143,14 +147,97 @@ public class EverdellGUIManager extends AbstractGUIManager {
         });
         panel.add(back,BorderLayout.SOUTH);
 
+        JPanel workerOptionsPanel = new JPanel();
+
+        JButton basicLocationsButton = new JButton("Basic Locations");
+        basicLocationsButton.addActionListener(k -> {
+            createBasicLocationsPlacementPanel(gameState,panel,playerInfoPanel, location -> {
+                  gameState.currentLocation = location;
+                  new PlaceWorker().execute(gameState);
+                  createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                  panel.removeAll();
+                  createPlayerCardPanel(gameState,panel);
+            } );
+        });
+        workerOptionsPanel.add(basicLocationsButton,BorderLayout.WEST);
+        JButton forestLocationsButton = new JButton("Forest Locations");
+        forestLocationsButton.addActionListener(k -> {
+            createForestLocationsPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        workerOptionsPanel.add(forestLocationsButton,BorderLayout.EAST);
+
+        JButton basicEventsButton = new JButton("Basic Events");
+        basicEventsButton.addActionListener(k -> {
+            createBasicEventsPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        workerOptionsPanel.add(basicEventsButton);
+
+        panel.add(workerOptionsPanel,BorderLayout.CENTER);
+    }
+
+    //Displays the possible locations that the player can place their worker
+    private void createBasicLocationsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel, Consumer<EverdellParameters.Locations> buttionAction){
+        panel.removeAll();
+        panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(147, 136, 40));
+        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            panel.removeAll();
+            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        panel.add(back,BorderLayout.SOUTH);
+
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,gameState.resourceLocations.size()));
+        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : gameState.resourceLocations.keySet()){
+        for(var location : gameState.Locations.keySet()){
+            if(!(location instanceof BasicLocations)){
+                continue;
+            }
             JButton button = new JButton(location.name());
-            if(!gameState.resourceLocations.get(location).isLocationFreeForPlayer(gameState)) {
+            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
                 button.setBackground(Color.LIGHT_GRAY);
+            }
+
+            button.addActionListener(k -> {
+                buttionAction.accept(location);
+//                gameState.currentLocation = location;
+//                new PlaceWorker().execute(gameState);
+//                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+//                panel.removeAll();
+//                createPlayerCardPanel(gameState,panel);
+            });
+            locationPanel.add(button);
+        }
+        panel.add(locationPanel,BorderLayout.CENTER);
+    }
+
+    //Displays the possible locations that the player can place their worker
+    private void createBasicEventsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
+        panel.removeAll();
+        panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(147, 136, 40));
+        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            panel.removeAll();
+            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        panel.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : gameState.Locations.keySet()){
+            if(!(location instanceof BasicEvent)){
+                continue;
+            }
+            JButton button = new JButton(location.name());
+            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
+                button.setBackground(EverdellParameters.playerColour.get(gameState.Locations.get(location).playersOnLocation.get(0)));
             }
 
             button.addActionListener(k -> {
@@ -163,6 +250,187 @@ public class EverdellGUIManager extends AbstractGUIManager {
             locationPanel.add(button);
         }
         panel.add(locationPanel,BorderLayout.CENTER);
+    }
+
+    //Displays the possible locations that the player can place their worker
+    private void createForestLocationsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
+        panel.removeAll();
+        panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(147, 136, 40));
+        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            panel.removeAll();
+            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        panel.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : gameState.Locations.keySet()){
+            if(!(location instanceof ForestLocations)){
+                continue;
+            }
+
+
+            JButton button = new JButton(location.name());
+            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
+                button.setBackground(Color.LIGHT_GRAY);
+            }
+
+            if(location == ForestLocations.TWO_ANY || location == ForestLocations.TWO_CARDS_ONE_ANY){
+                button.addActionListener(k -> {
+                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)){
+                        return;
+                    }
+                    gameState.currentLocation = location;
+
+                    if(location == ForestLocations.TWO_ANY){
+                        resourceSelectionPanel(gameState,panel,playerInfoPanel,2);
+                    }
+                    else{
+                        resourceSelectionPanel(gameState,panel,playerInfoPanel,1);
+                    }
+                });
+            }
+            else if (location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
+                button.addActionListener(k -> {
+                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)){
+                        return;
+                    }
+                    gameState.currentLocation = location;
+                    ForestLocations.cardChoices = new ArrayList<>();
+
+
+                    if(location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
+                        turnPlayerCardsIntoButtons(gameState,panel,playerInfoPanel,panel,panel,  gameState.playerHands.get(gameState.playerTurn).getSize(), card -> {
+                            gameState.currentCard = card;
+                            ForestLocations.cardChoices.add(card);
+                        });
+                        JButton doneButton = new JButton("Discard Selected Cards");
+                        doneButton.addActionListener(k2 -> {
+                            System.out.println(ForestLocations.cardChoices);
+                            new PlaceWorker().execute(gameState);
+                            createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                            panel.removeAll();
+                            createPlayerCardPanel(gameState,panel);
+                        });
+                        panel.add(doneButton, BorderLayout.SOUTH);
+                    }
+                    else{
+                        JLabel discardLabel = new JLabel("Discard up to 3 cards");
+                        turnPlayerCardsIntoButtons(gameState,panel,playerInfoPanel,panel,panel, 3, card -> {
+                            gameState.currentCard = card;
+                            ForestLocations.cardChoices.add(card);
+                        });
+                        panel.add(discardLabel, BorderLayout.NORTH);
+
+                        JButton doneButton = new JButton("Discard Selected Cards");
+                        doneButton.addActionListener(k2 -> {
+                            resourceSelectionPanel(gameState,panel,playerInfoPanel,ForestLocations.cardChoices.size());
+                        });
+                        panel.add(doneButton, BorderLayout.SOUTH);
+                    }
+                });
+            }
+            else if (location == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
+                button.addActionListener(k -> {
+                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)){
+                        return;
+                    }
+                    createBasicLocationsPlacementPanel(gameState,panel,playerInfoPanel, basicLocation -> {
+                        ForestLocations.basicLocationChoice = (BasicLocations) basicLocation;
+                        gameState.currentLocation = location;
+                        new PlaceWorker().execute(gameState);
+
+                        createPlayerResourceInfoPanel(gameState, playerInfoPanel);
+                        panel.removeAll();
+                        createPlayerCardPanel(gameState, panel);
+                    });
+                });
+            }
+            else {
+                button.addActionListener(k -> {
+                    gameState.currentLocation = location;
+                    new PlaceWorker().execute(gameState);
+                    createPlayerResourceInfoPanel(gameState, playerInfoPanel);
+                    panel.removeAll();
+                    createPlayerCardPanel(gameState, panel);
+                });
+            }
+            locationPanel.add(button);
+
+        }
+        panel.add(locationPanel,BorderLayout.CENTER);
+    }
+
+    private void resourceSelectionPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel,int numberOfResources){
+        panel.removeAll();
+        panel.setLayout(new BorderLayout());
+        panel.setBackground(new Color(147, 136, 40));
+        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            panel.removeAll();
+            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
+        });
+        panel.add(back,BorderLayout.SOUTH);
+
+        JPanel resourcePanel = new JPanel();
+
+
+        ForestLocations.resourceChoices = new ArrayList<>();
+
+        JButton berryButton = new JButton("Berry");
+        berryButton.addActionListener(k -> {
+            ForestLocations.resourceChoices.add(ResourceTypes.BERRY);
+            if(ForestLocations.resourceChoices.size() == numberOfResources){
+                new PlaceWorker().execute(gameState);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                panel.removeAll();
+                createPlayerCardPanel(gameState,panel);
+            }
+        });
+        resourcePanel.add(berryButton);
+        JButton pebbleButton = new JButton("Pebble");
+        pebbleButton.addActionListener(k -> {
+            ForestLocations.resourceChoices.add(ResourceTypes.PEBBLE);
+            if(ForestLocations.resourceChoices.size() == numberOfResources){
+                new PlaceWorker().execute(gameState);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                panel.removeAll();
+                createPlayerCardPanel(gameState,panel);
+            }
+        });
+        resourcePanel.add(pebbleButton);
+        JButton resinButton = new JButton("Resin");
+        resinButton.addActionListener(k -> {
+            ForestLocations.resourceChoices.add(ResourceTypes.RESIN);
+            if(ForestLocations.resourceChoices.size() == numberOfResources){
+                new PlaceWorker().execute(gameState);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                panel.removeAll();
+                createPlayerCardPanel(gameState,panel);
+            }
+        });
+        resourcePanel.add(resinButton);
+        JButton twigButton = new JButton("Twig");
+        twigButton.addActionListener(k -> {
+            ForestLocations.resourceChoices.add(ResourceTypes.TWIG);
+            if(ForestLocations.resourceChoices.size() == numberOfResources){
+                new PlaceWorker().execute(gameState);
+                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+                panel.removeAll();
+                createPlayerCardPanel(gameState,panel);
+            }
+        });
+        resourcePanel.add(twigButton);
+
+        panel.add(resourcePanel,BorderLayout.CENTER);
+
+
     }
 
     private void createVillageCardPanel(EverdellGameState gameState, EverdellParameters params, JPanel panel){
@@ -182,8 +450,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
             villagePanel.setLayout(new GridLayout(3,5));
             for(EverdellCard card : deck){
                 JPanel cardPanel = new JPanel();
-                cardPanel.setBackground(params.cardColour.get(card.cardType));
-                cardPanel.add(new JLabel(card.cardType.name()));
+                cardPanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+                cardPanel.add(new JLabel(card.cardDetails.name()));
                 cardPanel.setPreferredSize(new Dimension(50, 100));
                 villagePanel.add(cardPanel);
             }
@@ -203,9 +471,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
         panel.setBackground(Color.gray);
         for(EverdellCard card : gameState.meadowDeck){
             JPanel cardPanel = new JPanel();
-            cardPanel.setBackground(params.cardColour.get(card.cardType));
-            cardPanel.add(new JLabel(card.cardType.name()));
+            cardPanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            cardPanel.add(new JLabel(card.cardDetails.name()));
             cardPanel.setPreferredSize(new Dimension(50, 100));
+
+            JPanel resourcePanel = new JPanel();
+            resourcePanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            resourcePanel.setLayout(new GridLayout(3,1));
+            for(ResourceTypes resource : card.cardDetails.resourceCost.keySet()){
+                resourcePanel.add(new JLabel(resource.name() + " : " + card.cardDetails.resourceCost.get(resource)));
+            }
+            cardPanel.add(resourcePanel);
+
             panel.add(cardPanel);
         }
     }
@@ -220,13 +497,20 @@ public class EverdellGUIManager extends AbstractGUIManager {
         panel.add(new JLabel("Player Cards"));
         for(EverdellCard card : gameState.playerHands.get(0)){
             JPanel cardPanel = new JPanel();
-            cardPanel.setBackground(params.cardColour.get(card.cardType));
-            cardPanel.add(new JLabel(card.cardType.name()));
+            cardPanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            cardPanel.add(new JLabel(card.cardDetails.name()));
+            JPanel resourcePanel = new JPanel();
+            resourcePanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            resourcePanel.setLayout(new GridLayout(3,1));
+            for(ResourceTypes resource : card.cardDetails.resourceCost.keySet()){
+                resourcePanel.add(new JLabel(resource.name() + " : " + card.cardDetails.resourceCost.get(resource)));
+            }
+            cardPanel.add(resourcePanel);
             panel.add(cardPanel);
         }
     }
 
-    private void turnPlayerCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel, Consumer<EverdellCard> buttonAction){
+    private void turnPlayerCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel,int numberOfSelections, Consumer<EverdellCard> buttonAction){
         //Convert Player Cards into Buttons
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
@@ -234,16 +518,42 @@ public class EverdellGUIManager extends AbstractGUIManager {
         playerCardPanel.setLayout(new FlowLayout());
         playerCardPanel.setBackground(Color.BLACK);
         playerCardPanel.add(new JLabel("Player Cards"));
+
+
         for(EverdellCard card : gameState.playerHands.get(0)){
-            JButton cardButton = new JButton(card.cardType.name());
-            cardButton.setBackground(params.cardColour.get(card.cardType));
+            JPanel cardPanel = new JPanel();
+
+            JButton cardButton = new JButton();
+            cardButton.setBackground(params.cardColour.get(card.cardDetails.cardType));
             cardButton.setBorder(new LineBorder(Color.green, 2));
-            cardButton.setPreferredSize(new Dimension(150, 30));
 
             cardButton.addActionListener(k -> {
-                buttonAction.accept(card);
+                //If the card is already selected, unselect it
+                if(cardButton.getBackground() == Color.GRAY){
+                    cardButton.setBackground(params.cardColour.get(card.cardDetails.cardType));
+                    ForestLocations.cardChoices.remove(card);
+                }
+                //Limit the number of selections
+                else if(numberOfSelections == ForestLocations.cardChoices.size()){
+                    return;
+                }
+                //Select the card
+                else {
+                    buttonAction.accept(card);
+                    cardButton.setBackground(Color.GRAY);
+                }
             });
+            JPanel resourcePanel = new JPanel();
+            resourcePanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            resourcePanel.setLayout(new GridLayout(3,1));
+            for(ResourceTypes resource : card.cardDetails.resourceCost.keySet()){
+                resourcePanel.add(new JLabel(resource.name() + " : " + card.cardDetails.resourceCost.get(resource)));
+            }
+            JLabel cardLabel = new JLabel(card.cardDetails.name());
 
+            cardButton.setLayout(new FlowLayout());
+            cardButton.add(cardLabel);
+            cardButton.add(resourcePanel);
 
             playerCardPanel.add(cardButton);
         }
@@ -258,16 +568,34 @@ public class EverdellGUIManager extends AbstractGUIManager {
         //Convert Meadow Cards into Buttons
         for(EverdellCard card : gameState.meadowDeck){
             JButton cardButton = new JButton();
-            cardButton.setBackground(params.cardColour.get(card.cardType));
-            JLabel cardLabel = new JLabel(card.cardType.name(), SwingConstants.CENTER);
+            cardButton.setBackground(params.cardColour.get(card.cardDetails.cardType));
             cardButton.setBorder(new LineBorder(Color.green, 2));
-            cardButton.add(cardLabel);
             cardButton.setPreferredSize(new Dimension(50, 100));
             cardButton.setHorizontalAlignment(SwingConstants.CENTER);
 
             cardButton.addActionListener(k -> {
-                buttonAction.accept(card);
+                if(cardButton.getBackground() == Color.GRAY){
+                    cardButton.setBackground(params.cardColour.get(card.cardDetails.cardType));
+                    gameState.cardSelection.remove(card);
+                }
+                else {
+                    cardButton.setBackground(Color.GRAY);
+                    buttonAction.accept(card);
+                }
             });
+
+            JPanel resourcePanel = new JPanel();
+            resourcePanel.setBackground(params.cardColour.get(card.cardDetails.cardType));
+            resourcePanel.setLayout(new GridLayout(3,1));
+            for(ResourceTypes resource : card.cardDetails.resourceCost.keySet()){
+                resourcePanel.add(new JLabel(resource.name() + " : " + card.cardDetails.resourceCost.get(resource)));
+            }
+            JLabel cardLabel = new JLabel(card.cardDetails.name());
+
+            cardButton.setLayout(new FlowLayout());
+            cardButton.add(cardLabel);
+            cardButton.add(resourcePanel);
+
             meadowPanel.add(cardButton);
         }
     }
@@ -298,7 +626,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JButton playCardButton = new JButton("Play Card");
         playCardButton.addActionListener(k -> {
             //Make player cards available for selection via buttons
-            turnPlayerCardsIntoButtons(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, card -> {
+            turnPlayerCardsIntoButtons(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, gameState.playerHands.get(gameState.playerTurn).getSize(), card -> {
                 //Define which card needs to be placed
                 gameState.currentCard = card;
 

@@ -12,13 +12,10 @@ import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
-import games.everdell.EverdellParameters.Locations;
+import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.components.EverdellLocation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>The forward model contains all the game rules and logic. It is mainly responsible for declaring rules for:</p>
@@ -50,6 +47,10 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         state.playerTurn = 0;
 
+        int sharedLocationSpace = 4;
+        int exclusiveLocationSpace = 1;
+        int forestLocationSpace = 2;
+
 
         state.PlayerResources = new HashMap<>();
         state.cardCount = new Counter[state.getNPlayers()];
@@ -60,42 +61,67 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.playerHands = new ArrayList<>();
         state.playerVillage = new ArrayList<>(state.getNPlayers());
 
-        state.resourceLocations = new HashMap<>();
+        state.Locations = new HashMap<>();
 
 
-        //Creating an EverdellLocation object for each location
-        for(var location : Locations.values()){
-            if(location == Locations.ONE_BERRY){
-                state.resourceLocations.put(location,new EverdellLocation(location,true));
+        //Creating an EverdellLocation object for each basic location
+        for(var location : BasicLocations.values()){
+            if(location == BasicLocations.ONE_BERRY){
+                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace));
             }
-            if(location == Locations.ONE_BERRY_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location,false));
+            if(location == BasicLocations.ONE_BERRY_ONE_CARD){
+                state.Locations.put(location,new EverdellLocation(location,exclusiveLocationSpace));
             }
-            if(location == Locations.ONE_PEBBLE){
-                state.resourceLocations.put(location,new EverdellLocation(location, false));
+            if(location == BasicLocations.ONE_PEBBLE){
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
             }
-            if(location == Locations.TWO_CARD_ONE_POINT){
-                state.resourceLocations.put(location,new EverdellLocation(location,true));
+            if(location == BasicLocations.TWO_CARD_ONE_POINT){
+                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace));
             }
-            if(location == Locations.TWO_RESIN){
-                state.resourceLocations.put(location,new EverdellLocation(location, false));
+            if(location == BasicLocations.TWO_RESIN){
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
             }
-            if(location == Locations.TWO_WOOD_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location,true));
+            if(location == BasicLocations.TWO_WOOD_ONE_CARD){
+                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace));
             }
-            if(location == Locations.THREE_WOOD){
-                state.resourceLocations.put(location,new EverdellLocation(location, false));
+            if(location == BasicLocations.THREE_WOOD){
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
             }
-            if(location == Locations.ONE_RESIN_ONE_CARD){
-                state.resourceLocations.put(location,new EverdellLocation(location, true));
+            if(location == BasicLocations.ONE_RESIN_ONE_CARD){
+                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace));
             }
         }
 
+        //Randomly Select forest locations
+        int numberOfLocations = 3;
+        if(state.getNPlayers() >= 3){
+            numberOfLocations = 4;
+        }
+        Set<EverdellParameters.ForestLocations> selectedLocations = new HashSet<>();
+        Random random = new Random();
+        //Ensure the Locations are unique
+        while (selectedLocations.size() < numberOfLocations) {
+            EverdellParameters.ForestLocations location = EverdellParameters.ForestLocations.values()[random.nextInt(EverdellParameters.ForestLocations.values().length)];
+            selectedLocations.add(location);
+        }
+        //Insert the selected locations into the game state
+        for (EverdellParameters.ForestLocations location : selectedLocations) {
+            state.Locations.put(location, new EverdellLocation(location, forestLocationSpace));
+        }
+
+        //Set up values for Forest Locations
+        EverdellParameters.ForestLocations.resourceChoices = new ArrayList<>();
+        EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
+
+        //Set up Basic Events
+        for (EverdellParameters.BasicEvent event : EverdellParameters.BasicEvent.values()) {
+            state.Locations.put(event, new EverdellLocation(event, exclusiveLocationSpace));
+        }
 
 
         //Set up the deck to be drawn from
         state.cardDeck = new Deck<>("Card Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
-        for(Map.Entry<EverdellCard.CardType, Integer> entry : parameters.everdellCardCount.entrySet()){
+        for(Map.Entry<EverdellCard.CardDetails, Integer> entry : parameters.everdellCardCount.entrySet()){
             for(int i = 0; i < entry.getValue(); i++){
                 EverdellCard card = new EverdellCard(entry.getKey());
                 state.cardDeck.add(card,0);

@@ -71,15 +71,21 @@ public class MoveSeason extends AbstractAction {
             }
 
                 //Bring back all workers
-                for (var location : state.resourceLocations.keySet()) {
+                for (var location : state.Locations.keySet()) {
                     System.out.println(location);
-                    System.out.println("We are at : " + location + " and the players on location are: " + state.resourceLocations.get(location).playersOnLocation);
+                    System.out.println("We are at : " + location + " and the players on location are: " + state.Locations.get(location).playersOnLocation);
+
 
                     //If no players are on the location, skip
-                    if (state.resourceLocations.get(location).playersOnLocation.isEmpty()) continue;
+                    if (state.Locations.get(location).playersOnLocation.isEmpty()) continue;
+
+                    if(location instanceof EverdellParameters.BasicEvent){
+                        state.workers[state.playerTurn].increment();
+                        continue;
+                    }
 
                     //If player is on the location, remove them and increment their workers
-                    state.resourceLocations.get(location).playersOnLocation.remove(state.playerTurn);
+                    state.Locations.get(location).playersOnLocation.remove(state.playerTurn);
                     state.workers[state.playerTurn].increment();
                 }
 
@@ -95,9 +101,9 @@ public class MoveSeason extends AbstractAction {
         for(int i = 0; i<state.getNPlayers(); i++){
             //Check if player has a production building
             for(var card : state.playerVillage.get(i).getComponents()){
-                if(card.cardType == EverdellCard.CardType.GREEN_PRODUCTION){
+                if(card.cardDetails.cardType == EverdellParameters.CardType.GREEN_PRODUCTION){
                     //Apply production effect
-                    card.cardType.applyCardEffect.apply(state);
+                    card.cardDetails.applyCardEffect.apply(state);
                 }
             }
         }
@@ -109,6 +115,7 @@ public class MoveSeason extends AbstractAction {
         //It is assumed that the player has space in their hand
         for(var c : state.cardSelection){
             state.playerHands.get(state.playerTurn).add(c);
+            state.cardCount[state.playerTurn].increment();
             state.meadowDeck.remove(c);
             state.meadowDeck.add(state.cardDeck.draw());
         }

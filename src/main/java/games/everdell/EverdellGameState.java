@@ -8,7 +8,9 @@ import core.components.Deck;
 import games.GameType;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
+import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.Locations;
+import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.components.EverdellLocation;
 
 import java.util.*;
@@ -35,7 +37,7 @@ public class EverdellGameState extends AbstractGameState {
 
     public ArrayList<EverdellCard> cardSelection;
 
-    public HashMap<Locations,EverdellLocation> resourceLocations;
+    public HashMap<Locations,EverdellLocation> Locations;
 
     public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
 
