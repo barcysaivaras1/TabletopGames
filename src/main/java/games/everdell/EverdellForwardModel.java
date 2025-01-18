@@ -10,6 +10,8 @@ import games.everdell.actions.EverdellAction;
 import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
+import games.everdell.components.ConstructionCard;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
@@ -110,7 +112,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
 
         //Set up values for Forest Locations
-        EverdellParameters.ForestLocations.resourceChoices = new ArrayList<>();
+        state.resourceChoices = new ArrayList<>();
         EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
 
         //Set up Basic Events
@@ -121,10 +123,16 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Set up the deck to be drawn from
         state.cardDeck = new Deck<>("Card Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
-        for(Map.Entry<EverdellCard.CardDetails, Integer> entry : parameters.everdellCardCount.entrySet()){
+        for(Map.Entry<EverdellParameters.CardDetails, Integer> entry : parameters.everdellCardCount.entrySet()){
             for(int i = 0; i < entry.getValue(); i++){
-                EverdellCard card = new EverdellCard(entry.getKey());
-                state.cardDeck.add(card,0);
+                EverdellCard card = entry.getKey().createEverdellCard.apply(state);
+                if(card instanceof ConstructionCard constructionCard){
+                    state.cardDeck.add(constructionCard,0);
+                }
+                else{
+                    CritterCard critterCard = new CritterCard(card);
+                    state.cardDeck.add(critterCard,0);
+                }
             }
         }
         System.out.println(state.cardDeck.getSize());
@@ -188,10 +196,20 @@ public class EverdellForwardModel extends StandardForwardModel {
     @Override
     protected List<AbstractAction> _computeAvailableActions(AbstractGameState gameState) {
         List<AbstractAction> actions = new ArrayList<>();
+        EverdellGameState egs = (EverdellGameState) gameState;
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
-        actions.add(new PlaceWorker());
-        actions.add(new PlayCard());
-        actions.add(new MoveSeason());
+        EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
+        System.out.println(egs.Locations.keySet());
+
+        for(EverdellLocation location : egs.Locations.values()){
+            if(location.isLocationFreeForPlayer(gameState)){
+                actions.add(new PlaceWorker(location.getLocation()));
+            }
+        }
+
+
+
         return actions;
     }
+
 }

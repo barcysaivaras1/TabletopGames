@@ -5,6 +5,7 @@ import games.catan.components.CatanCard;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.CardType;
+import games.everdell.EverdellParameters.CardDetails;
 import org.apache.spark.internal.config.R;
 
 import java.util.HashMap;
@@ -13,109 +14,70 @@ import java.util.function.Function;
 public class EverdellCard extends Card {
 
 
-    public CardDetails cardDetails;
+    private final String name;
+    private final CardDetails cardEnumValue;
+    private final CardType cardType;
+    private final boolean isConstruction;
+    private int points;
+    private final HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
+    private final Function<EverdellGameState, Boolean> applyCardEffect;
+
+    private boolean isCardPayedFor;
+    private boolean isUnique;
 
     public int roundCardWasBought = -1;  // -1 is not bought
     //public final String cardDescription;
 
-    public EverdellCard(CardDetails cardDetails) {
-        super(cardDetails.name());
-        this.cardDetails = cardDetails;
+    public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect) {
+        super(name);
+        this.name = name;
+        this.cardEnumValue = cardEnumValue;
+        this.cardType = cardType;
+        this.isConstruction = isConstruction;
+        this.points = points;
+        this.resourceCost = resourceCost;
+        this.applyCardEffect = applyCardEffect;
+        this.isUnique = isUnique;
+        isCardPayedFor = false;
     }
-    private EverdellCard(CardDetails cardDetails, int id) {
-        super(cardDetails.name(), id);
-        this.cardDetails = cardDetails;
+    private EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect , int id) {
+        super(name, id);
+        this.name = name;
+        this.cardEnumValue = cardEnumValue;
+        this.cardType = cardType;
+        this.isConstruction = isConstruction;
+        this.points = points;
+        this.resourceCost = resourceCost;
+        this.applyCardEffect = applyCardEffect;
+        this.isUnique = isUnique;
+        isCardPayedFor = false;
     }
 
     @Override
     public EverdellCard copy() {
-        EverdellCard card = new EverdellCard(cardDetails, componentID);
+        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect, componentID);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }
 
 
-    public enum CardDetails {
-        FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND;
+    // Getters for all fields
+    public String getName() { return name; }
+    public CardDetails getCardEnumValue() { return cardEnumValue; }
+    public CardType getCardType() { return cardType; }
+    public boolean isConstruction() { return isConstruction; }
+    public int getPoints() { return points; }
+    public HashMap<EverdellParameters.ResourceTypes, Integer> getResourceCost() { return resourceCost; }
+    public Function<EverdellGameState, Boolean> getApplyCardEffect() { return applyCardEffect; }
+    public boolean isCardPayedFor() { return isCardPayedFor; }
+    public void payForCard() { isCardPayedFor = true; }
+    public boolean isUnique() { return isUnique; }
 
-        public CardType cardType;
-        public Function<EverdellGameState, CardDetails> applyCardEffect;
-        public HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
-        public int points;
 
-        static{
-            //Get 1 Berry
-            FARM.resourceCost = new HashMap<>();
-            FARM.cardType = CardType.GREEN_PRODUCTION;
-            FARM.resourceCost.put(EverdellParameters.ResourceTypes.TWIG, 2);
-            FARM.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-            FARM.points = 1;
-            FARM.applyCardEffect = (state) -> {
-                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
-                return FARM;
-            };
-
-            //Get 1 Resin
-            RESIN_REFINERY.resourceCost = new HashMap<>();
-            RESIN_REFINERY.cardType = CardType.GREEN_PRODUCTION;
-            RESIN_REFINERY.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-            RESIN_REFINERY.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
-            RESIN_REFINERY.points = 1;
-            RESIN_REFINERY.applyCardEffect = (state) -> {
-                state.PlayerResources.get(EverdellParameters.ResourceTypes.RESIN)[state.playerTurn].increment();
-                return RESIN_REFINERY;
-            };
-
-            //Get 1 Berry, Get an extra berry if the player has a farm. Extra berry can only be triggered once per production event
-            GENERAL_STORE.resourceCost = new HashMap<>();
-            GENERAL_STORE.cardType = CardType.GREEN_PRODUCTION;
-            GENERAL_STORE.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-            GENERAL_STORE.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
-            GENERAL_STORE.points = 1;
-            GENERAL_STORE.applyCardEffect = (state) -> {
-                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
-
-                for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if(everdellCard.cardDetails == FARM){
-                        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
-                        break;
-                    }
-                }
-
-                return GENERAL_STORE;
-            };
-
-            WANDERER.resourceCost = new HashMap<>();
-            WANDERER.cardType = CardType.TAN_TRAVELER;
-            WANDERER.resourceCost.put(EverdellParameters.ResourceTypes.BERRY, 2);
-            WANDERER.points = 1;
-            WANDERER.applyCardEffect = (state) -> {
-                for(int i = 0 ; i<3; i++){
-                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
-                        break;
-                    }
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
-                }
-                return WANDERER;
-            };
-
-            //Can share a space with Husband card. Will be worth 3 points if paired with a husband instead of 2
-            WIFE.resourceCost = new HashMap<>();
-            WIFE.cardType = CardType.PURPLE_PROSPERITY;
-            WIFE.resourceCost.put(EverdellParameters.ResourceTypes.BERRY, 2);
-            WIFE.points = 2;
-            WIFE.applyCardEffect = (state) -> {
-                for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if(everdellCard.cardDetails == HUSBAND){
-                        WIFE.points = 3;
-                        break;
-                    }
-                }
-
-                return WIFE;
-            };
-        }
+    //Setter
+    public void setCardPoints(int points){
+        this.points = points;
     }
+
 }
 

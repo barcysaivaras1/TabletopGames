@@ -3,7 +3,7 @@ package games.everdell.components;
 import core.AbstractGameState;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
-import games.everdell.EverdellParameters.Locations;
+import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 
@@ -17,12 +17,12 @@ public class EverdellLocation {
     int numberOfSpaces;
     //boolean occupied;
 
-    private Locations location;
+    private AbstractLocations location;
 
 
     public List<Integer> playersOnLocation;
 
-    public EverdellLocation(Locations location, int numberOfSpaces){
+    public EverdellLocation(AbstractLocations location, int numberOfSpaces){
         this.location = location;
         //this.shared = shared;
         this.numberOfSpaces = numberOfSpaces;
@@ -45,7 +45,7 @@ public class EverdellLocation {
         return (numberOfSpaces > playersOnLocation.size() && !playersOnLocation.contains(state.playerTurn));
     }
 
-    public Locations getLocation(){
+    public AbstractLocations getLocation(){
         return location;
     }
 

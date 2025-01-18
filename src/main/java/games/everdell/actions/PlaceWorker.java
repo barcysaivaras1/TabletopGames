@@ -11,6 +11,7 @@ import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
 
+import javax.xml.stream.Location;
 import java.util.function.Function;
 
 /**
@@ -37,16 +38,23 @@ public class PlaceWorker extends AbstractAction {
      * @param gs - game state which should be modified by this action.
      * @return - true if successfully executed, false otherwise.
      */
+    private EverdellParameters.AbstractLocations locationToPlaceIn;
+
+    public PlaceWorker(EverdellParameters.AbstractLocations location){
+        locationToPlaceIn = location;
+    }
+
+
     @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
         //Check if this location is free
-        if(state.workers[0].getValue() > 0 && state.Locations.get(state.currentLocation).isLocationFreeForPlayer(gs)){
+        if(state.workers[0].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
 
             //Check if we meet the requirements for the basic event
-            if(state.currentLocation instanceof EverdellParameters.BasicEvent){
+            if(locationToPlaceIn instanceof EverdellParameters.BasicEvent){
                 if(!canWePlaceOnThisBasicEvent(state)){
                     return false;
                 }
@@ -54,7 +62,7 @@ public class PlaceWorker extends AbstractAction {
 
 
             state.workers[0].decrement();
-            EverdellLocation everdellLocation = state.Locations.get(state.currentLocation);
+            EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
             everdellLocation.getLocation().applyLocationEffect(state);
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).playerTurn);
             return true;
@@ -67,12 +75,12 @@ public class PlaceWorker extends AbstractAction {
     public Boolean canWePlaceOnThisBasicEvent(EverdellGameState state){
         int target;
         int counter;
-        switch ((BasicEvent) state.currentLocation){
+        switch ((BasicEvent) locationToPlaceIn){
             case GREEN_PRODUCTION_EVENT:
                 target = 4;
                 counter = 0;
                 for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if (card.cardDetails.cardType == EverdellParameters.CardType.GREEN_PRODUCTION){
+                    if (card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
                         counter++;
                     }
                 }
@@ -84,7 +92,7 @@ public class PlaceWorker extends AbstractAction {
                 target = 3;
                 counter = 0;
                 for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if (card.cardDetails.cardType == EverdellParameters.CardType.BLUE_GOVERNANCE){
+                    if (card.getCardType() == EverdellParameters.CardType.BLUE_GOVERNANCE){
                         counter++;
                     }
                 }
@@ -96,7 +104,7 @@ public class PlaceWorker extends AbstractAction {
                 target = 3;
                 counter = 0;
                 for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if (card.cardDetails.cardType == EverdellParameters.CardType.RED_DESTINATION){
+                    if (card.getCardType() == EverdellParameters.CardType.RED_DESTINATION){
                         counter++;
                     }
                 }
@@ -108,7 +116,7 @@ public class PlaceWorker extends AbstractAction {
                 target = 3;
                 counter = 0;
                 for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
-                    if (card.cardDetails.cardType == EverdellParameters.CardType.TAN_TRAVELER){
+                    if (card.getCardType() == EverdellParameters.CardType.TAN_TRAVELER){
                         counter++;
                     }
                 }

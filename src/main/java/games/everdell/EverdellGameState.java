@@ -9,12 +9,14 @@ import games.GameType;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicLocations;
-import games.everdell.EverdellParameters.Locations;
+import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.components.EverdellLocation;
 
 import java.util.*;
 import java.util.function.Function;
+
+import static java.util.Objects.*;
 
 /**
  * <p>The game state encapsulates all game information. It is a data-only class, with game functionality present
@@ -37,7 +39,7 @@ public class EverdellGameState extends AbstractGameState {
 
     public ArrayList<EverdellCard> cardSelection;
 
-    public HashMap<Locations,EverdellLocation> Locations;
+    public HashMap<AbstractLocations,EverdellLocation> Locations;
 
     public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
 
@@ -48,8 +50,9 @@ public class EverdellGameState extends AbstractGameState {
     //These values are used to indicate what the player has selected in their turn
     //I'm not sure what is better. To use it like this or try to send the actions values instead?
     //I think this keeps things more organised
-    public Locations currentLocation;
     public EverdellCard currentCard;
+
+    public ArrayList<EverdellParameters.ResourceTypes> resourceChoices;
 
     public int playerTurn;
 
@@ -141,12 +144,12 @@ public class EverdellGameState extends AbstractGameState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState state = (EverdellGameState) o;
-        return Objects.equals(cardDeck, state.cardDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && Objects.deepEquals(currentSeason, state.currentSeason) && Objects.equals(PlayerResources, state.PlayerResources) && Objects.deepEquals(cardCount, state.cardCount) && Objects.deepEquals(workers, state.workers) && Objects.deepEquals(pointTokens, state.pointTokens);
+        return Objects.equals(cardDeck, state.cardDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens));
+        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens));
     }
 
     // TODO: Consider the methods below for possible implementation
