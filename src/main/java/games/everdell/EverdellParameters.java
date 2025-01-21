@@ -4,11 +4,10 @@ import com.beust.ah.A;
 import core.AbstractGameState;
 import core.AbstractParameters;
 import core.actions.AbstractAction;
+import core.components.Counter;
 import evaluation.optimisation.TunableParameters;
 import games.catan.components.CatanCard;
-import games.everdell.components.ConstructionCard;
-import games.everdell.components.EverdellCard;
-import games.everdell.components.EverdellLocation;
+import games.everdell.components.*;
 import games.loveletter.LoveLetterGameState;
 import games.loveletter.actions.HandmaidAction;
 import games.loveletter.actions.PlayCard;
@@ -172,39 +171,21 @@ public class EverdellParameters extends AbstractParameters {
             };
 
             TWO_ANY.applyLocationEffect = (state) ->{
-
-                for(var resources :  state.resourceChoices){
-                    if(resources == ResourceTypes.RESIN){
-                        state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.PEBBLE) {
-                        state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.BERRY) {
-                        state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.TWIG) {
-                        state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(1);
-                    }
-                    else{
-                        System.out.println("Error in Forest Locations, Choices did not match any resource type");
-                    }
+                for(var resources :  state.resourceSelection.keySet()){
+                    state.PlayerResources.get(resources)[state.playerTurn].increment(state.resourceSelection.get(resources).getValue());
                 }
+
+
                 return TWO_ANY;
             };
             TWO_CARDS_ONE_ANY.applyLocationEffect = (state) ->{
 
-                for(var resources :  state.resourceChoices){
-                    if(resources == ResourceTypes.RESIN){
-                        state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.PEBBLE) {
-                        state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.BERRY) {
-                        state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.TWIG) {
-                        state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(1);
-                    }
-                    else{
-                        System.out.println("Error in Forest Locations, Choices did not match any resource type");
-                    }
+                //Add the selected resources
+                for(var resources :  state.resourceSelection.keySet()){
+                    state.PlayerResources.get(resources)[state.playerTurn].increment(state.resourceSelection.get(resources).getValue());
                 }
+
+                // Draw two cards
                 for(int i = 0 ; i<2; i++){
                     if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
                         break;
@@ -252,23 +233,14 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Gain resources
                 int resourceCounter = 0;
-                for(var resources :  state.resourceChoices){
-                    if(cardChoices.size() == resourceCounter){
-                        break;
-                    }
-                    resourceCounter++;
+                for(var resource :  state.resourceSelection.keySet()){
+                    for(int i = 0 ; i<state.resourceSelection.get(resource).getValue(); i++){
+                        if(resourceCounter == cardChoices.size()){
+                            break;
+                        }
+                        resourceCounter++;
 
-                    if(resources == ResourceTypes.RESIN){
-                        state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.PEBBLE) {
-                        state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.BERRY) {
-                        state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
-                    } else if (resources == ResourceTypes.TWIG) {
-                        state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(1);
-                    }
-                    else{
-                        System.out.println("Error in Forest Locations, Choices did not match any resource type");
+                        state.PlayerResources.get(resource)[state.playerTurn].increment(1);
                     }
                 }
                 return DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED;
@@ -390,30 +362,34 @@ public class EverdellParameters extends AbstractParameters {
     }
 
     public enum CardDetails {
-        FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND, FAIRGROUNDS, MINE, TWIG_BARGE, SHOP_KEEPER, BARGE_TOAD;
+        FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND, FAIRGROUNDS, MINE, TWIG_BARGE, SHOP_KEEPER, BARGE_TOAD,
+        CASTLE, KING, PALACE, BARD, THEATRE, SCHOOL, RUINS, WOOD_CARVER, DOCTOR, ARCHITECT, PEDDLER, CHIP_SWEEP;
 
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
         static{
-            FARM.createEverdellCard = (gamestate) -> new ConstructionCard(new EverdellCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false,1, new HashMap<>()
+            FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false,1,
+            new HashMap<>()
             {{
                 put(ResourceTypes.TWIG, 2);
                 put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
                 return true;
-            }), new ArrayList<>(List.of(WIFE)));
+            }
+            , (state -> true), new ArrayList<>(List.of(WIFE)));
 
 
-            RESIN_REFINERY.createEverdellCard = (gameState) -> new ConstructionCard(new EverdellCard("Resin Refinery", RESIN_REFINERY, CardType.GREEN_PRODUCTION, true, false,1, new HashMap<>()
+            RESIN_REFINERY.createEverdellCard = (gameState) -> new ConstructionCard("Resin Refinery", RESIN_REFINERY, CardType.GREEN_PRODUCTION, true, false,1, new HashMap<>()
             {{
                 put(ResourceTypes.RESIN, 1);
                 put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment();
                 return true;
-            }), new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
-            GENERAL_STORE.createEverdellCard = (gameState) -> new ConstructionCard(new EverdellCard("General Store", GENERAL_STORE, CardType.GREEN_PRODUCTION, true, false,1, new HashMap<>()
+            }, (state -> true), new ArrayList<>(List.of(CHIP_SWEEP)));
+
+            GENERAL_STORE.createEverdellCard = (gameState) -> new ConstructionCard("General Store", GENERAL_STORE, CardType.GREEN_PRODUCTION, true, false,1, new HashMap<>()
                 {{
                     put(ResourceTypes.RESIN, 1);
                     put(ResourceTypes.PEBBLE, 1);
@@ -428,7 +404,7 @@ public class EverdellParameters extends AbstractParameters {
                     }
 
                     return true;
-            }), new ArrayList<>(List.of(SHOP_KEEPER)));
+            }, state -> true, new ArrayList<>(List.of(SHOP_KEEPER)));
 
             //Wanderer also has a special feature that it does not take up a village slot NEEDS TO BE IMPLEMENTED
             WANDERER.createEverdellCard = (gameState) -> new EverdellCard("Wanderer", WANDERER, CardType.TAN_TRAVELER, false, false,1, new HashMap<>()
@@ -443,19 +419,25 @@ public class EverdellParameters extends AbstractParameters {
                         state.cardCount[state.playerTurn].increment();
                     }
                     return true;
-            });
+            }, state -> true);
             WIFE.createEverdellCard = (gameState) -> new EverdellCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, true, false,1, new HashMap<>()
                 {{
                     put(ResourceTypes.BERRY, 2);
                 }}, (state) -> {
                     for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
                         if(everdellCard.getCardEnumValue() == HUSBAND){
-                            everdellCard.setCardPoints(3);
-                            break;
+
                         }
                     }
 
                     return true;
+            },state -> {
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == HUSBAND){
+                        return true;
+                    }
+                }
+                return false;
             });
 
             HUSBAND.createEverdellCard = (gameState) -> new EverdellCard("Husband", HUSBAND, CardType.GREEN_PRODUCTION, false, false,2, new HashMap<>()
@@ -474,15 +456,37 @@ public class EverdellParameters extends AbstractParameters {
                         }
                     }
                     if(isThereFarm && isThereWife){
-                        for(int i=0; i<2;i++){
-                            state.PlayerResources.get(state.resourceChoices.get(i))[state.playerTurn].increment();
+                        int counter = 0;
+                        for(var resource : state.resourceSelection.keySet()){
+                            for(int i = 0 ; i<state.resourceSelection.get(resource).getValue(); i++){
+                                if(counter == 2){
+                                    break;
+                                }
+                                counter++;
+                                state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(1);
+                            }
                         }
                     }
 
                     return true;
+            }, state -> {
+                boolean isThereWife = false;
+                boolean isThereFarm = false;
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == WIFE){
+                        isThereWife = true;
+                    }
+                    if(card.getCardEnumValue() == FARM){
+                        isThereFarm = true;
+                    }
+                }
+                if(isThereFarm && isThereWife){
+                    return true;
+                }
+                return false;
             });
 
-            FAIRGROUNDS.createEverdellCard = (gameState) -> new ConstructionCard(new EverdellCard("Fairgrounds", FAIRGROUNDS, CardType.GREEN_PRODUCTION, true, true, 3, new HashMap<>()
+            FAIRGROUNDS.createEverdellCard = (gameState) -> new ConstructionCard("Fairgrounds", FAIRGROUNDS, CardType.GREEN_PRODUCTION, true, true, 3, new HashMap<>()
                 {{
                     put(ResourceTypes.TWIG, 1);
                     put(ResourceTypes.RESIN, 2);
@@ -496,9 +500,9 @@ public class EverdellParameters extends AbstractParameters {
                     state.cardCount[state.playerTurn].increment();
                 }
                 return true;
-            }), new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
+            }, state -> true, new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
 
-            MINE.createEverdellCard = (gameState) -> new ConstructionCard(new EverdellCard("Mine", MINE, CardType.GREEN_PRODUCTION, true, false, 2, new HashMap<>()
+            MINE.createEverdellCard = (gameState) -> new ConstructionCard("Mine", MINE, CardType.GREEN_PRODUCTION, true, false, 2, new HashMap<>()
                 {{
                     put(ResourceTypes.PEBBLE, 1);
                     put(ResourceTypes.TWIG, 1);
@@ -506,16 +510,16 @@ public class EverdellParameters extends AbstractParameters {
                 }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
                 return true;
-            }), new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
+            }, state -> true, new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
 
-            TWIG_BARGE.createEverdellCard = (gameState) -> new ConstructionCard(new EverdellCard("Twig Barge", TWIG_BARGE, CardType.GREEN_PRODUCTION, true, false, 1, new HashMap<>()
+            TWIG_BARGE.createEverdellCard = (gameState) -> new ConstructionCard("Twig Barge", TWIG_BARGE, CardType.GREEN_PRODUCTION, true, false, 1, new HashMap<>()
                 {{
                     put(ResourceTypes.TWIG, 1);
                     put(ResourceTypes.PEBBLE, 1);
                 }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
                 return true;
-            }), new ArrayList<>(List.of(BARGE_TOAD)));
+            }, state -> true, new ArrayList<>(List.of(BARGE_TOAD)));
 
             BARGE_TOAD.createEverdellCard = (gameState) -> new EverdellCard("Barge Toad", BARGE_TOAD, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>()
                 {{
@@ -527,7 +531,7 @@ public class EverdellParameters extends AbstractParameters {
                     }
                 }
                 return true;
-            });
+            }, state -> true);
 
 
             SHOP_KEEPER.createEverdellCard = (gameState) -> new EverdellCard("Shop Keeper", SHOP_KEEPER, CardType.BLUE_GOVERNANCE, false, true, 1, new HashMap<>()
@@ -542,10 +546,301 @@ public class EverdellParameters extends AbstractParameters {
                     state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
                 }
                 return true;
-            });
-        }
+            }, state -> true);
 
+            CASTLE.createEverdellCard = (gameState) -> new ConstructionCard("Castle", CASTLE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>()
+                {{
+                    put(ResourceTypes.TWIG, 2);
+                    put(ResourceTypes.RESIN, 3);
+                    put(ResourceTypes.PEBBLE, 2);
+                }}, (state) -> {
+
+                int counter = 0;
+                //Find all non-unique constructions
+                //Add a point for each non-unique construction
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.isConstruction() && !(card.isUnique())){
+                        counter++;
+                    }
+                }
+                //Add the points to the castle card
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == CASTLE){
+                        card.setCardPoints(counter + 4);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true, new ArrayList<>(List.of(KING)));
+
+            //NOT FULLY IMPLEMENTED BECAUSE IT REQUIRES SPECIAL EVENTS ASWELLL
+            KING.createEverdellCard = (gameState) -> new EverdellCard("King", KING, CardType.PURPLE_PROSPERITY, false, true, 4, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 6);
+                }}, (state) -> {
+                int counter = 0;
+
+                for(var loc : state.Locations.values()){
+                    if(loc.getLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.playerTurn)){
+                        counter++;
+                    }
+                }
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == KING){
+                        card.setCardPoints(counter + 4);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true);
+
+
+            PALACE.createEverdellCard = (gameState) -> new ConstructionCard("Palace", PALACE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>()
+                {{
+                    put(ResourceTypes.TWIG, 2);
+                    put(ResourceTypes.RESIN, 3);
+                    put(ResourceTypes.PEBBLE, 3);
+                }}, (state) -> {
+                int counter = 0;
+                //Find all unique constructions
+                //Add a point for each unique construction
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.isConstruction() && card.isUnique()){
+                        counter++;
+                    }
+                }
+                //Add the points to the castle card
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == PALACE){
+                        card.setCardPoints(counter + 4);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true, new ArrayList<>(List.of(WIFE)));//INCORRECT
+
+
+            THEATRE.createEverdellCard = (gameState) -> new ConstructionCard("Theatre", THEATRE, CardType.PURPLE_PROSPERITY, true, true, 3, new HashMap<>()
+                {{
+                    put(ResourceTypes.TWIG, 3);
+                    put(ResourceTypes.RESIN, 1);
+                    put(ResourceTypes.PEBBLE, 1);
+                }}, (state) -> {
+                int counter = 0;
+                //Find all unique critters
+                //Add a point for each unique critter
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(!card.isConstruction() && card.isUnique()){
+                        counter++;
+                    }
+                }
+                //Add the points to the Theatre card
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == THEATRE){
+                        card.setCardPoints(counter + 3);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true, new ArrayList<>(List.of(BARD)));
+
+            SCHOOL.createEverdellCard = (gameState) -> new ConstructionCard("School", SCHOOL, CardType.PURPLE_PROSPERITY, true, true, 2, new HashMap<>()
+                {{
+                    put(ResourceTypes.TWIG, 2);
+                    put(ResourceTypes.RESIN, 2);
+                }}, (state) -> {
+                int counter = 0;
+                //Find all common critters
+                //Add a point for common critters
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(!card.isConstruction() && !card.isUnique()){
+                        counter++;
+                    }
+                }
+                //Add the points to the School card
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == SCHOOL){
+                        card.setCardPoints(counter + 2);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true, new ArrayList<>(List.of(BARD)));
+
+            BARD.createEverdellCard = (gameState) -> new EverdellCard("Bard", BARD, CardType.TAN_TRAVELER, false, true, 0, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 3);
+                }}, (state) -> {
+                int counter = 0;
+
+                //Discard up to 5 cards, Give 1 point for each card discarded
+                for(var card : state.cardSelection){
+                    try{
+                        state.playerHands.get(state.playerTurn).remove((EverdellCard) card);
+                        state.cardCount[state.playerTurn].decrement();
+                        counter++;
+                    } catch (Exception e){
+                        System.out.println("Error in Bard, Choices did not contain cards");
+                    }
+                }
+                state.pointTokens[state.playerTurn].increment(counter);
+                return true;
+            }, state -> true);
+
+
+            //There can definitely be a problem where if this card is placed when their village is at max capacity.
+            //This is because the Ruin card will not be placed in the village, but the player will still be able to select a card to remove
+            //Ruins can also currently select itself which probably should not be allowed
+            //Look into this when you have revised the card system.
+            RUINS.createEverdellCard = (gameState) -> new ConstructionCard("Ruins", RUINS, CardType.TAN_TRAVELER, true, false, 0, new HashMap<>()
+                {{
+                }}, (state) -> {
+
+
+                if(!state.cardSelection.isEmpty()){
+                    if(state.cardSelection.get(0) == state.currentCard || !state.cardSelection.get(0).isConstruction()){
+                        return false;
+                    }
+                    //Remove the selected card from the village
+                    System.out.println("Removing card from village");
+                    System.out.println(state.cardSelection.get(0));
+
+                    for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+                        if(card == state.cardSelection.get(0)){
+                            state.playerVillage.get(state.playerTurn).remove(card);
+                            break;
+                        }
+                    }
+
+                    state.cardCount[state.playerTurn].decrement();
+
+                    //Refund the Resources
+                    for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(state.cardSelection.get(0).getResourceCost().get(resource));
+                    }
+
+                    //Draw 2 Cards
+                    for(int i = 0 ; i<2; i++){
+                        if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                            break;
+                        }
+                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
+                        state.cardCount[state.playerTurn].increment();
+                    }
+
+                }
+
+                return true;
+            }, state -> true, new ArrayList<>(List.of(BARD)));//THIS IS INCORRECT, BUT FOR TESTING PURPOSES. IT TAKES IN THE PEDDLER
+
+
+            WOOD_CARVER.createEverdellCard = (gameState) -> new EverdellCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 2);
+                }}, (state) -> {
+                if(!state.resourceSelection.isEmpty()){
+                    //Increment Points based on how much wood was given
+                    //It can take a max of 3 wood
+                    int amount = Math.min(state.resourceSelection.get(ResourceTypes.TWIG).getValue(), 3);
+                    amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
+                    state.pointTokens[state.playerTurn].increment(amount);
+                    state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].decrement(amount);
+
+                    //Reset it to 0
+                    state.resourceSelection = new HashMap<ResourceTypes, Counter>();
+                    state.resourceSelection.put(ResourceTypes.BERRY, new Counter());
+                    state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
+                    state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
+                    state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
+                }
+
+                return true;
+            }, state -> true);
+
+            DOCTOR.createEverdellCard = (gameState) -> new EverdellCard("Doctor", DOCTOR, CardType.GREEN_PRODUCTION, false, true, 4, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 4);
+                }}, (state) -> {
+                if(!state.resourceSelection.isEmpty()){
+                    //Increment Points based on how many berries were given
+                    //It can take a max of 3 berries
+                    int amount = Math.min(state.resourceSelection.get(ResourceTypes.BERRY).getValue(), 3);
+                    amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue());
+                    state.pointTokens[state.playerTurn].increment(amount);
+                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].decrement(amount);
+
+                    //Reset it to 0
+                    state.resourceSelection = new HashMap<ResourceTypes, Counter>();
+                    state.resourceSelection.put(ResourceTypes.BERRY, new Counter());
+                    state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
+                    state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
+                    state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
+                }
+
+                return true;
+            }, state -> true);
+
+            ARCHITECT.createEverdellCard = (gameState) -> new EverdellCard("Architect", ARCHITECT, CardType.PURPLE_PROSPERITY, false, true, 2, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 4);
+                }}, (state) -> {
+                //Architect gives points based on how many pebbles and Resin they have up to a maximum of 6 points
+
+                int amount = 0;
+
+                amount += state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].getValue();
+                amount += state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].getValue();
+
+                amount = Math.min(amount, 6);
+
+                //Add the points to the Architect card
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    if(card.getCardEnumValue() == ARCHITECT){
+                        card.setCardPoints(amount + 2);
+                        break;
+                    }
+                }
+
+                return true;
+            }, state -> true);
+
+            PEDDLER.createEverdellCard = (gameState) -> new PeddlerCard("Peddler", PEDDLER, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 2);
+                }}, new HashMap<>(), new HashMap<>(),
+                    (state) -> {
+                //Peddler, you can pay up to 2 of any resource and you can get 1 any for each resource paid
+                //Its effect exists within PeddlerCard
+                return false;
+            }, state -> true);
+
+            CHIP_SWEEP.createEverdellCard = (gameState) -> new EverdellCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>()
+                {{
+                    put(ResourceTypes.BERRY, 3);
+                }}, (state) -> {
+                //Chip Sweep takes in a production card and copies its effect.
+                //The player can select which production card to copy
+                for(var card : state.cardSelection){
+                    if(card.getCardType() == CardType.GREEN_PRODUCTION){
+                        card.applyCardEffect(state);
+                        return true;
+                    }
+                }
+
+
+                return false;
+            }, state -> true);
+
+        }
     }
+
+
+
 //    (new EverdellCard("Farm", CardType.GREEN_PRODUCTION, true, 1, new HashMap<>() {{
 //        put(ResourceTypes.TWIG, 2);
 //        put(ResourceTypes.RESIN, 1);
@@ -661,15 +956,26 @@ public class EverdellParameters extends AbstractParameters {
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
         put(CardDetails.FARM, 10);
         put(CardDetails.RESIN_REFINERY, 1);
-        put(CardDetails.GENERAL_STORE, 10);
+        put(CardDetails.GENERAL_STORE, 1);
         put(CardDetails.WANDERER, 1);
         put(CardDetails.WIFE, 1);
         put(CardDetails.HUSBAND, 1);
-        put(CardDetails.FAIRGROUNDS, 10);
-        put(CardDetails.MINE, 10);
-        put(CardDetails.TWIG_BARGE, 10);
-        put(CardDetails.SHOP_KEEPER, 10);
-        put(CardDetails.BARGE_TOAD, 10);
+        put(CardDetails.FAIRGROUNDS, 1);
+        put(CardDetails.MINE, 1);
+        put(CardDetails.TWIG_BARGE, 1);
+        put(CardDetails.SHOP_KEEPER, 1);
+        put(CardDetails.BARGE_TOAD, 1);
+        put(CardDetails.CASTLE, 1);
+        put(CardDetails.KING, 1);
+        put(CardDetails.PALACE, 1);
+        put(CardDetails.THEATRE, 1);
+        put(CardDetails.SCHOOL, 1);
+        put(CardDetails.BARD, 1);
+        put(CardDetails.RUINS, 1);
+        put(CardDetails.WOOD_CARVER, 3);
+        put(CardDetails.DOCTOR, 3);
+        put(CardDetails.PEDDLER, 4);
+        //put(CardDetails.CHIP_SWEEP, 10);
     }};
 
     @Override

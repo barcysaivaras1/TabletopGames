@@ -103,7 +103,7 @@ public class MoveSeason extends AbstractAction {
             for(var card : state.playerVillage.get(i).getComponents()){
                 if(card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
                     //Apply production effect
-                    card.getApplyCardEffect().apply(state);
+                    card.applyCardEffect(state);
                 }
             }
         }

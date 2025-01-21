@@ -58,6 +58,12 @@ public class PlaceWorker extends AbstractAction {
                 if(!canWePlaceOnThisBasicEvent(state)){
                     return false;
                 }
+                for(var card : state.playerVillage.get(state.playerTurn)){
+                    //If there is a King Card Present we must apply the effect after a basic Event claim
+                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
+                        card.applyCardEffect(state);
+                    }
+                }
             }
 
 
@@ -67,7 +73,6 @@ public class PlaceWorker extends AbstractAction {
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).playerTurn);
             return true;
         }
-        System.out.println("No workers available");
 
         return false;
     }
@@ -85,6 +90,7 @@ public class PlaceWorker extends AbstractAction {
                     }
                 }
                 if(target <= counter){
+
                     return true;
                 }
                 return false;

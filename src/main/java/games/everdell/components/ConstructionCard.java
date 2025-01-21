@@ -5,12 +5,14 @@ import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.CardDetails;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Function;
 
 public class ConstructionCard extends EverdellCard{
     private Boolean isOccupied;
     ArrayList<CardDetails> cardsThatCanOccupy;
-    public ConstructionCard(EverdellCard everdellCard, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(everdellCard.getName(), everdellCard.getCardEnumValue(), everdellCard.getCardType(), everdellCard.isConstruction(), everdellCard.isUnique(), everdellCard.getPoints(), everdellCard.getResourceCost(), everdellCard.getApplyCardEffect());
+    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Function<EverdellGameState, Boolean> checkIfEffectApplies, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, checkIfEffectApplies);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
     }

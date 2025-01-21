@@ -8,10 +8,12 @@ import core.components.Deck;
 import games.GameType;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
+import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.components.EverdellLocation;
+import org.apache.spark.internal.config.R;
 
 import java.util.*;
 import java.util.function.Function;
@@ -37,11 +39,9 @@ public class EverdellGameState extends AbstractGameState {
     public List<Deck<EverdellCard>> playerVillage;
     public EverdellParameters.Seasons[] currentSeason;
 
-    public ArrayList<EverdellCard> cardSelection;
-
     public HashMap<AbstractLocations,EverdellLocation> Locations;
 
-    public HashMap<EverdellParameters.ResourceTypes,Counter[]> PlayerResources;
+    public HashMap<ResourceTypes,Counter[]> PlayerResources;
 
     public Counter[] cardCount;
     public Counter[] workers;
@@ -52,7 +52,8 @@ public class EverdellGameState extends AbstractGameState {
     //I think this keeps things more organised
     public EverdellCard currentCard;
 
-    public ArrayList<EverdellParameters.ResourceTypes> resourceChoices;
+    public HashMap<ResourceTypes, Counter> resourceSelection;
+    public ArrayList<EverdellCard> cardSelection;
 
     public int playerTurn;
 

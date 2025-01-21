@@ -64,6 +64,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.playerVillage = new ArrayList<>(state.getNPlayers());
 
         state.Locations = new HashMap<>();
+        state.cardSelection = new ArrayList<>();
 
 
         //Creating an EverdellLocation object for each basic location
@@ -112,7 +113,12 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
 
         //Set up values for Forest Locations
-        state.resourceChoices = new ArrayList<>();
+        state.resourceSelection = new HashMap<ResourceTypes, Counter>();
+        state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
+        state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
+        state.resourceSelection.put(ResourceTypes.BERRY, new Counter());
+        state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
+
         EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
 
         //Set up Basic Events
@@ -130,8 +136,7 @@ public class EverdellForwardModel extends StandardForwardModel {
                     state.cardDeck.add(constructionCard,0);
                 }
                 else{
-                    CritterCard critterCard = new CritterCard(card);
-                    state.cardDeck.add(critterCard,0);
+                    state.cardDeck.add(card,0);
                 }
             }
         }

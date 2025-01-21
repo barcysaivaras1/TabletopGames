@@ -33,23 +33,36 @@ public class PlayCard extends AbstractAction {
      * @param gs - game state which should be modified by this action.
      * @return - true if successfully executed, false otherwise.
      */
+
+    private EverdellCard currentCard;
+
+    public PlayCard(EverdellCard card){
+        currentCard = card;
+    }
+
+
     @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
+        state.currentCard = this.currentCard;
+
         //Only working for the first player, 0 values need to be updated to be playerTurn
         if(state.cardCount[state.playerTurn].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
+            state.cardSelection.clear();
+
+
             //Check if the card is Unique and if the player has this card in their village
             //Cannot have duplicate unique cards
             if(!checkIfPlayerCanPlaceThisUniqueCard(state)){
-                System.out.println("You already have this card in your village");
+                System.out.println("You already have this Unique card in your village");
                 return false;
             }
 
 
             //Check if the player can buy the card
-            if(!checkIfPlayerCanBuyCard(state)){
+            if(!checkIfPlayerCanBuyCard(state) && !state.currentCard.isCardPayedFor()){
                 System.out.println("You don't have enough resources to buy this card");
                 return false;
             }
@@ -79,7 +92,7 @@ public class PlayCard extends AbstractAction {
 
 
             //Apply Card Effect
-            state.currentCard.getApplyCardEffect().apply(state);
+            state.currentCard.applyCardEffect(state);
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
             System.out.println("You have placed a card");
             return true;
@@ -90,10 +103,33 @@ public class PlayCard extends AbstractAction {
 
     private Boolean checkForCardsThatNeedToActivateAfterPlayingACard(EverdellGameState state){
         //Check if the card we played has any cards that need to be activated after playing a card
+        //This is for cards that do NOT need GUI elements to be function
+        //There is a separate function for cards that need GUI elements to function in the GUIManager
+
         for(EverdellCard card : state.playerVillage.get(state.playerTurn).getComponents()){
             if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER){
                 //Trigger Shop keeper effect
-                card.getApplyCardEffect().apply(state);
+                card.applyCardEffect(state);
+                return true;
+            }
+            if(card.getCardEnumValue() == CardDetails.CASTLE){
+                //Trigger Castle effect
+                card.applyCardEffect(state);
+                return true;
+            }
+            if(card.getCardEnumValue() == CardDetails.PALACE){
+                //Trigger Palace effect
+                card.applyCardEffect(state);
+                return true;
+            }
+            if(card.getCardEnumValue() == CardDetails.THEATRE){
+                //Trigger Theatre effect
+                card.applyCardEffect(state);
+                return true;
+            }
+            if(card.getCardEnumValue() == CardDetails.SCHOOL){
+                //Trigger School effect
+                card.applyCardEffect(state);
                 return true;
             }
         }
