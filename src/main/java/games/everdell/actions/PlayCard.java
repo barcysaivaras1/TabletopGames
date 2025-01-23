@@ -4,6 +4,8 @@ import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
 import games.everdell.EverdellGameState;
+import games.everdell.components.ConstructionCard;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.CardDetails;
 
@@ -50,7 +52,6 @@ public class PlayCard extends AbstractAction {
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
         if(state.cardCount[state.playerTurn].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
-            state.cardSelection.clear();
 
 
             //Check if the card is Unique and if the player has this card in their village
@@ -62,7 +63,7 @@ public class PlayCard extends AbstractAction {
 
 
             //Check if the player can buy the card
-            if(!checkIfPlayerCanBuyCard(state) && !state.currentCard.isCardPayedFor()){
+            if(!checkIfPlayerCanBuyCard(state)){
                 System.out.println("You don't have enough resources to buy this card");
                 return false;
             }
@@ -74,31 +75,50 @@ public class PlayCard extends AbstractAction {
             }
 
             //Add Card to village
-            state.playerVillage.get(state.playerTurn).add(state.currentCard);
+            state.playerVillage.get(state.playerTurn).add(currentCard);
 
-            //Remove card from hand
-            //If we fail to remove that card object from the hand, it means that the card was in the meadow
-            //We remove the card from the meadow and add a new card to the meadow
-            if(!state.playerHands.get(state.playerTurn).remove(state.currentCard)){
-                state.meadowDeck.remove(state.currentCard);
-                state.meadowDeck.add(state.cardDeck.draw());
-            }
-            //We played the card from our hand
-            else{
-                //Decrement Card counter
-                state.cardCount[state.playerTurn].decrement();
-            }
+            //Remove Card
+            removeCard(state);
 
 
 
             //Apply Card Effect
-            state.currentCard.applyCardEffect(state);
+            triggerCardEffect(state, currentCard);
+
+
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
             System.out.println("You have placed a card");
+
+            state.cardSelection.clear();
             return true;
         }
         System.out.println("You have no cards left");
         return false;
+    }
+
+    private void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
+        if(currentCard instanceof ConstructionCard cc){
+            cc.applyCardEffect(state);
+        }
+        else{
+            CritterCard cc = (CritterCard) currentCard;
+            cc.applyCardEffect(state);
+        }
+    }
+
+    private void removeCard(EverdellGameState state){
+        //Remove card from hand
+        //If we fail to remove that card object from the hand, it means that the card was in the meadow
+        //We remove the card from the meadow and add a new card to the meadow
+        if(!state.playerHands.get(state.playerTurn).remove(currentCard)){
+            state.meadowDeck.remove(currentCard);
+            state.meadowDeck.add(state.cardDeck.draw());
+        }
+        //We played the card from our hand
+        else{
+            //Decrement Card counter
+            state.cardCount[state.playerTurn].decrement();
+        }
     }
 
     private Boolean checkForCardsThatNeedToActivateAfterPlayingACard(EverdellGameState state){
@@ -109,27 +129,27 @@ public class PlayCard extends AbstractAction {
         for(EverdellCard card : state.playerVillage.get(state.playerTurn).getComponents()){
             if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER){
                 //Trigger Shop keeper effect
-                card.applyCardEffect(state);
+                triggerCardEffect(state, card);
                 return true;
             }
             if(card.getCardEnumValue() == CardDetails.CASTLE){
                 //Trigger Castle effect
-                card.applyCardEffect(state);
+                triggerCardEffect(state, card);
                 return true;
             }
             if(card.getCardEnumValue() == CardDetails.PALACE){
                 //Trigger Palace effect
-                card.applyCardEffect(state);
+                triggerCardEffect(state, card);
                 return true;
             }
             if(card.getCardEnumValue() == CardDetails.THEATRE){
                 //Trigger Theatre effect
-                card.applyCardEffect(state);
+                triggerCardEffect(state, card);
                 return true;
             }
             if(card.getCardEnumValue() == CardDetails.SCHOOL){
                 //Trigger School effect
-                card.applyCardEffect(state);
+                triggerCardEffect(state, card);
                 return true;
             }
         }
@@ -148,10 +168,15 @@ public class PlayCard extends AbstractAction {
         return true;
     }
 
-    private Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
+    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
         //Check if the player has enough resources to buy the card
-        for(var resource : state.currentCard.getResourceCost().keySet()){
-            if(state.PlayerResources.get(resource)[state.playerTurn].getValue() < state.currentCard.getResourceCost().get(resource)){
+
+        //The card can be paid with occupation.
+        if(currentCard.isCardPayedFor()){
+            return true;
+        }
+        for(var resource : currentCard.getResourceCost().keySet()){
+            if(state.PlayerResources.get(resource)[state.playerTurn].getValue() < currentCard.getResourceCost().get(resource)){
                 return false;
             }
         }

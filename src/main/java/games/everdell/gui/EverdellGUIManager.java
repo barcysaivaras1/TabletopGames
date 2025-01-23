@@ -55,14 +55,20 @@ import java.util.stream.Collectors;
  */
 public class EverdellGUIManager extends AbstractGUIManager {
 
+
+    private TopPanel meadowCardsPanel;
+    private MiddlePanel villagePanel;
+    private BottomPanel playerCardPanel;
+    private SidePanel playerInfoPanel;
+
+
     public EverdellGUIManager(GamePanel parent, Game game, ActionController ac, Set<Integer> human) {
         super(parent, game, ac, human);
         if (game == null) {
             return;
         }
 
-        EverdellGameState gameState = (EverdellGameState) game.getGameState();
-        EverdellParameters param = (EverdellParameters) gameState.getGameParameters();
+        EverdellGameState state = (EverdellGameState) game.getGameState();
 
         // TODO: set up GUI components and add to `parent`
 
@@ -72,40 +78,34 @@ public class EverdellGUIManager extends AbstractGUIManager {
         mainPanel.setBackground(Color.LIGHT_GRAY);
 
         //Meadow Cards Panel
-        JPanel meadowCardsPanel = new JPanel();
-        createMeadowCardsPanel(gameState, meadowCardsPanel);
+        meadowCardsPanel = new TopPanel(this,state);
+        meadowCardsPanel.drawMeadowPanel();
         mainPanel.add(meadowCardsPanel);
 
         //Player Village Cards Panel
-        JPanel villageCardPanel = new JPanel();
-        createVillageCardPanel(gameState, villageCardPanel,0);
-        mainPanel.add(villageCardPanel);
+        villagePanel = new MiddlePanel(this,state);
+        villagePanel.drawVillagePanel();
+        mainPanel.add(villagePanel);
 
         //Player Cards Panel
-        JPanel playerCardPanel = new JPanel();
-        createPlayerCardPanel(gameState,playerCardPanel);
+        playerCardPanel = new BottomPanel(this,state);
+        playerCardPanel.drawPlayerCards();
         mainPanel.add(playerCardPanel);
 
 
 
         //Info Panel
-        JPanel infoPanel = createGameStateInfoPanel("Everdell", gameState, 400, defaultInfoPanelHeight);
+        JPanel infoPanel = createGameStateInfoPanel("Everdell", state, 400, defaultInfoPanelHeight);
 
         //Player Resource Count Panel
-        JPanel playerInfoPanel = new JPanel();
-        createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-
-        //Worker Placement Options Panel
-        JPanel workerPlacementPanel = new JPanel();
-        createWorkerPlacementPanel(gameState,workerPlacementPanel,playerInfoPanel);
-
-
+        playerInfoPanel = new SidePanel(this,state);
+        playerInfoPanel.drawPlayerInfoPanel();
 
         //Add all panels to parent
         parent.setLayout(new BorderLayout());
 
         //Player Possible Actions Panel
-        JPanel actionPanel = playerActionsPanel(gameState,playerInfoPanel,villageCardPanel,playerCardPanel,meadowCardsPanel);
+        JPanel actionPanel = playerActionsPanel(state,playerInfoPanel,playerCardPanel);
 
         parent.add(infoPanel, BorderLayout.NORTH);
         parent.add(playerInfoPanel, BorderLayout.WEST);
@@ -117,375 +117,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
         parent.repaint();
     }
 
-    //Displays all the resources that each player has
-    private void createPlayerResourceInfoPanel(EverdellGameState gameState, JPanel panel) {
-        panel.removeAll();
-        panel.setLayout(new GridLayout(gameState.getNPlayers(), 1));
 
-
-        for (int i = 0; i < gameState.getNPlayers(); i++) {
-            JPanel playerPanel = new JPanel();
-            playerPanel.setLayout(new GridLayout(9, 1));
-            playerPanel.setBackground(EverdellParameters.playerColour.get(i));
-            playerPanel.add(new JLabel("Player " + (i+1)));
-            playerPanel.add(new JLabel("Season : "+gameState.currentSeason[i]));
-            playerPanel.add(new JLabel(gameState.PlayerResources.get(ResourceTypes.BERRY)[i].getValue() + " Berries"));
-            playerPanel.add(new JLabel(gameState.PlayerResources.get(ResourceTypes.PEBBLE)[i].getValue() + " Pebbles"));
-            playerPanel.add(new JLabel(gameState.PlayerResources.get(ResourceTypes.RESIN)[i].getValue() + " Resin"));
-            playerPanel.add(new JLabel(gameState.PlayerResources.get(ResourceTypes.TWIG)[i].getValue() + " Twigs"));
-            playerPanel.add(new JLabel(gameState.cardCount[i].getValue() + " Cards"));
-            playerPanel.add(new JLabel(gameState.workers[i].getValue() + " Workers"));
-            playerPanel.add(new JLabel(gameState.pointTokens[i].getValue() + " Point Tokens"));
-            panel.add(playerPanel);
-        }
-    }
-
-
-    //Displays the possible locations that the player can place their worker
-    private void createWorkerPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(147, 136, 40));
-        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
-        JButton back = new JButton("Back");
-        back.addActionListener(k -> {
-            panel.removeAll();
-            createPlayerCardPanel(gameState,panel);
-        });
-        panel.add(back,BorderLayout.SOUTH);
-
-        JPanel workerOptionsPanel = new JPanel();
-
-        JButton basicLocationsButton = new JButton("Basic Locations");
-        basicLocationsButton.addActionListener(k -> {
-            createBasicLocationsPlacementPanel(gameState,panel,playerInfoPanel, location -> {
-                  new PlaceWorker(location).execute(gameState);
-                  createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-                  panel.removeAll();
-                  createPlayerCardPanel(gameState,panel);
-            } );
-        });
-        workerOptionsPanel.add(basicLocationsButton,BorderLayout.WEST);
-        JButton forestLocationsButton = new JButton("Forest Locations");
-        forestLocationsButton.addActionListener(k -> {
-            createForestLocationsPlacementPanel(gameState,panel,playerInfoPanel);
-        });
-        workerOptionsPanel.add(forestLocationsButton,BorderLayout.EAST);
-
-        JButton basicEventsButton = new JButton("Basic Events");
-        basicEventsButton.addActionListener(k -> {
-            createBasicEventsPlacementPanel(gameState,panel,playerInfoPanel);
-        });
-        workerOptionsPanel.add(basicEventsButton);
-
-        panel.add(workerOptionsPanel,BorderLayout.CENTER);
-    }
-
-    //Displays the possible locations that the player can place their worker
-    private void createBasicLocationsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel, Consumer<EverdellParameters.AbstractLocations> buttionAction){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(147, 136, 40));
-        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
-        JButton back = new JButton("Back");
-        back.addActionListener(k -> {
-            panel.removeAll();
-            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
-        });
-        panel.add(back,BorderLayout.SOUTH);
-
-        JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
-
-        //Adds a listener to each button that will run the function assigned to it
-        for(var location : gameState.Locations.keySet()){
-            if(!(location instanceof BasicLocations)){
-                continue;
-            }
-            JButton button = new JButton(location.name());
-            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
-                button.setBackground(Color.LIGHT_GRAY);
-            }
-
-            button.addActionListener(k -> {
-                buttionAction.accept(location);
-//                gameState.currentLocation = location;
-//                new PlaceWorker().execute(gameState);
-//                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-//                panel.removeAll();
-//                createPlayerCardPanel(gameState,panel);
-            });
-            locationPanel.add(button);
-        }
-        panel.add(locationPanel,BorderLayout.CENTER);
-    }
-
-    //Displays the possible locations that the player can place their worker
-    private void createBasicEventsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(147, 136, 40));
-        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
-        JButton back = new JButton("Back");
-        back.addActionListener(k -> {
-            panel.removeAll();
-            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
-        });
-        panel.add(back,BorderLayout.SOUTH);
-
-        JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
-
-        //Adds a listener to each button that will run the function assigned to it
-        for(var location : gameState.Locations.keySet()){
-            if(!(location instanceof BasicEvent)){
-                continue;
-            }
-            JButton button = new JButton(location.name());
-            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
-                button.setBackground(EverdellParameters.playerColour.get(gameState.Locations.get(location).playersOnLocation.get(0)));
-            }
-
-            button.addActionListener(k -> {
-                new PlaceWorker(location).execute(gameState);
-                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-                panel.removeAll();
-                createPlayerCardPanel(gameState,panel);
-            });
-            locationPanel.add(button);
-        }
-        panel.add(locationPanel,BorderLayout.CENTER);
-    }
-
-    //Displays the possible locations that the player can place their worker
-    private void createForestLocationsPlacementPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(147, 136, 40));
-        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
-        JButton back = new JButton("Back");
-        back.addActionListener(k -> {
-            panel.removeAll();
-            createWorkerPlacementPanel(gameState,panel,playerInfoPanel);
-        });
-        panel.add(back,BorderLayout.SOUTH);
-
-        JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,gameState.Locations.size()));
-
-        //Adds a listener to each button that will run the function assigned to it
-        for(var location : gameState.Locations.keySet()){
-            if(!(location instanceof ForestLocations)){
-                continue;
-            }
-
-
-            JButton button = new JButton(location.name());
-            if(!gameState.Locations.get(location).isLocationFreeForPlayer(gameState)) {
-                button.setBackground(Color.LIGHT_GRAY);
-            }
-
-            if(location == ForestLocations.TWO_ANY || location == ForestLocations.TWO_CARDS_ONE_ANY){
-                button.addActionListener(k -> {
-                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)) {
-                        return;
-                    }
-                    if(location == ForestLocations.TWO_ANY){
-                        int numOfResource =2;
-                        resourceSelectionPanel(gameState,panel,playerInfoPanel,numOfResource, "Select "+numOfResource+" Resources", new ArrayList<ResourceTypes>(){{
-                            add(ResourceTypes.BERRY);
-                            add(ResourceTypes.PEBBLE);
-                            add(ResourceTypes.RESIN);
-                            add(ResourceTypes.TWIG);
-                        }}, game -> {
-                            new PlaceWorker(location).execute(game);
-                            createPlayerResourceInfoPanel(game,playerInfoPanel);
-                            panel.removeAll();
-                            createPlayerCardPanel(game,panel);
-                            return true;
-                        });
-                    }
-                    else{
-                        int numOfResource =1;
-                        resourceSelectionPanel(gameState,panel,playerInfoPanel,numOfResource,"Select "+numOfResource+" Resources", new ArrayList<ResourceTypes>(){{
-                            add(ResourceTypes.BERRY);
-                            add(ResourceTypes.PEBBLE);
-                            add(ResourceTypes.RESIN);
-                            add(ResourceTypes.TWIG);
-                        }}, game -> {
-                            new PlaceWorker(location).execute(game);
-                            createPlayerResourceInfoPanel(game,playerInfoPanel);
-                            panel.removeAll();
-                            createPlayerCardPanel(game,panel);
-                            return true;
-                        });
-                    }
-                });
-            }
-            else if (location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
-                button.addActionListener(k -> {
-                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)){
-                        return;
-                    }
-                    ForestLocations.cardChoices = new ArrayList<>();
-
-
-                    if(location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
-                        turnPlayerCardsIntoButtons(gameState,panel,playerInfoPanel,panel,panel,  gameState.playerHands.get(gameState.playerTurn).getSize(), card -> {
-                            ForestLocations.cardChoices.add(card);
-                        });
-                        JButton doneButton = new JButton("Discard Selected Cards");
-                        doneButton.addActionListener(k2 -> {
-                            System.out.println(ForestLocations.cardChoices);
-                            new PlaceWorker(location).execute(gameState);
-                            createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-                            panel.removeAll();
-                            createPlayerCardPanel(gameState,panel);
-                        });
-                        panel.add(doneButton, BorderLayout.SOUTH);
-                    }
-                    else{
-                        JLabel discardLabel = new JLabel("Discard up to 3 cards");
-                        turnPlayerCardsIntoButtons(gameState,panel,playerInfoPanel,panel,panel, 3, card -> {
-                            ForestLocations.cardChoices.add(card);
-                        });
-                        panel.add(discardLabel, BorderLayout.NORTH);
-
-                        JButton doneButton = new JButton("Discard Selected Cards");
-                        doneButton.addActionListener(k2 -> {
-                            resourceSelectionPanel(gameState,panel,playerInfoPanel,ForestLocations.cardChoices.size(),
-                                    "Select "+ForestLocations.cardChoices.size()+" Resources",  new ArrayList<ResourceTypes>(){{
-                                add(ResourceTypes.BERRY);
-                                add(ResourceTypes.PEBBLE);
-                                add(ResourceTypes.RESIN);
-                                add(ResourceTypes.TWIG);
-                            }}, game -> {
-                                new PlaceWorker(location).execute(game);
-                                createPlayerResourceInfoPanel(game,playerInfoPanel);
-                                panel.removeAll();
-                                createPlayerCardPanel(game,panel);
-                                return true;
-                            });
-                        });
-                        panel.add(doneButton, BorderLayout.SOUTH);
-                    }
-                });
-            }
-            else if (location == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
-                button.addActionListener(k -> {
-                    if(gameState.Locations.get(location).playersOnLocation.contains(gameState.playerTurn)){
-                        return;
-                    }
-                    createBasicLocationsPlacementPanel(gameState,panel,playerInfoPanel, basicLocation -> {
-                        ForestLocations.basicLocationChoice = (BasicLocations) basicLocation;
-                        new PlaceWorker(location).execute(gameState);
-
-                        createPlayerResourceInfoPanel(gameState, playerInfoPanel);
-                        panel.removeAll();
-                        createPlayerCardPanel(gameState, panel);
-                    });
-                });
-            }
-            else {
-                button.addActionListener(k -> {
-                    new PlaceWorker(location).execute(gameState);
-                    createPlayerResourceInfoPanel(gameState, playerInfoPanel);
-                    panel.removeAll();
-                    createPlayerCardPanel(gameState, panel);
-                });
-            }
-            locationPanel.add(button);
-
-        }
-        panel.add(locationPanel,BorderLayout.CENTER);
-    }
-
-    private void resourceSelectionPanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel, int numberOfResources, String labelText, ArrayList<ResourceTypes> allowedResources, Function<EverdellGameState,Boolean> buttonAction){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-
-
-        JButton back = new JButton("Back");
-        back.addActionListener(k -> {
-            panel.removeAll();
-            gameState.resourceSelection = new HashMap<ResourceTypes,Counter>();
-            gameState.resourceSelection.put(ResourceTypes.BERRY, new Counter());
-            gameState.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
-            gameState.resourceSelection.put(ResourceTypes.RESIN, new Counter());
-            gameState.resourceSelection.put(ResourceTypes.TWIG, new Counter());
-            createPlayerCardPanel(gameState,panel);
-        });
-
-        JPanel traversalPanel = new JPanel();
-        traversalPanel.setLayout(new GridLayout(1,2));
-
-        JPanel resourcePanel = new JPanel();
-
-
-        JLabel resourceLabel = new JLabel(labelText);
-        resourceLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        resourceLabel.setBackground(Color.WHITE);
-        resourceLabel.setOpaque(true);
-
-        Consumer<EverdellGameState> redraw = game -> {
-            panel.removeAll();
-            resourceSelectionPanel(game,panel,playerInfoPanel,numberOfResources, labelText,allowedResources,buttonAction);
-        };
-
-        JPanel berryPanel = new JPanel();
-        drawResourceButtons(gameState,berryPanel,ResourceTypes.BERRY,new Color(160, 66, 239),redraw,numberOfResources);
-
-        JPanel pebblePanel = new JPanel();
-        drawResourceButtons(gameState,pebblePanel,ResourceTypes.PEBBLE,new Color(162, 162, 151),redraw,numberOfResources);
-
-        JPanel resinPanel = new JPanel();
-        drawResourceButtons(gameState,resinPanel,ResourceTypes.RESIN,new Color(250, 168, 79),redraw,numberOfResources);
-
-        JPanel twigPanel = new JPanel();
-        drawResourceButtons(gameState,twigPanel,ResourceTypes.TWIG,new Color(145, 92, 52),redraw,numberOfResources);
-
-        JButton doneButton = new JButton("Done");
-
-        //Could make it more accessible by making this function work differently.
-        //Could pass a boolean value to say whether selection is strict or not
-        //Aka if the player can select less or if it has to be the exact amount
-        doneButton.addActionListener(k -> {
-            if(gameState.resourceSelection.values().stream().mapToInt(Counter::getValue).sum() <= numberOfResources) {
-                buttonAction.apply(gameState);
-
-                gameState.resourceSelection = new HashMap<ResourceTypes, Counter>();
-                gameState.resourceSelection.put(ResourceTypes.BERRY, new Counter());
-                gameState.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
-                gameState.resourceSelection.put(ResourceTypes.RESIN, new Counter());
-                gameState.resourceSelection.put(ResourceTypes.TWIG, new Counter());
-            }
-        });
-
-
-        if(allowedResources.contains(ResourceTypes.BERRY)){
-            resourcePanel.add(berryPanel);
-        }
-        if(allowedResources.contains(ResourceTypes.PEBBLE)){
-            resourcePanel.add(pebblePanel);
-        }
-        if(allowedResources.contains(ResourceTypes.RESIN)){
-            resourcePanel.add(resinPanel);
-        }
-        if(allowedResources.contains(ResourceTypes.TWIG)){
-            resourcePanel.add(twigPanel);
-        }
-
-        resourcePanel.setLayout(new GridLayout(2,2));
-
-        panel.add(resourceLabel,BorderLayout.NORTH);
-        panel.add(resourcePanel,BorderLayout.CENTER);
-
-        traversalPanel.add(back);
-        traversalPanel.add(doneButton);
-        panel.add(traversalPanel,BorderLayout.SOUTH);
-    }
-
-    private void drawResourceButtons(EverdellGameState state ,JPanel panelToDrawOn, ResourceTypes resourceType, Color resourceColour, Consumer<EverdellGameState> redrawButton, int amountOfResources){
+    public void drawResourceButtons(EverdellGameState state ,JPanel panelToDrawOn, ResourceTypes resourceType, Color resourceColour, Consumer<EverdellGameState> redrawButton, int amountOfResources){
 
         JButton resourceButtonPlus = new JButton(resourceType+" +");
         resourceButtonPlus.addActionListener(k -> {
@@ -513,71 +146,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
     }
 
-    private void createVillageCardPanel(EverdellGameState gameState,JPanel panel, int currentVillage){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(45, 105, 17));
-
-        panel.add(new JLabel("Player "+(currentVillage+1)+" Village"),BorderLayout.NORTH);
-
-        JPanel villagePanel = new JPanel();
-        villagePanel.setLayout(new GridLayout(3,5));
-
-        Deck<EverdellCard> deck = gameState.playerVillage.get(currentVillage);
-//            for(EverdellCard card : deck){
-//                JPanel cardPanel = new JPanel();
-//                cardPanel.setBackground(params.cardColour.get(card.getCardType()));
-//                cardPanel.add(new JLabel(card.getName()));
-//                cardPanel.setPreferredSize(new Dimension(50, 100));
-//                villagePanel.add(cardPanel);
-//            }
-        panel.add(drawCards(gameState,deck,villagePanel),BorderLayout.CENTER);
-
-        JButton village1 = new JButton("Village 1");
-        village1.addActionListener(k -> {
-            createVillageCardPanel(gameState,panel,0);
-        });
-        JButton village2 = new JButton("Village 2");
-        village2.addActionListener(k -> {
-            createVillageCardPanel(gameState,panel,1);
-        });
-        JButton village3 = new JButton("Village 3");
-        village3.addActionListener(k -> {
-            createVillageCardPanel(gameState,panel,2);
-        });
-        JButton village4 = new JButton("Village 4");
-        village4.addActionListener(k -> {
-            createVillageCardPanel(gameState,panel,3);
-        });
-
-        JPanel villageSelectionPanel = new JPanel();
-        villageSelectionPanel.setLayout(new GridLayout(1,4));
-        villageSelectionPanel.add(village1);
-        villageSelectionPanel.add(village2);
-        if(gameState.getNPlayers() > 2) {
-            villageSelectionPanel.add(village3);
-        }
-        if (gameState.getNPlayers() > 3) {
-            villageSelectionPanel.add(village4);
-        }
-        panel.add(villageSelectionPanel,BorderLayout.SOUTH);
-    }
-
-    private void createMeadowCardsPanel(EverdellGameState gameState, JPanel panel){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(Color.gray);
-        JLabel meadowLabel = new JLabel("Meadow Cards");
-        meadowLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(meadowLabel, BorderLayout.NORTH);
-
-        JPanel meadowPanel = new JPanel();
-        meadowPanel.setLayout(new GridLayout(4,2));
-        meadowPanel.setBackground(Color.gray);
-
-        panel.add(drawCards(gameState,gameState.meadowDeck, meadowPanel));
-    }
-    private void createPaymentChoicePanel(EverdellGameState gameState, JPanel panel, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel, JPanel meadowCardsPanel,int numberOfOccupation, ConstructionCard constructionCard, EverdellCard cardToPlace){
+    private void createPaymentChoicePanel(EverdellGameState gameState, JPanel panel,int numberOfOccupation, ConstructionCard constructionCard, EverdellCard cardToPlace){
         panel.removeAll();
         panel.setLayout(new BorderLayout());
         panel.setBackground(new Color(147, 136, 40));
@@ -585,7 +154,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
             panel.removeAll();
-            createPlayerCardPanel(gameState,panel);
+            this.playerCardPanel.drawPlayerCards();
         });
         panel.add(back,BorderLayout.SOUTH);
 
@@ -594,7 +163,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JButton resourcesButton = new JButton("Pay With Resources");
         resourcesButton.addActionListener(k -> {
             //Place the card
-            placeACard(gameState,playerCardPanel,playerInfoPanel, villagePanel,meadowCardsPanel,cardToPlace);
+            placeACard(gameState, cardToPlace);
         });
         paymentPanel.add(resourcesButton);
 
@@ -605,7 +174,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 constructionCard.occupyConstruction((CritterCard) cardToPlace);
 
                 //Place the card
-                placeACard(gameState,playerCardPanel,playerInfoPanel, villagePanel,meadowCardsPanel,cardToPlace);
+                placeACard(gameState, cardToPlace);
             }
 
         });
@@ -616,79 +185,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
     }
 
-    //Displays the cards that the player has in their hand
-    private void createPlayerCardPanel(EverdellGameState gameState, JPanel panel ){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-        JLabel playerCardLabel = new JLabel("Player Cards");
-        playerCardLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(playerCardLabel, BorderLayout.NORTH);
-
-        JPanel cardsPanel = new JPanel();
-        cardsPanel.setBackground(Color.BLACK);
-        cardsPanel.setLayout(new GridLayout(2,4));
-        panel.add(drawCards(gameState,gameState.playerHands.get(0), cardsPanel), BorderLayout.CENTER);
-    }
-
-    private void turnPlayerCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel,int numberOfSelections, Consumer<EverdellCard> buttonAction){
-        playerCardPanel.removeAll();
-        playerCardPanel.setLayout(new BorderLayout());
-        playerCardPanel.setBackground(Color.WHITE);
-
-        JLabel playerCardLabel = new JLabel("Player Cards");
-        playerCardLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        playerCardPanel.add(playerCardLabel, BorderLayout.NORTH);
-
-        //Convert Player Cards into Buttons
-        JPanel handPanel = new JPanel();
-        handPanel.setBackground(Color.BLACK);
-        handPanel.setLayout(new GridLayout(2,4));
-
-        drawCardButtons(gameState,new ArrayList<>(gameState.playerHands.get(0).getComponents()),handPanel,buttonAction,numberOfSelections);
-
-        playerCardPanel.add(handPanel,BorderLayout.CENTER);
-    }
-
-
-    private void turnMeadowCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel, int numberOfSelections, Consumer<EverdellCard> buttonAction){
-        //Convert Meadow Cards into Buttons
-        JPanel meadowCardsPanel = new JPanel();
-        meadowCardsPanel.setLayout(new GridLayout(4,2));
-
-        // To remove the component from the center
-        BorderLayout layout = (BorderLayout) meadowPanel.getLayout();
-        Component centerComponent = layout.getLayoutComponent(BorderLayout.CENTER);
-        if (centerComponent != null) {
-            meadowPanel.remove(centerComponent);
-        }
-
-
-
-        drawCardButtons(gameState,new ArrayList<>(gameState.meadowDeck.getComponents()),meadowCardsPanel,buttonAction,numberOfSelections);
-
-        meadowPanel.add(meadowCardsPanel, BorderLayout.CENTER);
-    }
-    private void turnVillageCardsIntoButtons(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel, ArrayList<EverdellCard> cardsToTurnIntoButtons, Consumer<EverdellCard> buttonAction, int numberOfSelections){
-        //Convert Village Cards into Buttons
-        JPanel villageCardsPanel = new JPanel();
-        villageCardsPanel.setLayout(new GridLayout(3,5));
-
-        // To remove the component from the center
-        BorderLayout layout = (BorderLayout) villagePanel.getLayout();
-        Component centerComponent = layout.getLayoutComponent(BorderLayout.CENTER);
-        if (centerComponent != null) {
-            villagePanel.remove(centerComponent);
-        }
-
-        drawCardButtons(gameState,cardsToTurnIntoButtons,villageCardsPanel,buttonAction,numberOfSelections);
-        villagePanel.add(villageCardsPanel, BorderLayout.CENTER);
-    }
-
-
-
-    private JPanel drawCardButtons(EverdellGameState state, ArrayList<EverdellCard> cards, JPanel panelToDrawOn, Consumer<EverdellCard> buttonAction, int numberOfSelections){
+    public JPanel drawCardButtons(EverdellGameState state, ArrayList<EverdellCard> cards, JPanel panelToDrawOn, Consumer<EverdellCard> buttonAction, int numberOfSelections){
         EverdellParameters params = (EverdellParameters) state.getGameParameters();
 
         for(EverdellCard card : cards){
@@ -779,7 +276,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         return panelToDrawOn;
     }
 
-    private JPanel drawCards(EverdellGameState state, Deck<EverdellCard> cards,JPanel panelToDrawOn){
+    public JPanel drawCards(EverdellGameState state, Deck<EverdellCard> cards,JPanel panelToDrawOn){
         EverdellParameters params = (EverdellParameters) state.getGameParameters();
         //panel.setLayout(new GridLayout(1,cards.getSize()));
         for(EverdellCard card : cards){
@@ -845,22 +342,23 @@ public class EverdellGUIManager extends AbstractGUIManager {
         return panelToDrawOn;
     }
 
+    public void placeACard(EverdellGameState state, EverdellCard card){
 
-    private void placeACard(EverdellGameState gameState, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel, JPanel meadowCardsPanel, EverdellCard card){
-        checkForAdditionalStepsForCard(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel,new ArrayList<>(Collections.singletonList(card)));
-
-        //Place the card
-        new PlayCard(card).execute(gameState);
-
-        redrawPanels(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel);
-
-        if(card.isCardPayedFor()){
-            checkForAdditionalStepsForCard(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel,new ArrayList<>(Collections.singletonList(card)));
+        //We check if the player can afford the card
+        if(new PlayCard(card).checkIfPlayerCanBuyCard(state)){
+            if(!checkForAdditionalStepsForCard(state, card)){
+                //Place the card
+                new PlayCard(card).execute(state);
+                redrawPanels();
+            }
+        }
+        else{
+            redrawPanels();
         }
     }
 
     //Displays the possible actions that the player can take
-    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel villagePanel, JPanel playerCardPanel, JPanel meadowCardsPanel){
+    private JPanel playerActionsPanel(EverdellGameState gameState, JPanel playerInfoPanel, JPanel playerCardPanel){
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -873,40 +371,36 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JPanel seasonActionPanel = new JPanel();
         seasonActionPanel.setBackground(Color.GREEN);
 
-//        cardActionPanel.setPreferredSize(new Dimension(200, 50));
         JButton placeWorkerButton = new JButton("Place Worker");
         placeWorkerButton.addActionListener(k -> {
-                redrawPanels(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel);
-                createPlayerResourceInfoPanel(gameState,playerInfoPanel);
-                playerCardPanel.removeAll();
-                createWorkerPlacementPanel(gameState,playerCardPanel,playerInfoPanel);
+            redrawPanels();
+            this.playerCardPanel.drawWorkerPlacement();
         });
         workerActionPanel.add(placeWorkerButton);
 
         JButton playCardButton = new JButton("Play Card");
         playCardButton.addActionListener(k -> {
             //Make player cards available for selection via buttons
-            turnPlayerCardsIntoButtons(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, gameState.playerHands.get(gameState.playerTurn).getSize(), card -> {
+            this.playerCardPanel.drawPlayerCardsButtons(1, card -> {
 
                 //Can the card occupy a Construction Card
                 for(EverdellCard c : gameState.playerVillage.get(gameState.playerTurn)) {
+                    System.out.println("We are checking if the card can occupy a construction card");
                     if (c instanceof ConstructionCard) {
-                        System.out.println("Construction Card");
-                        System.out.println(((ConstructionCard) c).getCardsThatCanOccupy());
-                        System.out.println(card.getCardEnumValue());
-                        if(((ConstructionCard) c).canCardOccupyThis(gameState)){
-                            createPaymentChoicePanel(gameState, playerCardPanel, playerInfoPanel, villagePanel, playerCardPanel, meadowCardsPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
+                        if(((ConstructionCard) c).canCardOccupyThis(gameState, card)){
+                            System.out.println("A card can occupy this");
+                            createPaymentChoicePanel(gameState, playerCardPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
                             return;
                         }
                     }
                 }
                 //If not we make them pay with resources
                 //Place the card
-                placeACard(gameState, playerCardPanel, playerInfoPanel, villagePanel, meadowCardsPanel,card);
+                placeACard(gameState, card);
             });
 
             //Make meadow cards available for selection via buttons
-            turnMeadowCardsIntoButtons(gameState, playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel, 1, card ->{
+            this.meadowCardsPanel.drawMeadowPanelButtons( 1, card ->{
 
                 //Can the card occupy a Construction Card
                 for(EverdellCard c : gameState.playerVillage.get(gameState.playerTurn)) {
@@ -914,22 +408,23 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         System.out.println("Construction Card");
                         System.out.println(((ConstructionCard) c).getCardsThatCanOccupy());
                         System.out.println(card.getCardEnumValue());
-                        if(((ConstructionCard) c).canCardOccupyThis(gameState)){
-                            createPaymentChoicePanel(gameState, playerCardPanel, playerInfoPanel, villagePanel, playerCardPanel, meadowCardsPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
+                        if(((ConstructionCard) c).canCardOccupyThis(gameState,card)){
+                            createPaymentChoicePanel(gameState, playerCardPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
                             return;
                         }
                     }
                 }
 
                 //Place the card
-                placeACard(gameState, playerCardPanel, playerInfoPanel, villagePanel, meadowCardsPanel, card);
+                placeACard(gameState, card);
             });
         });
+
         cardActionPanel.add(playCardButton);
 
         JButton moveSeasonButton = new JButton("Move Season");
         moveSeasonButton.addActionListener(k -> {
-            redrawPanels(gameState,playerCardPanel,playerInfoPanel,villagePanel,meadowCardsPanel);
+            redrawPanels();
 
             new MoveSeason().execute(gameState);
 
@@ -937,14 +432,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
             //If it is summer, the player must draw 2 cards from the meadow
             if(currentSeason == EverdellParameters.Seasons.SUMMER){
-                summerEventGUI(gameState, playerCardPanel, playerInfoPanel, villagePanel, meadowCardsPanel);
+                summerEventGUI(gameState, playerCardPanel, playerInfoPanel);
             }
             //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
             // need to be taken
             if(currentSeason == EverdellParameters.Seasons.AUTUMN || currentSeason == EverdellParameters.Seasons.SPRING){
-                greenProductionEventGUI(gameState, playerCardPanel, playerInfoPanel, villagePanel, meadowCardsPanel);
+                greenProductionEventGUI(gameState);
             }
-            createPlayerResourceInfoPanel(gameState,playerInfoPanel);
+            this.playerInfoPanel.drawPlayerInfoPanel();
         });
         seasonActionPanel.add(moveSeasonButton);
 
@@ -973,87 +468,78 @@ public class EverdellGUIManager extends AbstractGUIManager {
     }
 
     //This is in charge of providing CARD specific GUI so that the player can make decisions
-    private Boolean checkForAdditionalStepsForCard(EverdellGameState state, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel, JPanel meadowPanel, ArrayList<EverdellCard> cardsToActivate){
+    private Boolean checkForAdditionalStepsForCard(EverdellGameState state, EverdellCard c){
 
         JButton doneButton;
         int numOfResource;
 
         System.out.println("Checking for additional steps for card");
 
-        if(cardsToActivate.isEmpty()){
-            redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-            return false;
-        }
 
-        EverdellCard c = cardsToActivate.get(0);
         EverdellParameters.CardDetails cardClass = c.getCardEnumValue();
 
         switch (cardClass) {
             case BARD:
                 //The player can discard up to 5 cards
-                turnPlayerCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel,  5, card -> {
+                ArrayList<EverdellCard> cardsToDisplay = state.playerHands.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card != c).collect(Collectors.toCollection(ArrayList::new));
+                this.playerCardPanel.drawPlayerCardsButtons(5, cardsToDisplay, card -> {
                     state.cardSelection.add(card);
                 });
                 doneButton = new JButton("Discard Selected Cards");
                 doneButton.addActionListener(k2 -> {
-                    c.applyCardEffect(state);
-                    createPlayerResourceInfoPanel(state,playerInfoPanel);
-                    playerCardPanel.removeAll();
-                    createPlayerCardPanel(state,playerCardPanel);
-                    redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
+                    new PlayCard(c).execute(state);
+                    redrawPanels();
                 });
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
-                break;
+
+                return true;
 
             case RUINS:
                 //Get every card that is a construction in the village so that we can send it for selection
                 ArrayList<EverdellCard> constructionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card instanceof ConstructionCard).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.RUINS).collect(Collectors.toCollection(ArrayList::new));
 
-                turnVillageCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, constructionCards, card -> {
+                this.villagePanel.drawVillagePanelButtons(constructionCards,1, card -> {
                     state.cardSelection.add(card);
-                }, 1);
+                });
                 doneButton = new JButton("Discard Selected Card, Refund Resources and Draw 2 Cards");
                 doneButton.addActionListener(k2 -> {
-                    c.applyCardEffect(state);
-                    redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
+                    new PlayCard(c).execute(state);
+                    redrawPanels();
                 });
 
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
 
-                break;
+                return true;
 
             case WOOD_CARVER:
                 numOfResource = 3;
-                resourceSelectionPanel(state,playerCardPanel,playerInfoPanel,numOfResource, "Trade Up to 3 Twigs for 1 Point Each",new ArrayList<ResourceTypes>(){{
+
+                this.playerCardPanel.drawResourceSelection(numOfResource, "Trade Up to 3 Twigs for 1 Point Each",new ArrayList<ResourceTypes>(){{
                     add(ResourceTypes.TWIG);
                 }}, game -> {
-                    c.applyCardEffect(game);
-                    redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-                    cardsToActivate.remove(c);
-                    checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, cardsToActivate);
+                    new PlayCard(c).execute(state);
+                    redrawPanels();
                     return true;
                 });
 
-                break;
+                return true;
 
             case DOCTOR:
                 numOfResource = 3;
-                resourceSelectionPanel(state,playerCardPanel,playerInfoPanel,numOfResource, "Trade Up to 3 Berries for 1 Point Each",new ArrayList<ResourceTypes>(){{
+                this.playerCardPanel.drawResourceSelection(numOfResource, "Trade Up to 3 Berries for 1 Point Each",new ArrayList<ResourceTypes>(){{
                     add(ResourceTypes.BERRY);
                 }}, game -> {
-                    c.applyCardEffect(state);
-                    redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-                    cardsToActivate.remove(c);
-                    checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, cardsToActivate);
+                    new PlayCard(c).execute(state);
+                    redrawPanels();
                     return true;
                 });
-                break;
+                return true;
 
             case PEDDLER:
 
                 PeddlerCard pc = (PeddlerCard) c;
                 numOfResource = 2;
-                resourceSelectionPanel(state,playerCardPanel,playerInfoPanel,numOfResource, "Give Up to 2 of any resource, get 1 of any resource for each one given",new ArrayList<ResourceTypes>(){{
+                this.playerCardPanel.drawResourceSelection(numOfResource, "Give Up to 2 of any resource, get 1 of any resource for each one given",new ArrayList<ResourceTypes>(){{
                     add(ResourceTypes.BERRY);
                     add(ResourceTypes.PEBBLE);
                     add(ResourceTypes.RESIN);
@@ -1068,9 +554,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
                     state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
                     state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
-                    redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
+                    redrawPanels();
 
-                    resourceSelectionPanel(state,playerCardPanel,playerInfoPanel,numOfResource, "Select "+numOfResource+" Resources to Gain",new ArrayList<ResourceTypes>(){{
+                    this.playerCardPanel.drawResourceSelection(numOfResource, "Select "+numOfResource+" Resources to Gain",new ArrayList<ResourceTypes>(){{
                         add(ResourceTypes.BERRY);
                         add(ResourceTypes.PEBBLE);
                         add(ResourceTypes.RESIN);
@@ -1078,65 +564,51 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     }}, game2 -> {
                         //Select the resources to gain
                         pc.addResourcesToGain(game2.resourceSelection);
-                        pc.applyCardEffect(game2);
-                        redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-                        cardsToActivate.remove(c);
-                        checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, cardsToActivate);
+                        new PlayCard(pc).execute(state);
+                        redrawPanels();
                         return true;
                     });
                     return true;
                 });
-                break;
+                return true;
 
-            case CHIP_SWEEP:
-                //The player must select a production card from their village, which its effect will be activated.
-                //Get every card that is a green production card in the village so that we can send it for selection
-                ArrayList<EverdellCard> greenProductionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION ).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.CHIP_SWEEP).collect(Collectors.toCollection(ArrayList::new));
+//            case CHIP_SWEEP:
+//                //The player must select a production card from their village, which its effect will be activated.
+//                //Get every card that is a green production card in the village so that we can send it for selection
+//                ArrayList<EverdellCard> greenProductionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION ).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.CHIP_SWEEP).collect(Collectors.toCollection(ArrayList::new));
+//
+//                this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
+//                    state.cardSelection.add(card);
+//                });
+//                doneButton = new JButton("Done");
+//                doneButton.addActionListener(k2 -> {
+//                    if(!checkForAdditionalStepsForCard(state,state.cardSelection.get(0))){
+//                        new PlayCard(c).execute(state);
+//                        redrawPanels();
+//                    }
+//                });
+//
+//                playerCardPanel.add(doneButton, BorderLayout.SOUTH);
+//
+//                return true;
 
-                turnVillageCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, greenProductionCards, card -> {
-                    state.cardSelection.add(card);
-                }, 1);
-                doneButton = new JButton("Done");
-                doneButton.addActionListener(k2 -> {
-                    if(checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel,state.cardSelection)){
-                        redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-                        //If the card has additional steps
-                        cardsToActivate.remove(c);
-                        checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, cardsToActivate);
-                        return;
-                    }
-                    else{
-                        c.applyCardEffect(state);
-                        redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
-                        cardsToActivate.remove(c);
-                        checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel, cardsToActivate);
-                    }
-                });
 
-                playerCardPanel.add(doneButton, BorderLayout.SOUTH);
-
-                break;
+            default:
+                redrawPanels();
+                return false;
 
         }
-        return false;
     }
 
 
-    private void redrawPanels(EverdellGameState state, JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel, JPanel meadowPanel){
-        playerCardPanel.removeAll();
-        playerInfoPanel.removeAll();
-        villagePanel.removeAll();
-        meadowPanel.removeAll();
-
-
-        createPlayerResourceInfoPanel(state,playerInfoPanel);
-        createVillageCardPanel(state,villagePanel, 0);
-        createPlayerCardPanel(state,playerCardPanel);
-        createMeadowCardsPanel(state,meadowPanel);
+    public void redrawPanels(){
+        this.playerInfoPanel.drawPlayerInfoPanel();
+        this.playerCardPanel.drawPlayerCards();
+        this.villagePanel.drawVillagePanel();
+        this.meadowCardsPanel.drawMeadowPanel();
     }
 
-
-    private void greenProductionEventGUI(EverdellGameState state,JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel){
+    private void greenProductionEventGUI(EverdellGameState state){
         //Find all cards that are greenProduction and put it into a list
         System.out.println("Green Production Event GUI");
         ArrayList<EverdellCard> greenProductionCards = new ArrayList<>();
@@ -1146,13 +618,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
             }
         }
 
-        checkForAdditionalStepsForCard(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel,greenProductionCards);
+
+
     }
 
 
     //THIS NEEDS TO BE UPDATED TO USE THE NEW SYSTEM
     //SUMMER GUI IS CURRENTLY NOT WORKING
-    private void summerEventGUI(EverdellGameState state,JPanel playerCardPanel, JPanel playerInfoPanel, JPanel villagePanel,JPanel meadowPanel){
+    private void summerEventGUI(EverdellGameState state,JPanel playerCardPanel, JPanel playerInfoPanel){
         state.cardSelection = new ArrayList<EverdellCard>();
         int cardsToDraw = Math.min(2, state.playerHands.get(state.getCurrentPlayer()).getCapacity() - state.playerHands.get(state.getCurrentPlayer()).getSize());
 
@@ -1166,7 +639,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JLabel summerLabel = new JLabel("It is Summer, You may pick up to "+cardsToDraw+" cards from the meadow");
         summerLabel.setHorizontalAlignment(SwingConstants.CENTER);
         playerCardPanel.add(summerLabel, BorderLayout.NORTH);
-        turnMeadowCardsIntoButtons(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel,cardsToDraw, card -> {
+        this.meadowCardsPanel.drawMeadowPanelButtons(cardsToDraw, card -> {
                 state.cardSelection.add(card);
             });
 
@@ -1175,13 +648,13 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         JButton passButton = new JButton("Pass");
         passButton.addActionListener(k -> {
-            redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
+            redrawPanels();
         });
 
         JButton doneButton = new JButton("Done");
         doneButton.addActionListener(k -> {
             new MoveSeason().summerEvent(state);
-            redrawPanels(state,playerCardPanel,playerInfoPanel,villagePanel,meadowPanel);
+            redrawPanels();
         });
         navigationPanel.add(passButton);
         navigationPanel.add(doneButton);

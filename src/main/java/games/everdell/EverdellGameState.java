@@ -73,7 +73,7 @@ public class EverdellGameState extends AbstractGameState {
     @Override
     protected GameType _getGameType() {
         // TODO: replace with game-specific enum value declared in GameType
-        return GameType.GameTemplate;
+        return GameType.Everdell;
     }
 
     /**
@@ -109,6 +109,9 @@ public class EverdellGameState extends AbstractGameState {
     protected EverdellGameState _copy(int playerId) {
         EverdellGameState copy = new EverdellGameState(gameParameters, getNPlayers());
         // TODO: deep copy all variables to the new game state.
+        copy.Locations = this.Locations;
+
+
         return copy;
     }
 
@@ -140,18 +143,21 @@ public class EverdellGameState extends AbstractGameState {
 
 
 
+
+
     @Override
     public boolean _equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EverdellGameState state = (EverdellGameState) o;
-        return Objects.equals(cardDeck, state.cardDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens);
+        EverdellGameState that = (EverdellGameState) o;
+        return playerTurn == that.playerTurn && Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens));
+        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), currentCard, resourceSelection, cardSelection, playerTurn);
     }
+
 
     // TODO: Consider the methods below for possible implementation
     // TODO: These all have default implementations in AbstractGameState, so are not required to be implemented here.

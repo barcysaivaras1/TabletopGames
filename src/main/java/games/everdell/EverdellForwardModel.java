@@ -216,5 +216,4 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         return actions;
     }
-
 }

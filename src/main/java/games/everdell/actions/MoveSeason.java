@@ -6,6 +6,8 @@ import core.components.Component;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.Seasons;
+import games.everdell.components.ConstructionCard;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 
 import java.util.ArrayList;
@@ -103,7 +105,13 @@ public class MoveSeason extends AbstractAction {
             for(var card : state.playerVillage.get(i).getComponents()){
                 if(card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
                     //Apply production effect
-                    card.applyCardEffect(state);
+                    if(card instanceof ConstructionCard cc){
+                        cc.applyCardEffect(state);
+                    }
+                    else{
+                        CritterCard cc = (CritterCard) card;
+                        cc.applyCardEffect(state);
+                    }
                 }
             }
         }

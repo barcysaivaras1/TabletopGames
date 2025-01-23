@@ -7,6 +7,7 @@ import core.components.Component;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicEvent;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
@@ -61,7 +62,8 @@ public class PlaceWorker extends AbstractAction {
                 for(var card : state.playerVillage.get(state.playerTurn)){
                     //If there is a King Card Present we must apply the effect after a basic Event claim
                     if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
-                        card.applyCardEffect(state);
+                        CritterCard kingCard = (CritterCard) card;
+                        kingCard.applyCardEffect(state);
                     }
                 }
             }

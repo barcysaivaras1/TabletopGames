@@ -14,8 +14,8 @@ public class PeddlerCard extends CritterCard {
 
     public PeddlerCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction,
                        boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, HashMap<EverdellParameters.ResourceTypes, Counter> rtl, HashMap<EverdellParameters.ResourceTypes, Counter> rtg, Function<EverdellGameState,
-            Boolean> applyCardEffect, Function<EverdellGameState, Boolean> checkIfEffectApplies) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, checkIfEffectApplies);
+            Boolean> applyCardEffect) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
         resourcesToLose = rtl;
         resourcesToGain = rtg;
 

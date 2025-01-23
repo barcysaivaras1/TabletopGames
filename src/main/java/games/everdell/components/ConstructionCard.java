@@ -11,10 +11,38 @@ import java.util.function.Function;
 public class ConstructionCard extends EverdellCard{
     private Boolean isOccupied;
     ArrayList<CardDetails> cardsThatCanOccupy;
-    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Function<EverdellGameState, Boolean> checkIfEffectApplies, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, checkIfEffectApplies);
+
+    //RED DESTINATION VARIABLE
+    private EverdellParameters.RedDestinationLocation redDestinationLocation;
+
+
+    //STANDARD CONSTRUCTOR
+    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
+    }
+
+    //RED DESTINATION CONSTRUCTOR
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
+        this.cardsThatCanOccupy = cardsThatCanOccupy;
+        isOccupied = false;
+
+        //RED DESTINATION VARIABLE
+        this.redDestinationLocation = rdl;
+    }
+
+    @Override
+    public void applyCardEffect(EverdellGameState state) {
+        System.out.println("CONSTRUCTION CARD");
+        if(redDestinationLocation != null){
+            System.out.println("RED DESTINATION CARD");
+            state.Locations.put(redDestinationLocation, new EverdellLocation(redDestinationLocation,1));
+        }
+        else {
+            super.applyCardEffect(state);
+        }
     }
 
     public boolean occupyConstruction(CritterCard card){
@@ -30,10 +58,10 @@ public class ConstructionCard extends EverdellCard{
         }
         return false;
     }
-    public boolean canCardOccupyThis(EverdellGameState state){
+    public boolean canCardOccupyThis(EverdellGameState state,EverdellCard card){
 
         for(EverdellParameters.CardDetails cardEnumValue : cardsThatCanOccupy){
-            if(cardEnumValue == state.currentCard.getCardEnumValue() && !isOccupied){
+            if(cardEnumValue == card.getCardEnumValue() && !isOccupied){
                 return true;
             }
         }
