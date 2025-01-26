@@ -38,6 +38,7 @@ public class BottomPanel extends JPanel {
     private int numberOfCardSelections;
     private int numberOfResourceSelections;
 
+
     //Which Panels should we display
     private Boolean displayCards;
     private Boolean makeCardsButtons;
@@ -148,7 +149,7 @@ public class BottomPanel extends JPanel {
 
         if(displayBasicLocations){
             drawBasicLocations(location -> {
-                  new PlaceWorker(location).execute(state);
+                  new PlaceWorker(location,everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                   everdellGUIManager.redrawPanels();
             });
         }
@@ -258,7 +259,7 @@ public class BottomPanel extends JPanel {
                     copyMode = true;
                     copyAction = copyLocation -> {
                         RedDestinationLocation.copyLocationChoice = copyLocation;
-                        new PlaceWorker(location).execute(state);
+                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         copyMode = false;
                         everdellGUIManager.redrawPanels();
                     };
@@ -271,9 +272,9 @@ public class BottomPanel extends JPanel {
                    ArrayList<EverdellCard> cards = state.playerHands.get(state.getCurrentPlayer()).stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new));
                    cards.addAll(state.meadowDeck.stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new)));
                    drawPlayerCardsButtons(1,cards, card -> {
-                       state.cardSelection.add(card);
+                       everdellGUIManager.cardSelection.add(card);
 
-                       new PlaceWorker(location).execute(state);
+                       new PlaceWorker(location,everdellGUIManager.cardSelection,everdellGUIManager.resourceSelection).execute(state);
                        everdellGUIManager.redrawPanels();
                        everdellGUIManager.placeACard(state,card);
                    });
@@ -289,8 +290,8 @@ public class BottomPanel extends JPanel {
                         int discountAmount = 3;
 
                         drawResourceSelection(discountAmount,"Select 3 Resources to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
-                            state.cardSelection.add(0, card);
-                            new PlaceWorker(location).execute(state);
+                            everdellGUIManager.cardSelection.add(0, card);
+                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                             everdellGUIManager.redrawPanels();
                             everdellGUIManager.placeACard(state,card);
                             return true;
@@ -339,7 +340,7 @@ public class BottomPanel extends JPanel {
             if(location == ForestLocations.TWO_ANY || location == ForestLocations.TWO_CARDS_ONE_ANY){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.playerTurn) && !copyMode) {return;}
+                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
 
                     int numOfResource = (location == ForestLocations.TWO_ANY) ? 2 : 1;
 
@@ -348,7 +349,7 @@ public class BottomPanel extends JPanel {
                             copyAction.accept(location);
                             return true;
                         }
-                        new PlaceWorker(location).execute(state);
+                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                         return true;
                     });
@@ -357,14 +358,14 @@ public class BottomPanel extends JPanel {
             else if (location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.playerTurn) && !copyMode) {return;}
+                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
 
                     ForestLocations.cardChoices = new ArrayList<>();
 
                     JButton doneButton = new JButton("Discard Selected Cards");
 
                     if(location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
-                        this.drawPlayerCardsButtons(state.playerHands.get(state.playerTurn).getSize(), card -> {
+                        this.drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), card -> {
                             ForestLocations.cardChoices.add(card);
                         });
                         doneButton.addActionListener(k2 -> {
@@ -372,7 +373,7 @@ public class BottomPanel extends JPanel {
                                 copyAction.accept(location);
                             }
                             else{
-                                new PlaceWorker(location).execute(state);
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             }
                         });
@@ -391,7 +392,7 @@ public class BottomPanel extends JPanel {
                                             copyAction.accept(location);
                                             return true;
                                         }
-                                        new PlaceWorker(location).execute(game);
+                                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(game);
                                         everdellGUIManager.redrawPanels();
                                         return true;
                             });
@@ -403,7 +404,7 @@ public class BottomPanel extends JPanel {
             else if (location == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.playerTurn) && !copyMode){return;}
+                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
 
                     this.remove(locationPanel);
 
@@ -413,10 +414,58 @@ public class BottomPanel extends JPanel {
                         }
                         else{
                             ForestLocations.basicLocationChoice = (BasicLocations) basicLocation;
-                            new PlaceWorker(location).execute(state);
+                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                             everdellGUIManager.redrawPanels();
                         }
                     });
+                });
+            }
+            else if (location == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                button.addActionListener(k -> {
+                    //If the player is already on the location, return
+                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
+
+                    this.remove(locationPanel);
+
+                    ArrayList<EverdellCard> cards = state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new));
+                    drawPlayerCardsButtons(2,cards, card -> {
+
+                        everdellGUIManager.cardSelection.add(card);
+                    });
+
+                    JButton doneButton = new JButton("Done");
+                    doneButton.addActionListener(k2 -> {
+
+                        drawPlayerCardsButtons(1, everdellGUIManager.cardSelection,card -> {
+                            int discountAmount = 1;
+
+                            drawResourceSelection(discountAmount,"Select 1 Resource to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+
+                                System.out.println("Resource Selection: "+everdellGUIManager.resourceSelection);
+                                ForestLocations.cardChoices.clear();
+                                if(everdellGUIManager.cardSelection.get(0) == card){
+                                    ForestLocations.cardChoices.add(everdellGUIManager.cardSelection.get(1));
+                                }else{
+                                    ForestLocations.cardChoices.add(everdellGUIManager.cardSelection.get(0));
+                                }
+                                everdellGUIManager.cardSelection.clear();
+                                everdellGUIManager.cardSelection.add(0, card);
+                                if(copyMode){
+                                    copyAction.accept(location);
+                                    everdellGUIManager.redrawPanels();
+                                    everdellGUIManager.placeACard(state, card);
+                                }
+                                else {
+                                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                    everdellGUIManager.redrawPanels();
+                                    everdellGUIManager.placeACard(state, card);
+                                }
+                                return true;
+                            });
+                        });
+                    });
+                    this.add(doneButton, BorderLayout.SOUTH);
+
                 });
             }
             else {
@@ -425,7 +474,7 @@ public class BottomPanel extends JPanel {
                         copyAction.accept(location);
                     }
                     else {
-                        new PlaceWorker(location).execute(state);
+                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                     }
                 });
@@ -458,7 +507,7 @@ public class BottomPanel extends JPanel {
             }
 
             button.addActionListener(k -> {
-                new PlaceWorker(location).execute(state);
+                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
 
                 everdellGUIManager.redrawPanels();
             });
@@ -506,14 +555,8 @@ public class BottomPanel extends JPanel {
         //Could pass a boolean value to say whether selection is strict or not
         //Aka if the player can select less or if it has to be the exact amount
         doneButton.addActionListener(k -> {
-            if(state.resourceSelection.values().stream().mapToInt(Counter::getValue).sum() <= numberOfResourceSelections) {
+            if(everdellGUIManager.resourceSelection.values().stream().mapToInt(Counter::getValue).sum() <= numberOfResourceSelections) {
                 resourceButtonAction.apply(state);
-
-                state.resourceSelection = new HashMap<ResourceTypes, Counter>();
-                state.resourceSelection.put(ResourceTypes.BERRY, new Counter());
-                state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
-                state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
-                state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
             }
         });
 
@@ -567,6 +610,7 @@ public class BottomPanel extends JPanel {
 
     public void drawWorkerPlacement(){
         resetNavigation();
+        everdellGUIManager.resetValues();
         displayWorkerPlacement = true;
 
         draw();
@@ -574,6 +618,7 @@ public class BottomPanel extends JPanel {
 
     public void drawPlayerCards(){
         resetNavigation();
+        everdellGUIManager.resetValues();
         displayCards = true;
 
         draw();
@@ -601,5 +646,7 @@ public class BottomPanel extends JPanel {
         makeCardsButtons = true;
         draw();
     }
+
+
 
 }

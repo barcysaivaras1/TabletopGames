@@ -50,12 +50,10 @@ public class EverdellGameState extends AbstractGameState {
     //These values are used to indicate what the player has selected in their turn
     //I'm not sure what is better. To use it like this or try to send the actions values instead?
     //I think this keeps things more organised
-    public EverdellCard currentCard;
 
     public HashMap<ResourceTypes, Counter> resourceSelection;
     public ArrayList<EverdellCard> cardSelection;
 
-    public int playerTurn;
 
 
 
@@ -85,6 +83,30 @@ public class EverdellGameState extends AbstractGameState {
     @Override
     protected List<Component> _getAllComponents() {
         // TODO: add all components to the list
+        List<Component> components = new ArrayList<>();
+        components.add(cardDeck.copy());
+        components.add(meadowDeck.copy());
+        for(var hand : playerHands){
+            components.add(hand.copy());
+        }
+        for(var village : playerVillage){
+            components.add(village.copy());
+        }
+        for(var resource : PlayerResources.keySet()){
+            for(int i = 0; i< this.getNPlayers(); i++){
+                components.add(PlayerResources.get(resource)[i].copy());
+            }
+        }
+        for(int i = 0; i< cardCount.length; i++){
+            components.add(cardCount[i].copy());
+            components.add(workers[i].copy());
+            components.add(pointTokens[i].copy());
+        }
+
+        for(var resource : resourceSelection.keySet()){
+            components.add(resourceSelection.get(resource).copy());
+        }
+
         return new ArrayList<>();
     }
 
@@ -109,7 +131,60 @@ public class EverdellGameState extends AbstractGameState {
     protected EverdellGameState _copy(int playerId) {
         EverdellGameState copy = new EverdellGameState(gameParameters, getNPlayers());
         // TODO: deep copy all variables to the new game state.
-        copy.Locations = this.Locations;
+
+        copy.cardDeck = cardDeck.copy();
+        copy.meadowDeck = meadowDeck.copy();
+
+        copy.playerHands = new ArrayList<>();
+        for(var hand : playerHands){
+            copy.playerHands.add(hand.copy());
+        }
+        copy.playerVillage = new ArrayList<>();
+        for(var village : playerVillage){
+            copy.playerVillage.add(village.copy());
+        }
+
+
+        copy.workers = new Counter[workers.length];
+        copy.pointTokens = new Counter[pointTokens.length];
+        copy.cardCount = new Counter[cardCount.length];
+        for(int i = 0; i< cardCount.length; i++){
+            copy.workers[i] = workers[i].copy();
+            copy.pointTokens[i] = pointTokens[i].copy();
+            copy.cardCount[i] = cardCount[i].copy();
+        }
+
+
+        copy.resourceSelection = new HashMap<>();
+        for(var resource : resourceSelection.keySet()){
+            copy.resourceSelection.put(resource, resourceSelection.get(resource).copy());
+        }
+
+        copy.cardSelection = new ArrayList<>();
+        for(var card : cardSelection){
+            copy.cardSelection.add(card.copy());
+        }
+
+
+        copy.currentSeason = new EverdellParameters.Seasons[currentSeason.length];
+        for(int i=0;i<currentSeason.length;i++){
+            copy.currentSeason[i] = currentSeason[i];
+        }
+
+        copy.Locations = new HashMap<>();
+        for(var location : Locations.keySet()){
+            EverdellLocation loc = new EverdellLocation(location, Locations.get(location).getNumberOfSpaces());
+            copy.Locations.put(location, loc);
+        }
+
+        copy.PlayerResources = new HashMap<>();
+        for(var resource : PlayerResources.keySet()){
+            copy.PlayerResources.put(resource, new Counter[PlayerResources.get(resource).length]);
+            for(int i = 0; i< this.getNPlayers(); i++){
+                copy.PlayerResources.get(resource)[i] = PlayerResources.get(resource)[i].copy();
+            }
+        }
+
 
 
         return copy;
@@ -150,12 +225,12 @@ public class EverdellGameState extends AbstractGameState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState that = (EverdellGameState) o;
-        return playerTurn == that.playerTurn && Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
+        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), currentCard, resourceSelection, cardSelection, playerTurn);
+        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), resourceSelection, cardSelection);
     }
 
 

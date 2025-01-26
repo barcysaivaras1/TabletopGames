@@ -57,7 +57,7 @@ public class EverdellCard extends Card {
 
     @Override
     public EverdellCard copy() {
-        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect, componentID);
+        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }

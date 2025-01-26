@@ -3,12 +3,16 @@ package games.everdell.actions;
 import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
+import core.components.Counter;
 import games.everdell.EverdellGameState;
+import games.everdell.EverdellParameters;
 import games.everdell.components.ConstructionCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.CardDetails;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -37,9 +41,14 @@ public class PlayCard extends AbstractAction {
      */
 
     private EverdellCard currentCard;
+    private ArrayList<EverdellCard> cardSelection;
+    private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
-    public PlayCard(EverdellCard card){
+
+    public PlayCard(EverdellCard card, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection){
         currentCard = card;
+        this.cardSelection = cardSelection;
+        this.resourceSelection = resourceSelection;
     }
 
 
@@ -48,10 +57,17 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        state.currentCard = this.currentCard;
+
+
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
-        if(state.cardCount[state.playerTurn].getValue() > 0 && state.playerVillage.get(state.playerTurn).getSize() < 15){
+        if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < 15){
+            state.cardSelection = cardSelection;
+            state.resourceSelection = resourceSelection;
+//            if(state.playerVillage.get(state.getCurrentPlayer()).contains(currentCard)){
+//                System.out.println("You already have this card in your village");
+//                return false;
+//            }
 
 
             //Check if the card is Unique and if the player has this card in their village
@@ -62,6 +78,7 @@ public class PlayCard extends AbstractAction {
             }
 
 
+
             //Check if the player can buy the card
             if(!checkIfPlayerCanBuyCard(state)){
                 System.out.println("You don't have enough resources to buy this card");
@@ -69,13 +86,13 @@ public class PlayCard extends AbstractAction {
             }
 
             //Make the player pay for the resources, it hasn't been paid for yet (via occupation)
-            if(!state.currentCard.isCardPayedFor()){
+            if(!currentCard.isCardPayedFor()){
                 makePlayerPayForCard(state);
-                state.currentCard.payForCard();
+                currentCard.payForCard();
             }
 
             //Add Card to village
-            state.playerVillage.get(state.playerTurn).add(currentCard);
+            state.playerVillage.get(state.getCurrentPlayer()).add(currentCard);
 
             //Remove Card
             removeCard(state);
@@ -90,9 +107,11 @@ public class PlayCard extends AbstractAction {
             System.out.println("You have placed a card");
 
             state.cardSelection.clear();
+            for(var resource : state.resourceSelection.keySet()){
+                state.resourceSelection.put(resource, new Counter());
+            }
             return true;
         }
-        System.out.println("You have no cards left");
         return false;
     }
 
@@ -110,14 +129,14 @@ public class PlayCard extends AbstractAction {
         //Remove card from hand
         //If we fail to remove that card object from the hand, it means that the card was in the meadow
         //We remove the card from the meadow and add a new card to the meadow
-        if(!state.playerHands.get(state.playerTurn).remove(currentCard)){
+        if(!state.playerHands.get(state.getCurrentPlayer()).remove(currentCard)){
             state.meadowDeck.remove(currentCard);
             state.meadowDeck.add(state.cardDeck.draw());
         }
         //We played the card from our hand
         else{
             //Decrement Card counter
-            state.cardCount[state.playerTurn].decrement();
+            state.cardCount[state.getCurrentPlayer()].decrement();
         }
     }
 
@@ -126,7 +145,7 @@ public class PlayCard extends AbstractAction {
         //This is for cards that do NOT need GUI elements to be function
         //There is a separate function for cards that need GUI elements to function in the GUIManager
 
-        for(EverdellCard card : state.playerVillage.get(state.playerTurn).getComponents()){
+        for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
             if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER){
                 //Trigger Shop keeper effect
                 triggerCardEffect(state, card);
@@ -158,9 +177,9 @@ public class PlayCard extends AbstractAction {
 
     private Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state){
         //Check if the player has this Unique card in their village
-        if(state.currentCard.isUnique()){
-            for(EverdellCard card : state.playerVillage.get(state.playerTurn).getComponents()){
-                if(card.getCardEnumValue() == state.currentCard.getCardEnumValue()){
+        if(currentCard.isUnique()){
+            for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
+                if(card.getCardEnumValue() == currentCard.getCardEnumValue()){
                     return false;
                 }
             }
@@ -176,7 +195,7 @@ public class PlayCard extends AbstractAction {
             return true;
         }
         for(var resource : currentCard.getResourceCost().keySet()){
-            if(state.PlayerResources.get(resource)[state.playerTurn].getValue() < currentCard.getResourceCost().get(resource)){
+            if(state.PlayerResources.get(resource)[state.getCurrentPlayer()].getValue() < currentCard.getResourceCost().get(resource)){
                 return false;
             }
         }
@@ -186,8 +205,8 @@ public class PlayCard extends AbstractAction {
 
     private void makePlayerPayForCard(EverdellGameState state){
         //Make the player pay for the resources
-        for(var resource : state.currentCard.getResourceCost().keySet()){
-            state.PlayerResources.get(resource)[state.playerTurn].decrement(state.currentCard.getResourceCost().get(resource));
+        for(var resource : currentCard.getResourceCost().keySet()){
+            state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(currentCard.getResourceCost().get(resource));
         }
     }
 
@@ -218,7 +237,7 @@ public class PlayCard extends AbstractAction {
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "My action name";
+        return "Placing Card : " + currentCard.getName();
     }
 
     /**

@@ -36,62 +36,67 @@ public class MoveSeason extends AbstractAction {
      * @param gs - game state which should be modified by this action.
      * @return - true if successfully executed, false otherwise.
      */
-    @Override
+
+    ArrayList<EverdellCard> cardSelection;
+
+    public MoveSeason(ArrayList<EverdellCard> cardSelection){
+        this.cardSelection = cardSelection;
+    }
 
     //This will need to have unique effects implemented each season
+
 
     //Spring, Production event and +1 max workers
     //Summer, Draw 2 from the meadow and +1 max workers
     //Autumn, Production event and +2 max workers
+    @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
 
         EverdellGameState state = (EverdellGameState) gs;
 
-        if (state.workers[state.playerTurn].getValue() == 0 && state.currentSeason[state.playerTurn] != Seasons.AUTUMN) {
-            Seasons currentSeason = state.currentSeason[state.playerTurn];
+        if (state.workers[state.getCurrentPlayer()].getValue() == 0 && state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN) {
+            state.cardSelection = cardSelection;
+            Seasons currentSeason = state.currentSeason[state.getCurrentPlayer()];
             Seasons newSeason = Seasons.values()[(currentSeason.ordinal() + 1) % Seasons.values().length];
-            state.currentSeason[state.playerTurn] = newSeason;
+            state.currentSeason[state.getCurrentPlayer()] = newSeason;
 
             //Increment workers
             //Autumn has a special case of incrementing by 2
             switch (newSeason) {
                 case SPRING:
                     //Production event
-                    state.workers[state.playerTurn].increment();
+                    state.workers[state.getCurrentPlayer()].increment();
                     productionEvent(state);
                     break;
                 case SUMMER:
                     //Draw 2 from the meadow
-                    state.workers[state.playerTurn].increment();
+                    state.workers[state.getCurrentPlayer()].increment();
                     break;
                 case AUTUMN:
                     //Production event
-                    state.workers[state.playerTurn].increment(2);
+                    state.workers[state.getCurrentPlayer()].increment(2);
                     productionEvent(state);
                     break;
             }
 
                 //Bring back all workers
                 for (var location : state.Locations.keySet()) {
-                    System.out.println(location);
-                    System.out.println("We are at : " + location + " and the players on location are: " + state.Locations.get(location).playersOnLocation);
 
 
                     //If no players are on the location, skip
                     if (state.Locations.get(location).playersOnLocation.isEmpty()) continue;
 
                     if(location instanceof EverdellParameters.BasicEvent){
-                        state.workers[state.playerTurn].increment();
+                        state.workers[state.getCurrentPlayer()].increment();
                         continue;
                     }
 
                     //If player is on the location, remove them and increment their workers
-                    state.Locations.get(location).playersOnLocation.remove(state.playerTurn);
-                    state.workers[state.playerTurn].increment();
+                    state.Locations.get(location).playersOnLocation.remove(state.getCurrentPlayer());
+                    state.workers[state.getCurrentPlayer()].increment();
                 }
 
-                System.out.println("It is now " + state.currentSeason[state.playerTurn]);
                 return true;
             }
             return false;
@@ -121,9 +126,9 @@ public class MoveSeason extends AbstractAction {
     public void summerEvent(EverdellGameState state){
         //Take cards from meadow and place in player hand
         //It is assumed that the player has space in their hand
-        for(var c : state.cardSelection){
-            state.playerHands.get(state.playerTurn).add(c);
-            state.cardCount[state.playerTurn].increment();
+        for(var c : cardSelection){
+            state.playerHands.get(state.getCurrentPlayer()).add(c);
+            state.cardCount[state.getCurrentPlayer()].increment();
             state.meadowDeck.remove(c);
             state.meadowDeck.add(state.cardDeck.draw());
         }

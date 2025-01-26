@@ -61,54 +61,54 @@ public class EverdellParameters extends AbstractParameters {
 
         static{
             THREE_WOOD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(3);
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(3);
                 return THREE_WOOD;
             };
             TWO_WOOD_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
-                if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(2);
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return TWO_WOOD_ONE_CARD;
             };
             ONE_BERRY.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
                 return ONE_BERRY;
             };
             ONE_BERRY_ONE_CARD.applyLocationEffect = (state) -> {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
-                    if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                        state.cardCount[state.playerTurn].increment();
+                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                        state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                        state.cardCount[state.getCurrentPlayer()].increment();
                     }
                 return ONE_BERRY_ONE_CARD;
             };
             ONE_PEBBLE.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
                 return ONE_PEBBLE;
             };
             TWO_CARD_ONE_POINT.applyLocationEffect = (state) -> {
-                state.pointTokens[state.playerTurn].increment();
-                if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()-1){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                } else if (state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
+                state.pointTokens[state.getCurrentPlayer()].increment();
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()-1){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                } else if (state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
                 }
-                state.cardCount[state.playerTurn].increment(2);
+                state.cardCount[state.getCurrentPlayer()].increment(2);
                 return TWO_CARD_ONE_POINT;
             };
             TWO_RESIN.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(2);
+                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment(2);
                 return TWO_RESIN;
             };
             ONE_RESIN_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment();
-                if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
+                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment();
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
                 }
-                state.cardCount[state.playerTurn].increment();
+                state.cardCount[state.getCurrentPlayer()].increment();
                 return ONE_RESIN_ONE_CARD;
             };
         }
@@ -117,7 +117,7 @@ public class EverdellParameters extends AbstractParameters {
     public enum ForestLocations implements AbstractLocations{
         THREE_BERRY,TWO_BERRY_ONE_CARD,TWO_RESIN_ONE_TWIG,THREE_CARDS_ONE_PEBBLE,ONE_TWIG_ONE_RESIN_ONE_BERRY, TWO_ANY, TWO_CARDS_ONE_ANY,
         DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED, DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED,
-        /*DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT*/ COPY_BASIC_LOCATION_DRAW_CARD;
+        DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT, COPY_BASIC_LOCATION_DRAW_CARD;
 
         public Function<EverdellGameState, ForestLocations> applyLocationEffect;
 
@@ -133,47 +133,47 @@ public class EverdellParameters extends AbstractParameters {
 
         static{
             THREE_BERRY.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(3);
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(3);
                 return THREE_BERRY;
             };
             TWO_BERRY_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(2);
-                if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(2);
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return TWO_BERRY_ONE_CARD;
             };
             TWO_RESIN_ONE_TWIG.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(2);
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment(2);
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(1);
 
                 return TWO_RESIN_ONE_TWIG;
             };
             THREE_CARDS_ONE_PEBBLE.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
 
                 for(int i = 0 ; i<3; i++){
-                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
 
                 return THREE_CARDS_ONE_PEBBLE;
             };
             ONE_TWIG_ONE_RESIN_ONE_BERRY.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment(1);
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(1);
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment(1);
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(1);
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
 
                 return ONE_TWIG_ONE_RESIN_ONE_BERRY;
             };
 
             TWO_ANY.applyLocationEffect = (state) ->{
                 for(var resources :  state.resourceSelection.keySet()){
-                    state.PlayerResources.get(resources)[state.playerTurn].increment(state.resourceSelection.get(resources).getValue());
+                    state.PlayerResources.get(resources)[state.getCurrentPlayer()].increment(state.resourceSelection.get(resources).getValue());
                 }
 
 
@@ -183,16 +183,16 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Add the selected resources
                 for(var resources :  state.resourceSelection.keySet()){
-                    state.PlayerResources.get(resources)[state.playerTurn].increment(state.resourceSelection.get(resources).getValue());
+                    state.PlayerResources.get(resources)[state.getCurrentPlayer()].increment(state.resourceSelection.get(resources).getValue());
                 }
 
                 // Draw two cards
                 for(int i = 0 ; i<2; i++){
-                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
 
                 return TWO_CARDS_ONE_ANY;
@@ -202,8 +202,8 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard a card
                 for(var card : cardChoices){
                     try{
-                        state.playerHands.get(state.playerTurn).remove((EverdellCard) card);
-                        state.cardCount[state.playerTurn].decrement();
+                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.cardCount[state.getCurrentPlayer()].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
                     }
@@ -212,11 +212,11 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Draw two cards
                 for(int i = 0 ; i<(cardChoices.size()*2); i++){
-                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED;
             };
@@ -225,8 +225,8 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard a card
                 for(var card : cardChoices){
                     try{
-                        state.playerHands.get(state.playerTurn).remove((EverdellCard) card);
-                        state.cardCount[state.playerTurn].decrement();
+                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.cardCount[state.getCurrentPlayer()].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
                     }
@@ -241,7 +241,7 @@ public class EverdellParameters extends AbstractParameters {
                         }
                         resourceCounter++;
 
-                        state.PlayerResources.get(resource)[state.playerTurn].increment(1);
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(1);
                     }
                 }
                 return DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED;
@@ -252,38 +252,49 @@ public class EverdellParameters extends AbstractParameters {
                 basicLocationChoice.applyLocationEffect.apply(state);
 
                 //Draw a card
-                if(state.playerHands.get(state.playerTurn).getSize() < state.playerHands.get(state.playerTurn).getCapacity()){
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return COPY_BASIC_LOCATION_DRAW_CARD;
             };
 
             //THIS NEEDS EXTRA WORK, WHEN I HAVE ADDDED COSTS TO CARDS
-//            DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT.applyLocationEffect = (state) ->{
-//                //Draw two cards
-//                //Card Choices will hold the cards that the player drew
-//                for(var card : cardChoices){
-//                    try{
-//                        state.playerHands.get(state.playerTurn).add(card);
-//                        state.cardCount[state.playerTurn].increment();
-//                    } catch (Exception e){
-//                        System.out.println("Error in Forest Locations, Choices did not contain cards");
-//                    }
-//                }
-//
-//                //Card Selection will hold the card that the player selected to play at a discount
-//                //Play one card at a discount
-//                for(var card : cardChoices){
-//                    try{
-//                        state.playerHands.get(state.playerTurn).remove((EverdellCard) card);
-//                        state.cardCount[state.playerTurn].increment();
-//                    } catch (Exception e){
-//                        System.out.println("Error in Forest Locations, Choices did not contain cards");
-//                    }
-//                }
-//                return DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT;
-//            };
+            DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT.applyLocationEffect = (state) ->{
+                //Draw two cards
+                //Card Choices will hold the card that the player wants to take in their hand
+                //Card Selection will hold the card that the player wants to play at a discount
+
+                //Attempt to place the card in the players hand
+
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    System.out.println("Adding card to hand : "+cardChoices.get(0).getName());
+                    state.playerHands.get(state.getCurrentPlayer()).add(cardChoices.get(0));
+                    state.cardCount[state.getCurrentPlayer()].increment();
+                }
+
+                //Apply the discount to the card
+                System.out.println("Applying discount to card : "+state.cardSelection.get(0).getName());
+                for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
+                    int discount = state.resourceSelection.get(resource).getValue();
+                    System.out.println("Resource Type is : "+resource);
+                    System.out.println("RESOURCE COUNT FROM STATE : "+state.resourceSelection.get(resource).getValue());
+                    int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
+
+                    System.out.println("Initial Cost : "+initialCost);
+                    System.out.println("Discount : "+discount);
+
+                    int finalCost = Math.max(initialCost - discount, 0);
+
+                    System.out.println("Final Cost : "+finalCost);
+
+                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
+                }
+                state.cardSelection.get(0).payForCard();
+
+
+                return DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT;
+            };
         }
     }
 
@@ -294,7 +305,7 @@ public class EverdellParameters extends AbstractParameters {
 
         @Override
         public void applyLocationEffect(EverdellGameState state) {
-            applyLocationEffect.apply(state);
+            state.pointTokens[state.getCurrentPlayer()].increment(3);
         }
 
 
@@ -330,13 +341,15 @@ public class EverdellParameters extends AbstractParameters {
                 //From gameState Resource Selection will tell us how much of a discount will be applied.
                 //The card selection will hold the card that the player selected to play at a discount
 
-                for(var playerResource : state.PlayerResources.keySet()){
-                    int discount = state.resourceSelection.get(playerResource).getValue();
-                    int initialCost = state.cardSelection.get(0).getResourceCost().get(playerResource);
 
-                    int finalCost = discount-initialCost;
 
-                    state.PlayerResources.get(playerResource)[state.playerTurn].decrement(finalCost);
+                for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
+                    int discount = state.resourceSelection.get(resource).getValue();
+                    int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
+
+                    int finalCost = Math.max(initialCost - discount, 0);
+
+                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
                 }
                 state.cardSelection.get(0).payForCard();
                 return INN_DESTINATION;
@@ -368,7 +381,7 @@ public class EverdellParameters extends AbstractParameters {
                 put(ResourceTypes.TWIG, 2);
                 put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
             }
             ,  new ArrayList<>(List.of(WIFE)));
@@ -379,7 +392,7 @@ public class EverdellParameters extends AbstractParameters {
                 put(ResourceTypes.RESIN, 1);
                 put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.playerTurn].increment();
+                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment();
                 return true;
             }, new ArrayList<>(List.of(CHIP_SWEEP)));
 
@@ -388,11 +401,11 @@ public class EverdellParameters extends AbstractParameters {
                     put(ResourceTypes.RESIN, 1);
                     put(ResourceTypes.PEBBLE, 1);
                 }}, (state) -> {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
+                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
 
-                    for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
+                    for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                         if(everdellCard.getCardEnumValue() == FARM){
-                            state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
+                            state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                             break;
                         }
                     }
@@ -406,11 +419,11 @@ public class EverdellParameters extends AbstractParameters {
                     put(ResourceTypes.BERRY, 2);
                 }}, (state) -> {
                     for(int i = 0 ; i<3; i++){
-                        if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                        if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                             break;
                         }
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                        state.cardCount[state.playerTurn].increment();
+                        state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                        state.cardCount[state.getCurrentPlayer()].increment();
                     }
                     return true;
             });
@@ -418,7 +431,7 @@ public class EverdellParameters extends AbstractParameters {
                 {{
                     put(ResourceTypes.BERRY, 2);
                 }}, (state) -> {
-                    for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
+                    for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                         if(everdellCard.getCardEnumValue() == HUSBAND){
 
                         }
@@ -434,7 +447,7 @@ public class EverdellParameters extends AbstractParameters {
                     boolean isThereWife = false;
                     boolean isThereFarm = false;
 
-                    for(var card : state.playerVillage.get(state.playerTurn)){
+                    for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                         if(card.getCardEnumValue() == WIFE){
                             isThereWife = true;
                         }
@@ -465,11 +478,11 @@ public class EverdellParameters extends AbstractParameters {
                     put(ResourceTypes.PEBBLE, 1);
                 }}, (state) -> {
                 for(int i = 0 ; i<2; i++){
-                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                    state.cardCount[state.playerTurn].increment();
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return true;
             }, new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
@@ -480,7 +493,7 @@ public class EverdellParameters extends AbstractParameters {
                     put(ResourceTypes.TWIG, 1);
                     put(ResourceTypes.RESIN, 1);
                 }}, (state) -> {
-                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.playerTurn].increment(1);
+                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
                 return true;
             }, new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
 
@@ -489,7 +502,7 @@ public class EverdellParameters extends AbstractParameters {
                     put(ResourceTypes.TWIG, 1);
                     put(ResourceTypes.PEBBLE, 1);
                 }}, (state) -> {
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(2);
                 return true;
             }, new ArrayList<>(List.of(BARGE_TOAD)));
 
@@ -497,9 +510,9 @@ public class EverdellParameters extends AbstractParameters {
                 {{
                     put(ResourceTypes.BERRY, 2);
                 }}, (state) -> {
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == FARM){
-                        state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].increment(2);
+                        state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(2);
                     }
                 }
                 return true;
@@ -510,12 +523,12 @@ public class EverdellParameters extends AbstractParameters {
                 {{
                     put(ResourceTypes.BERRY, 2);
                 }}, (state) -> {
-                if(state.currentCard.getCardEnumValue() == SHOP_KEEPER){
+                if(state.cardSelection.get(0).getCardEnumValue() == SHOP_KEEPER){
                     return false;
                 }
                 //Check if it is a critter
-                if (!state.currentCard.isConstruction()) {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment(1);
+                if (!state.cardSelection.get(0).isConstruction()) {
+                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
                 }
                 return true;
             });
@@ -530,13 +543,13 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
                 //Find all non-unique constructions
                 //Add a point for each non-unique construction
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.isConstruction() && !(card.isUnique())){
                         counter++;
                     }
                 }
                 //Add the points to the castle card
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == CASTLE){
                         card.setCardPoints(counter + 4);
                         break;
@@ -554,11 +567,11 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
 
                 for(var loc : state.Locations.values()){
-                    if(loc.getLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.playerTurn)){
+                    if(loc.getLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())){
                         counter++;
                     }
                 }
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == KING){
                         card.setCardPoints(counter + 4);
                         break;
@@ -578,13 +591,13 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
                 //Find all unique constructions
                 //Add a point for each unique construction
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.isConstruction() && card.isUnique()){
                         counter++;
                     }
                 }
                 //Add the points to the castle card
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == PALACE){
                         card.setCardPoints(counter + 4);
                         break;
@@ -604,13 +617,13 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
                 //Find all unique critters
                 //Add a point for each unique critter
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(!card.isConstruction() && card.isUnique()){
                         counter++;
                     }
                 }
                 //Add the points to the Theatre card
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == THEATRE){
                         card.setCardPoints(counter + 3);
                         break;
@@ -628,13 +641,13 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
                 //Find all common critters
                 //Add a point for common critters
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(!card.isConstruction() && !card.isUnique()){
                         counter++;
                     }
                 }
                 //Add the points to the School card
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == SCHOOL){
                         card.setCardPoints(counter + 2);
                         break;
@@ -653,14 +666,14 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard up to 5 cards, Give 1 point for each card discarded
                 for(var card : state.cardSelection){
                     try{
-                        state.playerHands.get(state.playerTurn).remove((EverdellCard) card);
-                        state.cardCount[state.playerTurn].decrement();
+                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.cardCount[state.getCurrentPlayer()].decrement();
                         counter++;
                     } catch (Exception e){
                         System.out.println("Error in Bard, Choices did not contain cards");
                     }
                 }
-                state.pointTokens[state.playerTurn].increment(counter);
+                state.pointTokens[state.getCurrentPlayer()].increment(counter);
                 return true;
             });
 
@@ -674,7 +687,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
                 if(!state.cardSelection.isEmpty()){
-                    if(state.cardSelection.get(0) == state.currentCard || !state.cardSelection.get(0).isConstruction()){
+                    if(state.cardSelection.get(0) == state.cardSelection.get(0) || !state.cardSelection.get(0).isConstruction()){
                         return false;
                     }
                     //Remove the selected card from the village
@@ -683,12 +696,12 @@ public class EverdellParameters extends AbstractParameters {
 
                     for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                         if(card == state.cardSelection.get(0)){
-                            state.playerVillage.get(state.playerTurn).remove(card);
+                            state.playerVillage.get(state.getCurrentPlayer()).remove(card);
                             break;
                         }
                     }
 
-                    state.cardCount[state.playerTurn].decrement();
+                    state.cardCount[state.getCurrentPlayer()].decrement();
 
                     //Refund the Resources
                     for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
@@ -697,11 +710,11 @@ public class EverdellParameters extends AbstractParameters {
 
                     //Draw 2 Cards
                     for(int i = 0 ; i<2; i++){
-                        if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+                        if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                             break;
                         }
-                        state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-                        state.cardCount[state.playerTurn].increment();
+                        state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                        state.cardCount[state.getCurrentPlayer()].increment();
                     }
 
                 }
@@ -719,8 +732,8 @@ public class EverdellParameters extends AbstractParameters {
                     //It can take a max of 3 wood
                     int amount = Math.min(state.resourceSelection.get(ResourceTypes.TWIG).getValue(), 3);
                     amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
-                    state.pointTokens[state.playerTurn].increment(amount);
-                    state.PlayerResources.get(ResourceTypes.TWIG)[state.playerTurn].decrement(amount);
+                    state.pointTokens[state.getCurrentPlayer()].increment(amount);
+                    state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].decrement(amount);
 
                     //Reset it to 0
                     state.resourceSelection = new HashMap<ResourceTypes, Counter>();
@@ -742,8 +755,8 @@ public class EverdellParameters extends AbstractParameters {
                     //It can take a max of 3 berries
                     int amount = Math.min(state.resourceSelection.get(ResourceTypes.BERRY).getValue(), 3);
                     amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue());
-                    state.pointTokens[state.playerTurn].increment(amount);
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].decrement(amount);
+                    state.pointTokens[state.getCurrentPlayer()].increment(amount);
+                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].decrement(amount);
 
                     //Reset it to 0
                     state.resourceSelection = new HashMap<ResourceTypes, Counter>();
@@ -770,7 +783,7 @@ public class EverdellParameters extends AbstractParameters {
                 amount = Math.min(amount, 6);
 
                 //Add the points to the Architect card
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == ARCHITECT){
                         card.setCardPoints(amount + 2);
                         break;
@@ -796,18 +809,24 @@ public class EverdellParameters extends AbstractParameters {
                 }}, (state) -> {
                 //Chip Sweep takes in a production card and copies its effect.
                 //The player can select which production card to copy
-                for(var card : state.cardSelection){
-                    if(card.getCardType() == CardType.GREEN_PRODUCTION){
-                        if(card instanceof ConstructionCard constructionCard){
-                            constructionCard.applyCardEffect(state);
-                        }
-                        else{
-                            CritterCard critterCard = (CritterCard) card;
-                            critterCard.applyCardEffect(state);
-                        }
-                        return true;
+
+                EverdellCard card = state.cardSelection.get(0);
+
+                System.out.println("Chip Sweep is copying: " + card);
+
+                if(card.getCardType() == CardType.GREEN_PRODUCTION){
+                    if(card instanceof ConstructionCard constructionCard){
+                        System.out.println("Copying Construction Card");
+                        constructionCard.applyCardEffect(state);
                     }
+                    else{
+                        System.out.println("Copying Critter Card");
+                        CritterCard critterCard = (CritterCard) card;
+                        critterCard.applyCardEffect(state);
+                    }
+                    return true;
                 }
+
 
 
                 return false;
@@ -847,7 +866,7 @@ public class EverdellParameters extends AbstractParameters {
 //        put(ResourceTypes.TWIG, 2);
 //        put(ResourceTypes.RESIN, 1);
 //    }}, (state) -> {
-//        state.PlayerResources.get(ResourceTypes.BERRY)[state.playerTurn].increment();
+//        state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
 //        return true;
 //    }));
 
@@ -870,7 +889,7 @@ public class EverdellParameters extends AbstractParameters {
 //            FARM.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
 //            FARM.points = 1;
 //            FARM.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
+//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
 //                return FARM;
 //            };
 //
@@ -883,7 +902,7 @@ public class EverdellParameters extends AbstractParameters {
 //            RESIN_REFINERY.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
 //            RESIN_REFINERY.points = 1;
 //            RESIN_REFINERY.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.RESIN)[state.playerTurn].increment();
+//                state.PlayerResources.get(EverdellParameters.ResourceTypes.RESIN)[state.getCurrentPlayer()].increment();
 //                return RESIN_REFINERY;
 //            };
 //
@@ -894,11 +913,11 @@ public class EverdellParameters extends AbstractParameters {
 //            GENERAL_STORE.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
 //            GENERAL_STORE.points = 1;
 //            GENERAL_STORE.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
+//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
 //
-//                for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
+//                for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
 //                    if(everdellCard.cardDetails == FARM){
-//                        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.playerTurn].increment();
+//                        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
 //                        break;
 //                    }
 //                }
@@ -912,11 +931,11 @@ public class EverdellParameters extends AbstractParameters {
 //            WANDERER.points = 1;
 //            WANDERER.applyCardEffect = (state) -> {
 //                for(int i = 0 ; i<3; i++){
-//                    if(state.playerHands.get(state.playerTurn).getSize() == state.playerHands.get(state.playerTurn).getCapacity()){
+//                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
 //                        break;
 //                    }
-//                    state.playerHands.get(state.playerTurn).add(state.cardDeck.draw());
-//                    state.cardCount[state.playerTurn].increment();
+//                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+//                    state.cardCount[state.getCurrentPlayer()].increment();
 //                }
 //                return WANDERER;
 //            };
@@ -927,7 +946,7 @@ public class EverdellParameters extends AbstractParameters {
 //            WIFE.resourceCost.put(EverdellParameters.ResourceTypes.BERRY, 2);
 //            WIFE.points = 2;
 //            WIFE.applyCardEffect = (state) -> {
-//                for(var everdellCard : state.playerVillage.get(state.playerTurn).getComponents()){
+//                for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
 //                    if(everdellCard.cardDetails == HUSBAND){
 //                        WIFE.points = 3;
 //                        break;
@@ -956,7 +975,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 10);
+        put(CardDetails.FARM, 4);
         put(CardDetails.RESIN_REFINERY, 1);
         put(CardDetails.GENERAL_STORE, 1);
         put(CardDetails.WANDERER, 1);
@@ -977,9 +996,9 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.WOOD_CARVER, 3);
         put(CardDetails.DOCTOR, 3);
         put(CardDetails.PEDDLER, 3);
-        put(CardDetails.LOOKOUT, 3);
-        put(CardDetails.QUEEN, 10);
-        //put(CardDetails.INN, 10);
+        put(CardDetails.LOOKOUT, 15);
+        put(CardDetails.QUEEN, 3);
+        put(CardDetails.INN, 3);
         //put(CardDetails.CHIP_SWEEP, 10);
     }};
 

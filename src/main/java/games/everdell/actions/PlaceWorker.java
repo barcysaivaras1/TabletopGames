@@ -13,6 +13,9 @@ import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
 
 import javax.xml.stream.Location;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -40,9 +43,13 @@ public class PlaceWorker extends AbstractAction {
      * @return - true if successfully executed, false otherwise.
      */
     private EverdellParameters.AbstractLocations locationToPlaceIn;
+    private ArrayList<EverdellCard> cardSelection;
+    private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
-    public PlaceWorker(EverdellParameters.AbstractLocations location){
+    public PlaceWorker(EverdellParameters.AbstractLocations location, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection) {
         locationToPlaceIn = location;
+        this.cardSelection = cardSelection;
+        this.resourceSelection = resourceSelection;
     }
 
 
@@ -54,12 +61,15 @@ public class PlaceWorker extends AbstractAction {
         //Check if this location is free
         if(state.workers[0].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
 
+            state.cardSelection = cardSelection;
+            state.resourceSelection = resourceSelection;
+
             //Check if we meet the requirements for the basic event
             if(locationToPlaceIn instanceof EverdellParameters.BasicEvent){
                 if(!canWePlaceOnThisBasicEvent(state)){
                     return false;
                 }
-                for(var card : state.playerVillage.get(state.playerTurn)){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
                     //If there is a King Card Present we must apply the effect after a basic Event claim
                     if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
                         CritterCard kingCard = (CritterCard) card;
@@ -72,7 +82,7 @@ public class PlaceWorker extends AbstractAction {
             state.workers[0].decrement();
             EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
             everdellLocation.getLocation().applyLocationEffect(state);
-            everdellLocation.playersOnLocation.add(((EverdellGameState) gs).playerTurn);
+            everdellLocation.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
             return true;
         }
 
@@ -86,7 +96,7 @@ public class PlaceWorker extends AbstractAction {
             case GREEN_PRODUCTION_EVENT:
                 target = 4;
                 counter = 0;
-                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                     if (card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
                         counter++;
                     }
@@ -99,7 +109,7 @@ public class PlaceWorker extends AbstractAction {
             case BLUE_GOVERNANCE_EVENT:
                 target = 3;
                 counter = 0;
-                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                     if (card.getCardType() == EverdellParameters.CardType.BLUE_GOVERNANCE){
                         counter++;
                     }
@@ -111,7 +121,7 @@ public class PlaceWorker extends AbstractAction {
             case RED_DESTINATION_EVENT:
                 target = 3;
                 counter = 0;
-                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                     if (card.getCardType() == EverdellParameters.CardType.RED_DESTINATION){
                         counter++;
                     }
@@ -123,7 +133,7 @@ public class PlaceWorker extends AbstractAction {
             case TAN_TRAVELER_EVENT:
                 target = 3;
                 counter = 0;
-                for(var card : state.playerVillage.get(state.playerTurn).getComponents()){
+                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                     if (card.getCardType() == EverdellParameters.CardType.TAN_TRAVELER){
                         counter++;
                     }
@@ -146,24 +156,28 @@ public class PlaceWorker extends AbstractAction {
     @Override
     public PlaceWorker copy() {
         // TODO: copy non-final variables appropriately
-        return this;
+        PlaceWorker copy = new PlaceWorker(locationToPlaceIn, cardSelection, resourceSelection);
+        return copy;
     }
 
+
     @Override
-    public boolean equals(Object obj) {
-        // TODO: compare all other variables in the class
-        return obj instanceof EverdellAction;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlaceWorker that = (PlaceWorker) o;
+        return Objects.equals(locationToPlaceIn, that.locationToPlaceIn);
     }
 
     @Override
     public int hashCode() {
-        return 19234845;
+        return Objects.hashCode(locationToPlaceIn);
     }
 
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "My action name";
+        return "Place Worker in " + locationToPlaceIn;
     }
 
     /**

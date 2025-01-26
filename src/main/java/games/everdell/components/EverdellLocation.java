@@ -42,11 +42,14 @@ public class EverdellLocation {
 
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
-        return (numberOfSpaces > playersOnLocation.size() && !playersOnLocation.contains(state.playerTurn));
+        return (numberOfSpaces > playersOnLocation.size() && !playersOnLocation.contains(state.getCurrentPlayer()));
     }
 
     public AbstractLocations getLocation(){
         return location;
+    }
+    public int getNumberOfSpaces(){
+        return numberOfSpaces;
     }
 
 

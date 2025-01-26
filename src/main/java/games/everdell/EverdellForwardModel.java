@@ -16,6 +16,7 @@ import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.components.EverdellLocation;
+import games.tictactoe.TicTacToeGameState;
 
 import java.util.*;
 
@@ -46,8 +47,6 @@ public class EverdellForwardModel extends StandardForwardModel {
         // TODO: perform initialization of variables and game setup
         EverdellGameState state = (EverdellGameState) firstState;
         EverdellParameters parameters = (EverdellParameters) state.getGameParameters();
-
-        state.playerTurn = 0;
 
         int sharedLocationSpace = 4;
         int exclusiveLocationSpace = 1;
@@ -204,16 +203,22 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellGameState egs = (EverdellGameState) gameState;
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
-        System.out.println(egs.Locations.keySet());
 
         for(EverdellLocation location : egs.Locations.values()){
-            if(location.isLocationFreeForPlayer(gameState)){
-                actions.add(new PlaceWorker(location.getLocation()));
+            if(location.getLocation() instanceof BasicLocations){
+                if(location.isLocationFreeForPlayer(gameState)){
+                    actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
+                }
             }
         }
 
-
-
         return actions;
+    }
+
+
+    @Override
+    protected void _afterAction(AbstractGameState currentState, AbstractAction action) {
+
+        endPlayerTurn(currentState);
     }
 }
