@@ -11,15 +11,12 @@ import games.everdell.EverdellParameters;
 import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
-import games.everdell.components.ConstructionCard;
-import games.everdell.components.CritterCard;
-import games.everdell.components.EverdellCard;
+import games.everdell.components.*;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.BasicEvent;
 
-import games.everdell.components.PeddlerCard;
 import gui.AbstractGUIManager;
 import gui.GamePanel;
 
@@ -479,6 +476,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         System.out.println("Checking for additional steps for card");
 
+        ArrayList<EverdellCard> cardsToDisplay = new ArrayList<>();
+
 
         EverdellParameters.CardDetails cardClass = c.getCardEnumValue();
         ArrayList<EverdellCard> selectedCards = new ArrayList<>();
@@ -487,7 +486,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         switch (cardClass) {
             case BARD:
                 //The player can discard up to 5 cards
-                ArrayList<EverdellCard> cardsToDisplay = state.playerHands.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card != c).collect(Collectors.toCollection(ArrayList::new));
+                cardsToDisplay = state.playerHands.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card != c).collect(Collectors.toCollection(ArrayList::new));
 
 
                 this.playerCardPanel.drawPlayerCardsButtons(5, cardsToDisplay, selectedCards::add);
@@ -627,6 +626,60 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
 
+                return true;
+
+
+            case MONK:
+                System.out.println("Monk Card");
+                playerCardPanel.drawResourceSelection(2, "Give up to 2 berries to a player, for 2 points each", new ArrayList<ResourceTypes>(){{
+                    add(ResourceTypes.BERRY);
+                }}, game -> {
+                    playerCardPanel.drawPlayerSelection(player -> {
+                        MonkCard mc = (MonkCard) c;
+                        mc.setSelectedPlayer(player);
+                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                        redrawPanels();
+                    });
+                    return true;
+                });
+                return true;
+
+            case FOOL:
+                playerCardPanel.drawPlayerSelection(player -> {
+                    FoolCard fc = (FoolCard) c;
+                    fc.setSelectedPlayer(player);
+                    new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                    redrawPanels();
+                });
+                return true;
+
+            case TEACHER:
+                ArrayList<EverdellCard> cTD = new ArrayList<>();
+                cTD.add(state.cardDeck.draw());
+                cTD.add(state.cardDeck.draw());
+
+                playerCardPanel.drawPlayerCardsButtons( 1, cTD, card -> {
+                    if(card == cTD.get(0)){
+                        cardSelection.add(cTD.get(0));
+                        cardSelection.add(cTD.get(1));
+                    }
+                    else{
+                        cardSelection.add(cTD.get(1));
+                        cardSelection.add(cTD.get(0));
+                    }
+                });
+
+                doneButton = new JButton("Done");
+                doneButton.addActionListener(k2 -> {
+                    playerCardPanel.drawPlayerSelection(player -> {
+                        TeacherCard tc = (TeacherCard) c;
+                        tc.setSelectedPlayer(player);
+                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                        redrawPanels();
+                    });
+                });
+
+                playerCardPanel.add(doneButton, BorderLayout.SOUTH);
                 return true;
 
 

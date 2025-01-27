@@ -51,6 +51,7 @@ public class EverdellGameState extends AbstractGameState {
     //I'm not sure what is better. To use it like this or try to send the actions values instead?
     //I think this keeps things more organised
 
+    public EverdellCard currentCard;
     public HashMap<ResourceTypes, Counter> resourceSelection;
     public ArrayList<EverdellCard> cardSelection;
 
@@ -173,7 +174,7 @@ public class EverdellGameState extends AbstractGameState {
 
         copy.Locations = new HashMap<>();
         for(var location : Locations.keySet()){
-            EverdellLocation loc = new EverdellLocation(location, Locations.get(location).getNumberOfSpaces());
+            EverdellLocation loc = new EverdellLocation(location, Locations.get(location).getNumberOfSpaces(), Locations.get(location).canTheSamePlayerBeOnLocationMultipleTimes(), location.getLocationEffect(this));
             copy.Locations.put(location, loc);
         }
 
@@ -185,8 +186,9 @@ public class EverdellGameState extends AbstractGameState {
             }
         }
 
-
-
+        if(currentCard != null){
+        copy.currentCard = currentCard.copy();
+}
         return copy;
     }
 
@@ -219,18 +221,17 @@ public class EverdellGameState extends AbstractGameState {
 
 
 
-
     @Override
     public boolean _equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState that = (EverdellGameState) o;
-        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
+        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), resourceSelection, cardSelection);
+        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), currentCard, resourceSelection, cardSelection);
     }
 
 

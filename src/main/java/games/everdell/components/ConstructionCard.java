@@ -1,5 +1,6 @@
 package games.everdell.components;
 
+import games.dominion.cards.CardType;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.CardDetails;
@@ -33,12 +34,13 @@ public class ConstructionCard extends EverdellCard{
         this.redDestinationLocation = rdl;
     }
 
+
     @Override
     public void applyCardEffect(EverdellGameState state) {
         System.out.println("CONSTRUCTION CARD");
         if(redDestinationLocation != null){
             System.out.println("RED DESTINATION CARD");
-            state.Locations.put(redDestinationLocation, new EverdellLocation(redDestinationLocation,1));
+            state.Locations.put(redDestinationLocation, new EverdellLocation(redDestinationLocation,1, false, redDestinationLocation.getLocationEffect(state)));
         }
         else {
             super.applyCardEffect(state);

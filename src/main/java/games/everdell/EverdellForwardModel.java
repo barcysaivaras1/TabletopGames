@@ -69,28 +69,28 @@ public class EverdellForwardModel extends StandardForwardModel {
         //Creating an EverdellLocation object for each basic location
         for(var location : BasicLocations.values()){
             if(location == BasicLocations.ONE_BERRY){
-                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace, false, BasicLocations.ONE_BERRY.getLocationEffect(state)));
             }
             if(location == BasicLocations.ONE_BERRY_ONE_CARD){
-                state.Locations.put(location,new EverdellLocation(location,exclusiveLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location,exclusiveLocationSpace, false, BasicLocations.ONE_BERRY_ONE_CARD.getLocationEffect(state)));
             }
             if(location == BasicLocations.ONE_PEBBLE){
-                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace, false, BasicLocations.ONE_PEBBLE.getLocationEffect(state)));
             }
             if(location == BasicLocations.TWO_CARD_ONE_POINT){
-                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace, false, BasicLocations.TWO_CARD_ONE_POINT.getLocationEffect(state)));
             }
             if(location == BasicLocations.TWO_RESIN){
-                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace, false, BasicLocations.TWO_RESIN.getLocationEffect(state)));
             }
             if(location == BasicLocations.TWO_WOOD_ONE_CARD){
-                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location,sharedLocationSpace, false, BasicLocations.TWO_WOOD_ONE_CARD.getLocationEffect(state)));
             }
             if(location == BasicLocations.THREE_WOOD){
-                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location, exclusiveLocationSpace, false, BasicLocations.THREE_WOOD.getLocationEffect(state)));
             }
             if(location == BasicLocations.ONE_RESIN_ONE_CARD){
-                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace));
+                state.Locations.put(location,new EverdellLocation(location, sharedLocationSpace, false, BasicLocations.ONE_RESIN_ONE_CARD.getLocationEffect(state)));
             }
         }
 
@@ -108,7 +108,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
         //Insert the selected locations into the game state
         for (EverdellParameters.ForestLocations location : selectedLocations) {
-            state.Locations.put(location, new EverdellLocation(location, forestLocationSpace));
+            state.Locations.put(location, new EverdellLocation(location, forestLocationSpace, false, location.getLocationEffect(state)));
         }
 
         //Set up values for Forest Locations
@@ -122,7 +122,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Set up Basic Events
         for (EverdellParameters.BasicEvent event : EverdellParameters.BasicEvent.values()) {
-            state.Locations.put(event, new EverdellLocation(event, exclusiveLocationSpace));
+            state.Locations.put(event, new EverdellLocation(event, exclusiveLocationSpace, false, event.getLocationEffect(state)));
         }
 
 

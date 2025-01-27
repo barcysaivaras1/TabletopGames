@@ -83,6 +83,10 @@ public class MoveSeason extends AbstractAction {
                 //Bring back all workers
                 for (var location : state.Locations.keySet()) {
 
+                    //Monastery Card has a special case where the worker is not returned
+                    if(location == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION) {
+                        continue;
+                    }
 
                     //If no players are on the location, skip
                     if (state.Locations.get(location).playersOnLocation.isEmpty()) continue;

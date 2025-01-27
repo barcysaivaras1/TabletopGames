@@ -11,6 +11,10 @@ import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
+import games.everdell.components.MonasteryCard;
+import games.everdell.components.PostOfficeCard;
+import org.apache.spark.sql.sources.In;
+import scala.collection.immutable.Stream;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +35,7 @@ public class BottomPanel extends JPanel {
     private ArrayList<EverdellCard> cardsToDisplay;
     private Consumer<EverdellCard> cardButtonAction;
     private Function<EverdellGameState,Boolean> resourceButtonAction;
+    private Consumer<Integer> playerSelectionAction;
 
     private String labelText;
     private ArrayList<ResourceTypes> allowedResources;
@@ -48,6 +53,7 @@ public class BottomPanel extends JPanel {
     private Boolean displayBasicEvents;
     private Boolean displayRedDestinations;
     private Boolean displayResourceSelection;
+    private Boolean displayPlayerSelection;
 
     //Modes
     private Boolean copyMode;
@@ -87,6 +93,9 @@ public class BottomPanel extends JPanel {
         }
         else if(displayResourceSelection){
             drawResourceSelectionPanel();
+        }
+        else if(displayPlayerSelection){
+            drawPlayerSelectionPanel();
         }
     }
 
@@ -300,6 +309,67 @@ public class BottomPanel extends JPanel {
 
                 });
             }
+
+            if(location == RedDestinationLocation.POST_OFFICE_DESTINATION){
+                button.addActionListener(k -> {
+
+                    drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), card -> {
+                        everdellGUIManager.cardSelection.add(card);
+                    });
+
+
+                    JButton doneButton = new JButton("Done");
+                    doneButton.addActionListener(k2 -> {
+                        drawPlayerSelection(player -> {
+                            EverdellLocation loc = state.Locations.get(location);
+                            //Find the card that aligns with the location
+                            for(var playerDeck : state.playerVillage){
+                                for(var card : playerDeck.getComponents()){
+                                    if(card instanceof PostOfficeCard poc){
+                                        if(poc.location == loc){
+                                            poc.setPlayers(player,state.getCurrentPlayer());
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            System.out.println("Location is "+loc.getLocation());
+
+                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                            everdellGUIManager.redrawPanels();
+                        });
+                    });
+
+                    this.add(doneButton, BorderLayout.SOUTH);
+                    });
+                }
+            if(location == RedDestinationLocation.MONASTERY_DESTINATION){
+                button.addActionListener(k -> {
+                    drawResourceSelection(2,"Give 2 Resources, Gain 4 points", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                        drawPlayerSelection(player -> {
+                            EverdellLocation loc = state.Locations.get(location);
+                            //Find the card that aligns with the location
+                            for(var playerDeck : state.playerVillage){
+                                for(var card : playerDeck.getComponents()){
+                                    if(card instanceof MonasteryCard mc){
+                                        if(mc.location == loc){
+                                            mc.setPlayers(player);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            System.out.println("Location is "+loc.getLocation());
+
+                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                            everdellGUIManager.redrawPanels();
+                        });
+                        return true;
+                    });
+
+                });
+            }
+
 
             locationPanel.add(button);
         }
@@ -516,6 +586,29 @@ public class BottomPanel extends JPanel {
         this.add(locationPanel,BorderLayout.CENTER);
     }
 
+    private void drawPlayerSelectionPanel(){
+        System.out.println("DRAWING PLAYER SELECTION PANEL");
+
+        JButton playerButton;
+
+        JPanel playerSelectionPanel = new JPanel();
+        playerSelectionPanel.setLayout(new GridLayout(1,state.getNPlayers()));
+
+        for(int i = 0; i < state.getNPlayers(); i++){
+            if(i == state.getCurrentPlayer()){
+                continue;
+            }
+
+            playerButton = new JButton("Player "+(i+1));
+            int currentPlayer = i;
+            playerButton.addActionListener(k -> {
+                playerSelectionAction.accept(currentPlayer);
+            });
+            playerSelectionPanel.add(playerButton);
+        }
+        this.add(playerSelectionPanel,BorderLayout.CENTER);
+    }
+
     private void drawResourceSelectionPanel(){
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
@@ -593,6 +686,7 @@ public class BottomPanel extends JPanel {
         makeCardsButtons = false;
         displayCards = false;
         displayRedDestinations = false;
+        displayPlayerSelection = false;
     }
 
     //PUBLIC ACCESS METHODS
@@ -604,6 +698,15 @@ public class BottomPanel extends JPanel {
         this.numberOfResourceSelections = numberOfResources;
         this.labelText = labelText;
         this.allowedResources = allowedResources;
+
+        draw();
+    }
+
+    public void drawPlayerSelection(Consumer<Integer> playerSelectionAction){
+        resetNavigation();
+        displayPlayerSelection = true;
+
+        this.playerSelectionAction = playerSelectionAction;
 
         draw();
     }

@@ -10,6 +10,7 @@ import games.everdell.components.ConstructionCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.CardDetails;
+import games.everdell.components.FoolCard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +58,12 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
+        state.currentCard = this.currentCard;
 
+        if(currentCard instanceof FoolCard){
+            //Fool Card has a special case where the player must select a player to give the card to
+            return foolSpecialTreatment(state);
+        }
 
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
@@ -145,9 +151,17 @@ public class PlayCard extends AbstractAction {
         //This is for cards that do NOT need GUI elements to be function
         //There is a separate function for cards that need GUI elements to function in the GUIManager
 
+
         for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
+
             if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER){
                 //Trigger Shop keeper effect
+                triggerCardEffect(state, card);
+                return true;
+            }
+            if(card.getCardEnumValue() == CardDetails.HISTORIAN){
+                System.out.println("Historian");
+                //Trigger Historian effect
                 triggerCardEffect(state, card);
                 return true;
             }
@@ -208,6 +222,37 @@ public class PlayCard extends AbstractAction {
         for(var resource : currentCard.getResourceCost().keySet()){
             state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(currentCard.getResourceCost().get(resource));
         }
+    }
+
+    private Boolean foolSpecialTreatment(EverdellGameState state){
+        //Fool Card has a special case where the player must select a player to give the card to
+        //Check if the card is Unique and if the player has this card in their village
+        //Cannot have duplicate unique cards
+        FoolCard foolCard = (FoolCard) currentCard;
+
+        if(state.playerVillage.get(foolCard.getSelectedPlayer()).stream().anyMatch(card -> card.getCardEnumValue() == CardDetails.FOOL)){
+            System.out.println("Fool is already in this village");
+            return false;
+        }
+
+        //Check if the player can buy the card
+        if(!checkIfPlayerCanBuyCard(state)){
+            System.out.println("You don't have enough resources to buy this card");
+            return false;
+        }
+
+        //Make the player pay for the resources, it hasn't been paid for yet (via occupation)
+        if(!currentCard.isCardPayedFor()){
+            makePlayerPayForCard(state);
+            currentCard.payForCard();
+        }
+        //Remove Card
+        removeCard(state);
+        //Apply Card Effect
+        triggerCardEffect(state, currentCard);
+
+        System.out.println("You have placed a card");
+        return true;
     }
 
     /**

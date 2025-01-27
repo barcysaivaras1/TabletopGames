@@ -9,6 +9,7 @@ import games.everdell.EverdellParameters.ForestLocations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EverdellLocation {
@@ -16,17 +17,22 @@ public class EverdellLocation {
     boolean shared;
     int numberOfSpaces;
     //boolean occupied;
+    boolean canTheSamePlayerBeOnLocationMultipleTimes;
 
-    private AbstractLocations location;
+    private final AbstractLocations location;
+
+    private Consumer<EverdellGameState> locationEffect;
 
 
     public List<Integer> playersOnLocation;
 
-    public EverdellLocation(AbstractLocations location, int numberOfSpaces){
+    public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect){
         this.location = location;
         //this.shared = shared;
+        this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
         this.playersOnLocation = new ArrayList<>();
+        this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
     }
 
 //    public void placeWorkerOnLocation(AbstractGameState gs){
@@ -40,9 +46,17 @@ public class EverdellLocation {
 //        }
 //    }
 
+    public void applyLocationEffect(EverdellGameState state){
+        locationEffect.accept(state);
+    }
+    public void setLocationEffect(Consumer<EverdellGameState> locationEffect){
+        this.locationEffect = locationEffect;
+    }
+
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
-        return (numberOfSpaces > playersOnLocation.size() && !playersOnLocation.contains(state.getCurrentPlayer()));
+        boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
+        return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 
     public AbstractLocations getLocation(){
@@ -50,6 +64,13 @@ public class EverdellLocation {
     }
     public int getNumberOfSpaces(){
         return numberOfSpaces;
+    }
+    public boolean canTheSamePlayerBeOnLocationMultipleTimes(){
+        return canTheSamePlayerBeOnLocationMultipleTimes;
+    }
+
+    public void setNumberOfSpaces(int numberOfSpaces){
+        this.numberOfSpaces = numberOfSpaces;
     }
 
 

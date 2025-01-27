@@ -81,7 +81,7 @@ public class PlaceWorker extends AbstractAction {
 
             state.workers[0].decrement();
             EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
-            everdellLocation.getLocation().applyLocationEffect(state);
+            everdellLocation.applyLocationEffect(state);
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
             return true;
         }

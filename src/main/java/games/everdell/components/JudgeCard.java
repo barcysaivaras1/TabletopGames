@@ -7,12 +7,12 @@ import games.everdell.EverdellParameters;
 import java.util.HashMap;
 import java.util.function.Function;
 
-public class PeddlerCard extends CritterCard {
+public class JudgeCard extends CritterCard{
 
     private HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose;
     private HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain;
 
-    public PeddlerCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect) {
+    public JudgeCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
         resourcesToLose = new HashMap<>();
         resourcesToGain = new HashMap<>();
@@ -49,7 +49,7 @@ public class PeddlerCard extends CritterCard {
         //Then give them the resources
         for (EverdellParameters.ResourceTypes rt : resourcesToGain.keySet()) {
             for(int i = 0; i < resourcesToGain.get(rt).getValue(); i++){
-                if(counter == 2){
+                if(counter == 1){
                     break;
                 }
                 counter++;
@@ -80,4 +80,5 @@ public class PeddlerCard extends CritterCard {
             resourcesToGain.get(rt).increment(rtg.get(rt).getValue());
         }
     }
+
 }
