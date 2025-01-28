@@ -65,6 +65,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.Locations = new HashMap<>();
         state.cardSelection = new ArrayList<>();
 
+        state.discardDeck = new Deck<>("Discard Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
 
         //Creating an EverdellLocation object for each basic location
         for(var location : BasicLocations.values()){

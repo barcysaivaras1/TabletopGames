@@ -173,6 +173,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(var card : cardChoices){
                     try{
                         state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.discardDeck.add(card);
                         state.cardCount[state.getCurrentPlayer()].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
@@ -195,6 +196,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(var card : cardChoices){
                     try{
                         state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.discardDeck.add(card);
                         state.cardCount[state.getCurrentPlayer()].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
@@ -276,7 +278,8 @@ public class EverdellParameters extends AbstractParameters {
     }
 
     public enum RedDestinationLocation implements AbstractLocations{
-        LOOKOUT_DESTINATION, QUEEN_DESTINATION, INN_DESTINATION, POST_OFFICE_DESTINATION, MONASTERY_DESTINATION;
+        LOOKOUT_DESTINATION, QUEEN_DESTINATION, INN_DESTINATION, POST_OFFICE_DESTINATION,
+        MONASTERY_DESTINATION, CEMETERY_DESTINATION;
 
 
         public static AbstractLocations copyLocationChoice;
@@ -329,7 +332,7 @@ public class EverdellParameters extends AbstractParameters {
     public enum CardDetails {
         FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND, FAIRGROUNDS, MINE, TWIG_BARGE, SHOP_KEEPER, BARGE_TOAD,
         CASTLE, KING, PALACE, BARD, THEATRE, SCHOOL, RUINS, WOOD_CARVER, DOCTOR, ARCHITECT, PEDDLER, CHIP_SWEEP, LOOKOUT,
-        QUEEN, INN, POST_OFFICE, MONK, FOOL, TEACHER, MONASTERY, HISTORIAN;
+        QUEEN, INN, POST_OFFICE, MONK, FOOL, TEACHER, MONASTERY, HISTORIAN, CEMETERY, UNDERTAKER;
 
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
@@ -608,6 +611,7 @@ public class EverdellParameters extends AbstractParameters {
                 for (var card : state.cardSelection) {
                     try {
                         state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.discardDeck.add(card);
                         state.cardCount[state.getCurrentPlayer()].decrement();
                         counter++;
                     } catch (Exception e) {
@@ -637,6 +641,7 @@ public class EverdellParameters extends AbstractParameters {
                     for (var card : state.playerVillage.get(state.getCurrentPlayer())) {
                         if (card == state.cardSelection.get(0)) {
                             state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+                            state.discardDeck.add(card);
                             break;
                         }
                     }
@@ -832,107 +837,36 @@ public class EverdellParameters extends AbstractParameters {
                 return true;
             });
 
+            CEMETERY.createEverdellCard = (gameState) -> new CemeteryCard(RedDestinationLocation.CEMETERY_DESTINATION,"Cemetery", CEMETERY, CardType.RED_DESTINATION, true, true, 0, new HashMap<>() {{
+                put(ResourceTypes.PEBBLE, 0);
+            }}, (state) -> {
+                return true;
+            }, new ArrayList<>(List.of(UNDERTAKER))); //THIS NEEDS TO OCCUPY Undertaker
+
+            UNDERTAKER.createEverdellCard = (gameState) -> new CritterCard("Undertaker", UNDERTAKER, CardType.TAN_TRAVELER, false, true, 1, new HashMap<>() {{
+                put(ResourceTypes.BERRY, 0);
+            }}, (state) -> {
+                //Undertaker allows the player to remove 3 cards from the meadow,
+                //Replenish those cards, and then allow the player to draw 1 card from the meadow
+
+                //CardSelection[0] will hold the card the player selects from the meadow
+
+                //Unlock the second Location of the cemetary card (if it exists within the village)
+                state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof CemeteryCard).forEach(c -> {
+                    CemeteryCard cc = (CemeteryCard) c;
+                    cc.unlockSecondLocation();
+                });
+
+                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < 8){
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardSelection.get(0));
+                    state.cardCount[state.getCurrentPlayer()].increment();
+                }
+                return true;
+            });
 
         }
     }
-
-
-
-//    (new EverdellCard("Farm", CardType.GREEN_PRODUCTION, true, 1, new HashMap<>() {{
-//        put(ResourceTypes.TWIG, 2);
-//        put(ResourceTypes.RESIN, 1);
-//    }}, (state) -> {
-//        state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
-//        return true;
-//    }));
-
-
-
-//
-//    public enum x {
-//        FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND;
-//
-//        public CardType cardType;
-//        public Function<EverdellGameState, CardDetails> applyCardEffect;
-//        public HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
-//        public int points;
-//
-//        static{
-//            //Get 1 Berry
-//            FARM.resourceCost = new HashMap<>();
-//            FARM.cardType = CardType.GREEN_PRODUCTION;
-//            FARM.resourceCost.put(EverdellParameters.ResourceTypes.TWIG, 2);
-//            FARM.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-//            FARM.points = 1;
-//            FARM.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
-//                return FARM;
-//            };
-//
-//
-//
-//            //Get 1 Resin
-//            RESIN_REFINERY.resourceCost = new HashMap<>();
-//            RESIN_REFINERY.cardType = CardType.GREEN_PRODUCTION;
-//            RESIN_REFINERY.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-//            RESIN_REFINERY.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
-//            RESIN_REFINERY.points = 1;
-//            RESIN_REFINERY.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.RESIN)[state.getCurrentPlayer()].increment();
-//                return RESIN_REFINERY;
-//            };
-//
-//            //Get 1 Berry, Get an extra berry if the player has a farm. Extra berry can only be triggered once per production event
-//            GENERAL_STORE.resourceCost = new HashMap<>();
-//            GENERAL_STORE.cardType = CardType.GREEN_PRODUCTION;
-//            GENERAL_STORE.resourceCost.put(EverdellParameters.ResourceTypes.RESIN, 1);
-//            GENERAL_STORE.resourceCost.put(EverdellParameters.ResourceTypes.PEBBLE, 1);
-//            GENERAL_STORE.points = 1;
-//            GENERAL_STORE.applyCardEffect = (state) -> {
-//                state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
-//
-//                for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-//                    if(everdellCard.cardDetails == FARM){
-//                        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
-//                        break;
-//                    }
-//                }
-//
-//                return GENERAL_STORE;
-//            };
-//
-//            WANDERER.resourceCost = new HashMap<>();
-//            WANDERER.cardType = CardType.TAN_TRAVELER;
-//            WANDERER.resourceCost.put(EverdellParameters.ResourceTypes.BERRY, 2);
-//            WANDERER.points = 1;
-//            WANDERER.applyCardEffect = (state) -> {
-//                for(int i = 0 ; i<3; i++){
-//                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-//                        break;
-//                    }
-//                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-//                    state.cardCount[state.getCurrentPlayer()].increment();
-//                }
-//                return WANDERER;
-//            };
-//
-//            //Can share a space with Husband card. Will be worth 3 points if paired with a husband instead of 2
-//            WIFE.resourceCost = new HashMap<>();
-//            WIFE.cardType = CardType.PURPLE_PROSPERITY;
-//            WIFE.resourceCost.put(EverdellParameters.ResourceTypes.BERRY, 2);
-//            WIFE.points = 2;
-//            WIFE.applyCardEffect = (state) -> {
-//                for(var everdellCard : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-//                    if(everdellCard.cardDetails == HUSBAND){
-//                        WIFE.points = 3;
-//                        break;
-//                    }
-//                }
-//
-//                return WIFE;
-//            };
-//        }
-//    }
+    
 
     public HashMap<CardType, Color> cardColour = new HashMap<CardType, Color>() {{
         put(CardType.BLUE_GOVERNANCE, new Color(45, 114, 173));
@@ -974,13 +908,15 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.PEDDLER, 1);
         put(CardDetails.LOOKOUT, 1);
         put(CardDetails.QUEEN, 1);
-        put(CardDetails.INN, 1);
-        put(CardDetails.POST_OFFICE, 1);
-        put(CardDetails.MONK, 15);
-        put(CardDetails.FOOL, 1);
-        put(CardDetails.TEACHER, 1);
-        put(CardDetails.MONASTERY, 1);
-        put(CardDetails.HISTORIAN, 15);
+        put(CardDetails.INN, 3);
+        put(CardDetails.POST_OFFICE, 3);
+        put(CardDetails.MONK, 3);
+        put(CardDetails.FOOL, 3);
+        put(CardDetails.TEACHER, 3);
+        put(CardDetails.MONASTERY, 3);
+        put(CardDetails.HISTORIAN, 3);
+        put(CardDetails.CEMETERY, 10);
+        put(CardDetails.UNDERTAKER, 10);
         //put(CardDetails.CHIP_SWEEP, 10);
     }};
 

@@ -77,12 +77,15 @@ public class PostOfficeCard extends ConstructionCard{
             if (state.cardSelection.size() > 2) {
                 for(var c : state.cardSelection.subList(2, state.cardSelection.size())){
                     state.playerHands.get(occupyingPlayer).remove(c);
+                    state.cardCount[occupyingPlayer].decrement();
                 }
             }
             //Draw to the Limit
             while(state.playerHands.get(occupyingPlayer).getSize() < state.playerHands.get(occupyingPlayer).getCapacity()){
                 state.playerHands.get(occupyingPlayer).add(state.cardDeck.draw());
             }
+
+            state.cardCount[occupyingPlayer].setValue(8);
         };
     }
 

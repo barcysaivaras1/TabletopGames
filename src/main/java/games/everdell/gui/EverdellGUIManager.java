@@ -682,6 +682,44 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
                 return true;
 
+            case UNDERTAKER:
+                //The player must move 3 cards to the discard pile
+                //The meadow must replenish
+                //The player must draw 1 card from the meadow (Assuming they have space)
+                redrawPanels();
+
+                ArrayList<EverdellCard> meadowCardsToDiscard = new ArrayList<>();
+                meadowCardsPanel.drawMeadowPanelButtons(3, card -> {
+                    meadowCardsToDiscard.add(card);
+                });
+
+                doneButton = new JButton("Done");
+                doneButton.addActionListener(k2 -> {
+
+                    //Remove Cards from meadow
+                    for(EverdellCard card : meadowCardsToDiscard){
+                        state.meadowDeck.remove(card);
+                    }
+
+                    //Replenish the meadow
+                    while(state.meadowDeck.getSize() !=8 ){
+                        state.meadowDeck.add(state.cardDeck.draw());
+                    }
+
+                    redrawPanels();
+
+                    playerCardPanel.drawPlayerCardsButtons(1, state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new)), card -> {
+                        cardSelection.clear();
+                        cardSelection.add(card);
+
+                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                        redrawPanels();
+                    });
+                });
+
+                playerCardPanel.add(doneButton, BorderLayout.SOUTH);
+                return true;
+
 
             default:
                 redrawPanels();

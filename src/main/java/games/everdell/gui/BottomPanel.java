@@ -369,6 +369,66 @@ public class BottomPanel extends JPanel {
 
                 });
             }
+            if(location == RedDestinationLocation.CEMETERY_DESTINATION){
+                button.addActionListener(k -> {
+                    ArrayList<EverdellCard> drawnCards = new ArrayList<>();
+
+                    this.removeAll();
+
+                    JPanel drawSelectionPanel = new JPanel();
+                    drawSelectionPanel.setLayout(new GridLayout(1,2));
+                    JButton drawFromDiscard = new JButton("Reveal from Discard");
+
+                    Consumer<EverdellGameState> selectionAction = state -> {
+                        drawPlayerCardsButtons(1, drawnCards, card -> {
+                            System.out.println("Card Selected: ");
+                            everdellGUIManager.cardSelection.add(card);
+
+                            //Add the rest of the cards to drawnCards
+                            for(int i = 0; i < drawnCards.size(); i++){
+                                if(everdellGUIManager.cardSelection.get(0) != drawnCards.get(i)){
+                                    everdellGUIManager.cardSelection.add(drawnCards.get(i));
+                                }
+                            }
+
+                            new PlaceWorker(location,everdellGUIManager.cardSelection,everdellGUIManager.resourceSelection).execute(state);
+                            everdellGUIManager.redrawPanels();
+                            everdellGUIManager.placeACard(state,card);
+                        });
+                    };
+
+                    drawFromDiscard.addActionListener(k2->{
+                        //Draw 4 cards
+                        for(int i = 0; i < 4; i++){
+                            if(state.discardDeck.getSize() > 0){
+                                drawnCards.add(state.discardDeck.get(0));
+                                state.discardDeck.remove(0);
+                            }
+                        }
+
+                        selectionAction.accept(state);
+                    });
+
+                    JButton drawFromDeck = new JButton("Reveal from Deck");
+                    drawFromDeck.addActionListener(k2 ->{
+                        //Draw 4 cards
+                        for(int i = 0; i < 4; i++){
+                            if(state.cardDeck.getSize() > 0){
+                                drawnCards.add(state.cardDeck.get(0));
+                                state.cardDeck.remove(0);
+                            }
+                        }
+
+                        selectionAction.accept(state);
+                    });
+
+                    drawSelectionPanel.add(drawFromDiscard);
+                    drawSelectionPanel.add(drawFromDeck);
+
+                    this.add(drawSelectionPanel, BorderLayout.CENTER);
+
+                });
+            }
 
 
             locationPanel.add(button);
