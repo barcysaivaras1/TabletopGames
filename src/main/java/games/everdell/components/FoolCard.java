@@ -4,6 +4,7 @@ import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class FoolCard extends CritterCard{
@@ -12,8 +13,8 @@ public class FoolCard extends CritterCard{
 
     private int selectedPlayer;
 
-    public FoolCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
+    public FoolCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
 

@@ -568,7 +568,6 @@ public class BottomPanel extends JPanel {
 
                         drawPlayerCardsButtons(1, everdellGUIManager.cardSelection,card -> {
                             int discountAmount = 1;
-
                             drawResourceSelection(discountAmount,"Select 1 Resource to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
 
                                 System.out.println("Resource Selection: "+everdellGUIManager.resourceSelection);
@@ -590,6 +589,8 @@ public class BottomPanel extends JPanel {
                                     everdellGUIManager.redrawPanels();
                                     everdellGUIManager.placeACard(state, card);
                                 }
+
+                                ForestLocations.cardChoices.clear();
                                 return true;
                             });
                         });
@@ -807,6 +808,10 @@ public class BottomPanel extends JPanel {
 
         displayCards = true;
         makeCardsButtons = true;
+        draw();
+    }
+
+    public void redraw(){
         draw();
     }
 

@@ -7,6 +7,7 @@ import games.everdell.EverdellParameters.CardDetails;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConstructionCard extends EverdellCard{
@@ -18,15 +19,15 @@ public class ConstructionCard extends EverdellCard{
 
 
     //STANDARD CONSTRUCTOR
-    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
+    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
     }
 
     //RED DESTINATION CONSTRUCTOR
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect);
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
 

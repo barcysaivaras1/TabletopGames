@@ -21,8 +21,8 @@ public class PostOfficeCard extends ConstructionCard{
 
     EverdellParameters.RedDestinationLocation rdl;
 
-    public PostOfficeCard(EverdellParameters.RedDestinationLocation rdl, String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, cardsThatCanOccupy);
+    public PostOfficeCard(EverdellParameters.RedDestinationLocation rdl, String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+        super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
         this.rdl = rdl;
     }
 

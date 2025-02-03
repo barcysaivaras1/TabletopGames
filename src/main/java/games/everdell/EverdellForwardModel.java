@@ -57,6 +57,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.cardCount = new Counter[state.getNPlayers()];
         state.workers = new Counter[state.getNPlayers()];
         state.pointTokens = new Counter[state.getNPlayers()];
+        state.villageMaxSize = new Counter[state.getNPlayers()];
         state.currentSeason = new EverdellParameters.Seasons[state.getNPlayers()];
 
         state.playerHands = new ArrayList<>();
@@ -169,8 +170,10 @@ public class EverdellForwardModel extends StandardForwardModel {
             state.cardCount[i] = new Counter(8,"Player "+(i+1)+" Card Count");
             state.workers[i] = new Counter("Player "+(i+1)+" Workers");
             state.pointTokens[i] = new Counter("Player "+(i+1)+" Point Tokens");
+            state.villageMaxSize[i] = new Counter("Player "+(i+1)+" Village Max Size");
             state.currentSeason[i] = EverdellParameters.Seasons.WINTER;
 
+            state.villageMaxSize[i].increment(15);
             state.cardCount[i].increment(5+i);
             state.workers[i].increment(2);
 
@@ -182,7 +185,7 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.playerHands.get(i).setCapacity(8);
 
                 //Set Village Capacity to 15
-                state.playerVillage.get(i).setCapacity(15);
+               // state.playerVillage.get(i).setCapacity(15;
 
 
                 EverdellCard card = state.cardDeck.draw();

@@ -49,6 +49,8 @@ public class EverdellGameState extends AbstractGameState {
     public Counter[] workers;
     public Counter[] pointTokens;
 
+    public Counter[] villageMaxSize;
+
     //These values are used to indicate what the player has selected in their turn
     //I'm not sure what is better. To use it like this or try to send the actions values instead?
     //I think this keeps things more organised
@@ -87,6 +89,7 @@ public class EverdellGameState extends AbstractGameState {
     protected List<Component> _getAllComponents() {
         // TODO: add all components to the list
         List<Component> components = new ArrayList<>();
+
         components.add(cardDeck.copy());
         components.add(meadowDeck.copy());
         for(var hand : playerHands){
@@ -104,6 +107,7 @@ public class EverdellGameState extends AbstractGameState {
             components.add(cardCount[i].copy());
             components.add(workers[i].copy());
             components.add(pointTokens[i].copy());
+            components.add(villageMaxSize[i].copy());
         }
 
         for(var resource : resourceSelection.keySet()){
@@ -151,10 +155,12 @@ public class EverdellGameState extends AbstractGameState {
         copy.workers = new Counter[workers.length];
         copy.pointTokens = new Counter[pointTokens.length];
         copy.cardCount = new Counter[cardCount.length];
+        copy.villageMaxSize = new Counter[villageMaxSize.length];
         for(int i = 0; i< cardCount.length; i++){
             copy.workers[i] = workers[i].copy();
             copy.pointTokens[i] = pointTokens[i].copy();
             copy.cardCount[i] = cardCount[i].copy();
+            copy.villageMaxSize[i] = villageMaxSize[i].copy();
         }
 
 

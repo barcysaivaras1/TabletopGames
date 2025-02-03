@@ -58,16 +58,14 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        state.currentCard = this.currentCard;
-
         if(currentCard instanceof FoolCard){
             //Fool Card has a special case where the player must select a player to give the card to
             return foolSpecialTreatment(state);
         }
 
-
         //Only working for the first player, 0 values need to be updated to be playerTurn
-        if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < 15){
+        if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < state.villageMaxSize[state.getCurrentPlayer()].getValue()){
+            state.currentCard = this.currentCard;
             state.cardSelection = cardSelection;
             state.resourceSelection = resourceSelection;
 //            if(state.playerVillage.get(state.getCurrentPlayer()).contains(currentCard)){
@@ -98,6 +96,7 @@ public class PlayCard extends AbstractAction {
             }
 
             //Add Card to village
+
             state.playerVillage.get(state.getCurrentPlayer()).add(currentCard);
 
             //Remove Card
@@ -116,12 +115,22 @@ public class PlayCard extends AbstractAction {
             for(var resource : state.resourceSelection.keySet()){
                 state.resourceSelection.put(resource, new Counter());
             }
+
+            System.out.println("This is the max village size "+state.villageMaxSize[state.getCurrentPlayer()].getValue());;
+
             return true;
         }
+        System.out.println("Cannot place card, village is full");
         return false;
     }
 
-    private void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
+    public void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
+        //If the card is already in the village, we will assume we want to trigger the card effect
+
+        state.currentCard = this.currentCard;
+        state.cardSelection = cardSelection;
+        state.resourceSelection = resourceSelection;
+
         if(currentCard instanceof ConstructionCard cc){
             cc.applyCardEffect(state);
         }
@@ -136,8 +145,11 @@ public class PlayCard extends AbstractAction {
         //If we fail to remove that card object from the hand, it means that the card was in the meadow
         //We remove the card from the meadow and add a new card to the meadow
         if(!state.playerHands.get(state.getCurrentPlayer()).remove(currentCard)){
-            state.meadowDeck.remove(currentCard);
-            state.meadowDeck.add(state.cardDeck.draw());
+            if(state.meadowDeck.getSize() < state.meadowDeck.getCapacity()) {
+                state.meadowDeck.remove(currentCard);
+                System.out.println("Card was in the meadow");
+                state.meadowDeck.add(state.cardDeck.draw());
+            }
         }
         //We played the card from our hand
         else{

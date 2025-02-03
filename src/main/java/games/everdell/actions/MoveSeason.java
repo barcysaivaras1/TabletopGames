@@ -83,8 +83,8 @@ public class MoveSeason extends AbstractAction {
                 //Bring back all workers
                 for (var location : state.Locations.keySet()) {
 
-                    //Monastery Card has a special case where the worker is not returned
-                    if(location == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION) {
+                    //Monastery and Cemetery Card has a special case where the worker is not returned
+                    if(location == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION || location == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
                         continue;
                     }
 

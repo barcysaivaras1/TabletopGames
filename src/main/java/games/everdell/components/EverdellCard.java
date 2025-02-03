@@ -10,6 +10,7 @@ import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.apache.spark.internal.config.R;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EverdellCard extends Card {
@@ -23,6 +24,7 @@ public class EverdellCard extends Card {
     private final HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
 
     private final Function<EverdellGameState, Boolean> applyCardEffect;
+    public Consumer<EverdellGameState> removeCardEffect;
 
     private boolean isCardPayedFor;
     private boolean isUnique;
@@ -30,7 +32,7 @@ public class EverdellCard extends Card {
     public int roundCardWasBought = -1;  // -1 is not bought
     //public final String cardDescription;
 
-    public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect) {
+    public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name);
         this.name = name;
         this.cardEnumValue = cardEnumValue;
@@ -39,10 +41,11 @@ public class EverdellCard extends Card {
         this.points = points;
         this.resourceCost = resourceCost;
         this.applyCardEffect = applyCardEffect;
+        this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
         isCardPayedFor = false;
     }
-    private EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, int id) {
+    private EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
         super(name, id);
         this.name = name;
         this.cardEnumValue = cardEnumValue;
@@ -51,13 +54,14 @@ public class EverdellCard extends Card {
         this.points = points;
         this.resourceCost = resourceCost;
         this.applyCardEffect = applyCardEffect;
+        this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
         isCardPayedFor = false;
     }
 
     @Override
     public EverdellCard copy() {
-        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect);
+        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect,removeCardEffect);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }
@@ -72,6 +76,9 @@ public class EverdellCard extends Card {
     public HashMap<EverdellParameters.ResourceTypes, Integer> getResourceCost() { return resourceCost; }
     protected void applyCardEffect(EverdellGameState state) {
         applyCardEffect.apply(state);
+    }
+    public void removeCardEffect(EverdellGameState state) {
+        removeCardEffect.accept(state);
     }
     public boolean isCardPayedFor() { return isCardPayedFor; }
     public boolean isUnique() { return isUnique; }
