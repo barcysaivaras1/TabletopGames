@@ -140,6 +140,25 @@ public class PlayCard extends AbstractAction {
         }
     }
 
+
+    public ArrayList<EverdellCard> canPayWithOccupation(EverdellGameState state, EverdellCard cardToCheck){
+
+        //Can the card occupy a Construction Card
+        ArrayList<EverdellCard> cardsThatCanOccupy = new ArrayList<>();
+
+        for(EverdellCard c : state.playerVillage.get(state.getCurrentPlayer())) {
+            //Only Construction cards can occupy
+            if (c instanceof ConstructionCard) {
+                //Can the card occupy this construction
+                if(((ConstructionCard) c).canCardOccupyThis(state, cardToCheck)){
+                    System.out.println("A card can occupy this");
+                    cardsThatCanOccupy.add(c);
+                }
+            }
+        }
+
+        return cardsThatCanOccupy;
+    }
     private void removeCard(EverdellGameState state){
         //Remove card from hand
         //If we fail to remove that card object from the hand, it means that the card was in the meadow

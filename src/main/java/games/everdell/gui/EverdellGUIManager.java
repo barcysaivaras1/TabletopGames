@@ -28,6 +28,7 @@ import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.apache.log4j.Layout;
 import org.w3c.dom.css.RGBColor;
 import players.human.ActionController;
+import scala.collection.immutable.Stream;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -150,43 +151,110 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
     }
 
-    private void createPaymentChoicePanel(EverdellGameState gameState, JPanel panel,int numberOfOccupation, ConstructionCard constructionCard, EverdellCard cardToPlace){
-        panel.removeAll();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(new Color(147, 136, 40));
-        panel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
+    private void createPaymentChoicePanel(EverdellGameState state, EverdellCard cardToPlace){
+        playerCardPanel.removeAll();
+        playerCardPanel.setLayout(new BorderLayout());
+        playerCardPanel.setBackground(new Color(147, 136, 40));
+        playerCardPanel.add(new JLabel("Worker Placement"), BorderLayout.NORTH);
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
-            panel.removeAll();
+            playerCardPanel.removeAll();
             this.playerCardPanel.drawPlayerCards();
         });
-        panel.add(back,BorderLayout.SOUTH);
+        playerCardPanel.add(back,BorderLayout.SOUTH);
 
         JPanel paymentPanel = new JPanel();
 
+        //======================================
+        //Payment Method Checks
+        //======================================
+
+        //Will always have the option to pay with resources
         JButton resourcesButton = new JButton("Pay With Resources");
         resourcesButton.addActionListener(k -> {
             //Place the card
-            placeACard(gameState, cardToPlace);
+            placeACard(state, cardToPlace);
         });
         paymentPanel.add(resourcesButton);
 
-        JButton occupationButton = new JButton("Pay With Occupation");
-        occupationButton.addActionListener(k -> {
-            if(numberOfOccupation == 1) {
 
-                constructionCard.occupyConstruction((CritterCard) cardToPlace);
+        //Check if they can pay via occupation
+        ArrayList<EverdellCard> cardsThatCanOccupy = new PlayCard(cardToPlace,cardSelection,resourceSelection).canPayWithOccupation(state, cardToPlace);
+        if(!cardsThatCanOccupy.isEmpty()){
+            JButton occupationButton = new JButton("Pay With Occupation");
+            occupationButton.addActionListener(k -> {
+                //If there is 1 card it can occupy, there is no ambiguity
+                if(cardsThatCanOccupy.size() == 1) {
+                    ConstructionCard cc = (ConstructionCard) cardsThatCanOccupy.get(0);
+                    cc.occupyConstruction((CritterCard) cardToPlace);
 
-                //Place the card
-                placeACard(gameState, cardToPlace);
+                    //Place the card
+                    placeACard(state, cardToPlace);
+                }
+                //If there is more than 1 card it can occupy, then there is ambiguity on which card they would like to occupy
+            });
+            paymentPanel.add(occupationButton);
+        }
+
+        //Check if there are special cards that can apply a discount {Crane, Innkeeper}
+
+        for(var sCard : state.playerVillage.get(state.getCurrentPlayer())){
+            if(sCard.getCardEnumValue() == EverdellParameters.CardDetails.CRANE & cardToPlace instanceof ConstructionCard){
+                //Give player the choice to pay via Crane
+                JButton craneButton = new JButton("Pay via Crane");
+
+                craneButton.addActionListener(k -> {
+                    //They must select resources they want to discount
+
+                    ArrayList<ResourceTypes> r = new ArrayList<>();
+                    r.add(ResourceTypes.RESIN);
+                    r.add(ResourceTypes.TWIG);
+                    r.add(ResourceTypes.PEBBLE);
+
+                    playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
+                        //Crane Card is sCard in this instance
+                        //Trigger Crane Card Effect
+                        new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+
+                        //Card needs to be removed from the village
+                        state.playerVillage.get(state.getCurrentPlayer()).remove(sCard);
+
+                        //Place the now paid for card
+                        placeACard(state,cardToPlace);
+                        return true;
+                    });
+                });
+
+                paymentPanel.add(craneButton);
             }
-
-        });
-        paymentPanel.add(occupationButton);
-
-        panel.add(paymentPanel,BorderLayout.CENTER);
+            else if (sCard.getCardEnumValue() == EverdellParameters.CardDetails.INNKEEPER & cardToPlace instanceof CritterCard){
+                //Give player the choice to pay via Innkeeper
+                JButton innkeeperButton = new JButton("Pay via Innkeeper");
 
 
+                innkeeperButton.addActionListener(k -> {
+                    //They must select resources they want to discount
+
+                    ArrayList<ResourceTypes> r = new ArrayList<>();
+                    r.add(ResourceTypes.BERRY);
+
+                    playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
+                        //Innkeeper Card is sCard in this instance
+                        //Trigger Innkeeper Card Effect
+                        new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+
+                        //Card needs to be removed from the village
+                        state.playerVillage.get(state.getCurrentPlayer()).remove(sCard);
+
+                        //Place the now paid for card
+                        placeACard(state, cardToPlace);
+                        return true;
+                    });
+                });
+                paymentPanel.add(innkeeperButton);
+            }
+        }
+        playerCardPanel.add(paymentPanel,BorderLayout.CENTER);
     }
 
     public JPanel drawCardButtons(EverdellGameState state, ArrayList<EverdellCard> cards, JPanel panelToDrawOn, Consumer<EverdellCard> buttonAction, int numberOfSelections){
@@ -393,41 +461,12 @@ public class EverdellGUIManager extends AbstractGUIManager {
         playCardButton.addActionListener(k -> {
             //Make player cards available for selection via buttons
             this.playerCardPanel.drawPlayerCardsButtons(1, card -> {
-
-                //Can the card occupy a Construction Card
-                for(EverdellCard c : state.playerVillage.get(state.getCurrentPlayer())) {
-                    System.out.println("We are checking if the card can occupy a construction card");
-                    if (c instanceof ConstructionCard) {
-                        if(((ConstructionCard) c).canCardOccupyThis(state, card)){
-                            System.out.println("A card can occupy this");
-                            createPaymentChoicePanel(state, playerCardPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
-                            return;
-                        }
-                    }
-                }
-                //If not we make them pay with resources
-                //Place the card
-                placeACard(state, card);
+                createPaymentChoicePanel(state, card);
             });
 
             //Make meadow cards available for selection via buttons
             this.meadowCardsPanel.drawMeadowPanelButtons( 1, card ->{
-
-                //Can the card occupy a Construction Card
-                for(EverdellCard c : state.playerVillage.get(state.getCurrentPlayer())) {
-                    if (c instanceof ConstructionCard) {
-                        System.out.println("Construction Card");
-                        System.out.println(((ConstructionCard) c).getCardsThatCanOccupy());
-                        System.out.println(card.getCardEnumValue());
-                        if(((ConstructionCard) c).canCardOccupyThis(state,card)){
-                            createPaymentChoicePanel(state, playerCardPanel, ((ConstructionCard) c).getCardsThatCanOccupy().size(),(ConstructionCard) c, card);
-                            return;
-                        }
-                    }
-                }
-
-                //Place the card
-                placeACard(state, card);
+                createPaymentChoicePanel(state, card);
             });
         });
 

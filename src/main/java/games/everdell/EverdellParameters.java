@@ -332,15 +332,16 @@ public class EverdellParameters extends AbstractParameters {
     public enum CardDetails {
         FARM, RESIN_REFINERY, GENERAL_STORE, WANDERER, WIFE, HUSBAND, FAIRGROUNDS, MINE, TWIG_BARGE, SHOP_KEEPER, BARGE_TOAD,
         CASTLE, KING, PALACE, BARD, THEATRE, SCHOOL, RUINS, WOOD_CARVER, DOCTOR, ARCHITECT, PEDDLER, CHIP_SWEEP, LOOKOUT,
-        QUEEN, INN, POST_OFFICE, MONK, FOOL, TEACHER, MONASTERY, HISTORIAN, CEMETERY, UNDERTAKER, POSTAL_PIGEON, JUDGE, COURTHOUSE;
+        QUEEN, INN, POST_OFFICE, MONK, FOOL, TEACHER, MONASTERY, HISTORIAN, CEMETERY, UNDERTAKER, POSTAL_PIGEON, JUDGE,
+        COURTHOUSE, CRANE, INNKEEPER;
 
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
         static {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
-                        put(ResourceTypes.TWIG, 2);
-                        put(ResourceTypes.RESIN, 1);
+                        put(ResourceTypes.TWIG, 0); //2
+                        put(ResourceTypes.RESIN, 0); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -388,7 +389,7 @@ public class EverdellParameters extends AbstractParameters {
                 everdellGameState.villageMaxSize[everdellGameState.getCurrentPlayer()].decrement();}));
 
             WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, true, false, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 2);
+                put(ResourceTypes.BERRY, 0); //2
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {}));
@@ -871,6 +872,71 @@ public class EverdellParameters extends AbstractParameters {
         }, (everdellGameState -> {}),
                 new ArrayList<>(List.of(JUDGE)));
 
+        CRANE.createEverdellCard = (gameState) -> new ConstructionCard("Crane", CRANE, CardType.BLUE_GOVERNANCE, true, true, 1, new HashMap<>() {{
+            put(ResourceTypes.PEBBLE,0);
+        }}, (state) -> {
+            //This gives a discount of 3 resources to a card
+            //ResourceSelection will tell us which 3 resources they had selected
+            //CurrentCard will represent which card the player is trying to place
+
+            int discountCounter = 0;
+
+            //Give resources as a way of applying the discount
+
+            // **NOTE** This card will currently add the resources even if the card costs less than 3 resources
+            // Currently assumed that the player will always select the correct amount of resources
+            for(var resource : state.resourceSelection.keySet()){
+                for(int i=0; i<state.resourceSelection.get(resource).getValue(); i++){
+                    if(discountCounter == 3){
+                        break;
+                    }
+                    discountCounter++;
+                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                }
+                if(discountCounter == 3){
+                    break;
+                }
+            }
+
+            //Remove Resources based on card cost
+            for(var resource : state.currentCard.getResourceCost().keySet()){
+                state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(state.currentCard.getResourceCost().get(resource));
+            }
+            state.currentCard.payForCard();
+
+            return true;
+        }, (everdellGameState -> {}), new ArrayList<>(List.of(ARCHITECT)));
+
+
+        INNKEEPER.createEverdellCard = (gameState) -> new CritterCard("Innkeeper", INNKEEPER, CardType.BLUE_GOVERNANCE, false, true, 1, new HashMap<>() {{
+            put(ResourceTypes.BERRY, 0);
+        }}, (state) -> {
+            //Innkeeper allows the player to discount a card up to 3 Berries
+            //ResourceSelection will tell us which 3 resources they had selected
+            //CurrentCard will represent which card the player is trying to place
+
+            int discountCounter = 0;
+
+            //Give resources as a way of applying the discount
+            for(int i=0; i<state.resourceSelection.get(ResourceTypes.BERRY).getValue(); i++){
+                //If we have already added an amount of resources that the card costs, we stop
+                if(discountCounter == state.currentCard.getResourceCost().get(ResourceTypes.BERRY)){
+                    break;
+                }
+
+                if(discountCounter == 3){
+                    break;
+                }
+                discountCounter++;
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
+            }
+            state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].decrement(state.currentCard.getResourceCost().get(ResourceTypes.BERRY));
+
+            state.currentCard.payForCard();
+
+            return true;
+        }, (everdellGameState -> {}));
+
         }
     }
     
@@ -892,41 +958,43 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 1);
-        put(CardDetails.RESIN_REFINERY, 1);
-        put(CardDetails.GENERAL_STORE, 1);
-        put(CardDetails.WANDERER, 1);
-        put(CardDetails.WIFE, 1);
-        put(CardDetails.HUSBAND, 1);
-        put(CardDetails.FAIRGROUNDS, 1);
-        put(CardDetails.MINE, 1);
-        put(CardDetails.TWIG_BARGE, 1);
-        put(CardDetails.SHOP_KEEPER, 1);
-        put(CardDetails.BARGE_TOAD, 1);
-        put(CardDetails.CASTLE, 1);
-        put(CardDetails.KING, 1);
-        put(CardDetails.PALACE, 1);
-        put(CardDetails.THEATRE, 1);
-        put(CardDetails.SCHOOL, 1);
-        put(CardDetails.BARD, 1);
-        put(CardDetails.RUINS, 1);
-        put(CardDetails.WOOD_CARVER, 10);
-        put(CardDetails.DOCTOR, 1);
-        put(CardDetails.PEDDLER, 1);
-        put(CardDetails.LOOKOUT, 1);
-        put(CardDetails.QUEEN, 1);
-        put(CardDetails.INN, 3);
-        put(CardDetails.POST_OFFICE, 3);
-        put(CardDetails.MONK, 3);
-        put(CardDetails.FOOL, 3);
-        put(CardDetails.TEACHER, 3);
-        put(CardDetails.MONASTERY, 3);
-        put(CardDetails.HISTORIAN, 3);
-        put(CardDetails.CEMETERY, 1);
-        put(CardDetails.UNDERTAKER, 1);
-        put(CardDetails.POSTAL_PIGEON, 1);
-        put(CardDetails.JUDGE, 1);
-        put(CardDetails.CHIP_SWEEP, 15);
+        put(CardDetails.FARM, 15);
+        put(CardDetails.RESIN_REFINERY, 0);
+        put(CardDetails.GENERAL_STORE, 0);
+        put(CardDetails.WANDERER, 0);
+        put(CardDetails.WIFE, 15);
+        put(CardDetails.HUSBAND, 0);
+        put(CardDetails.FAIRGROUNDS, 0);
+        put(CardDetails.MINE, 0);
+        put(CardDetails.TWIG_BARGE, 0);
+        put(CardDetails.SHOP_KEEPER, 0);
+        put(CardDetails.BARGE_TOAD, 0);
+        put(CardDetails.CASTLE, 0);
+        put(CardDetails.KING, 0);
+        put(CardDetails.PALACE, 0);
+        put(CardDetails.THEATRE, 0);
+        put(CardDetails.SCHOOL, 0);
+        put(CardDetails.BARD, 0);
+        put(CardDetails.RUINS, 0);
+        put(CardDetails.WOOD_CARVER, 0);
+        put(CardDetails.DOCTOR, 0);
+        put(CardDetails.PEDDLER, 0);
+        put(CardDetails.LOOKOUT, 0);
+        put(CardDetails.QUEEN, 0);
+        put(CardDetails.INN, 0);
+        put(CardDetails.POST_OFFICE, 0);
+        put(CardDetails.MONK, 0);
+        put(CardDetails.FOOL, 0);
+        put(CardDetails.TEACHER, 0);
+        put(CardDetails.MONASTERY, 0);
+        put(CardDetails.HISTORIAN, 0);
+        put(CardDetails.CEMETERY, 0);
+        put(CardDetails.UNDERTAKER, 0);
+        put(CardDetails.POSTAL_PIGEON, 0);
+        put(CardDetails.JUDGE, 0);
+        put(CardDetails.CHIP_SWEEP, 0);
+        put(CardDetails.CRANE, 1);
+        put(CardDetails.INNKEEPER, 10);
     }};
 
     @Override
