@@ -147,7 +147,8 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Add Cards to the meadow deck
         state.meadowDeck = new Deck<>("Meadow Deck", CoreConstants.VisibilityMode.VISIBLE_TO_ALL);
-        for (int i = 0; i < 8; i++) {
+        state.meadowDeck.setCapacity(8);
+        for (int i = 0; i < state.meadowDeck.getCapacity(); i++) {
             EverdellCard card = state.cardDeck.draw();
             state.meadowDeck.add(card);
         }

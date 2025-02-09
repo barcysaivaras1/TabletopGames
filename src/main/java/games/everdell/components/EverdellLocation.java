@@ -35,17 +35,6 @@ public class EverdellLocation {
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
     }
 
-//    public void placeWorkerOnLocation(AbstractGameState gs){
-//        EverdellGameState state = (EverdellGameState) gs;
-//
-//        //If the location is not shared and is empty run the code
-//        //If the location is shared and the player has not placed a worker on it, run the code
-//        if(isLocationFreeForPlayer(state)) {
-//            playersOnLocation.add(((EverdellGameState) gs).playerTurn);
-//            locationEffect.apply(location);
-//        }
-//    }
-
     public void applyLocationEffect(EverdellGameState state){
         locationEffect.accept(state);
     }
@@ -57,6 +46,10 @@ public class EverdellLocation {
         EverdellGameState state = (EverdellGameState) gs;
         boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
+    }
+
+    public boolean isPlayerOnLocation(EverdellGameState state){
+        return playersOnLocation.contains(state.getCurrentPlayer());
     }
 
     public AbstractLocations getLocation(){

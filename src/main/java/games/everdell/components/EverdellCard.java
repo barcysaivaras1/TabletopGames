@@ -28,6 +28,7 @@ public class EverdellCard extends Card {
 
     private boolean isCardPayedFor;
     private boolean isUnique;
+    private boolean paidForByResources;
 
     public int roundCardWasBought = -1;  // -1 is not bought
     //public final String cardDescription;
@@ -44,6 +45,7 @@ public class EverdellCard extends Card {
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
         isCardPayedFor = false;
+        paidForByResources = false;
     }
     private EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
         super(name, id);

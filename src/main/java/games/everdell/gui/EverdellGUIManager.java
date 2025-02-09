@@ -10,6 +10,7 @@ import games.catan.CatanParameters;
 import games.catan.gui.CatanGUI;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
+import games.everdell.FunctionWrapper;
 import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
@@ -29,12 +30,15 @@ import org.apache.log4j.Layout;
 import org.w3c.dom.css.RGBColor;
 import players.human.ActionController;
 import scala.collection.immutable.Stream;
+import shapeless.ops.function;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.xml.stream.Location;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,6 +75,13 @@ public class EverdellGUIManager extends AbstractGUIManager {
         if (game == null) {
             return;
         }
+
+        cardSelection = new ArrayList<>();
+        resourceSelection = new HashMap<>();
+        resourceSelection.put(ResourceTypes.TWIG, new Counter());
+        resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
+        resourceSelection.put(ResourceTypes.BERRY, new Counter());
+        resourceSelection.put(ResourceTypes.RESIN, new Counter());
 
         EverdellGameState state = (EverdellGameState) game.getGameState();
 
@@ -267,22 +278,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
             cardButton.setBorder(new LineBorder(Color.green, 2));
 
             cardButton.addActionListener(k -> {
-                System.out.println("WE ARE WORKING!");
                 //If the card is already selected, unselect it
                 if(cardButton.getBackground() == Color.GRAY){
-                    System.out.println("1");
                     cardButton.setBackground(params.cardColour.get(card.getCardType()));
                     ForestLocations.cardChoices.remove(card);
                     cardSelection.remove(card);
                 }
                 //Limit the number of selections
                 else if(numberOfSelections == ForestLocations.cardChoices.size() || numberOfSelections == cardSelection.size()){
-                    System.out.println("2");
                     return;
                 }
                 //Select the card
                 else {
-                    System.out.println("3");
                     buttonAction.accept(card);
                     cardButton.setBackground(Color.GRAY);
                 }
@@ -423,12 +430,19 @@ public class EverdellGUIManager extends AbstractGUIManager {
         System.out.println("Placing a card");
         //We check if the player can afford the card
         if(new PlayCard(card, cardSelection, resourceSelection).checkIfPlayerCanBuyCard(state)){
-            if(!checkForAdditionalStepsForCard(state, card)){
-                //Place the card
+//            if(!checkForAdditionalStepsForCard(state, card)){
+//                //Place the card
+//                new PlayCard(card, cardSelection, resourceSelection).execute(state);
+//                redrawPanels();
+//                afterPlayingCard(state, card);
+//            }
+            FunctionWrapper.setupListOfFunctions(new ArrayList<>(List.of(() -> checkForAdditionalStepsForCard(state, card), () -> {
                 new PlayCard(card, cardSelection, resourceSelection).execute(state);
                 redrawPanels();
-                checkForTriggeredCardEffects(state, card);
-            }
+                afterPlayingCard(state, card);
+                return true;
+            })));
+            FunctionWrapper.activateNextFunction();
         }
         else{
             redrawPanels();
@@ -460,7 +474,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JButton playCardButton = new JButton("Play Card");
         playCardButton.addActionListener(k -> {
             //Make player cards available for selection via buttons
-            this.playerCardPanel.drawPlayerCardsButtons(1, card -> {
+            this.playerCardPanel.drawPlayerCardsButtons(1, "Select a card to play", card -> {
                 createPaymentChoicePanel(state, card);
             });
 
@@ -476,20 +490,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
         moveSeasonButton.addActionListener(k -> {
             redrawPanels();
 
-            new MoveSeason(cardSelection).execute(state);
 
-            EverdellParameters.Seasons currentSeason = state.currentSeason[state.getCurrentPlayer()];
+            FunctionWrapper.setupListOfFunctions(new ArrayList<>(List.of(() -> cardsActivatedBySeasonChange(state), () -> {
+                changeSeason(state);
+                return true;
+            })));
 
-            //If it is summer, the player must draw 2 cards from the meadow
-            if(currentSeason == EverdellParameters.Seasons.SUMMER){
-                summerEventGUI(state, playerCardPanel, playerInfoPanel);
-            }
-            //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
-            // need to be taken
-            if(currentSeason == EverdellParameters.Seasons.AUTUMN || currentSeason == EverdellParameters.Seasons.SPRING){
-                greenProductionEventGUI(state);
-            }
-            this.playerInfoPanel.drawPlayerInfoPanel();
+            FunctionWrapper.activateNextFunction();
+
+//            if(!cardsActivatedBySeasonChange(state)){
+//                changeSeason(state);
+//            }
+
         });
         seasonActionPanel.add(moveSeasonButton);
 
@@ -513,6 +525,66 @@ public class EverdellGUIManager extends AbstractGUIManager {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         playerActionsPanel.add(seasonActionPanel, gbc);
+    }
+
+    private void changeSeason(EverdellGameState state){
+        System.out.println("Changing Season");
+        new MoveSeason(cardSelection).execute(state);
+
+        EverdellParameters.Seasons currentSeason = state.currentSeason[state.getCurrentPlayer()];
+
+        //If it is summer, the player must draw 2 cards from the meadow
+        if(currentSeason == EverdellParameters.Seasons.SUMMER){
+            FunctionWrapper.addAFunction(() -> {
+                summerEventGUI(state);
+                return true;
+            });
+        }
+        //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
+        // need to be taken
+        if(currentSeason == EverdellParameters.Seasons.AUTUMN || currentSeason == EverdellParameters.Seasons.SPRING){
+            FunctionWrapper.addAFunction(() -> {
+                greenProductionEventGUI(state);
+                return true;
+            });
+        }
+        FunctionWrapper.activateNextFunction();
+    }
+
+    private boolean cardsActivatedBySeasonChange(EverdellGameState state){
+        //Iterate Over the village and seek out the cards that are activate by the season change (Not for Green Production)
+
+        for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+
+
+            switch (card.getCardEnumValue()){
+                case CLOCK_TOWER:
+                    ClockTowerCard ct = (ClockTowerCard) card;
+
+                    //Iterate Over each Location and create a button for each one
+                    playerCardPanel.removeAll();
+                    playerCardPanel.activateCopyMode(copyLocation -> {
+                        ct.selectLocation(copyLocation);
+                        new PlayCard(card, cardSelection, resourceSelection).triggerCardEffect(state, ct);
+                        playerCardPanel.deactivateCopyMode();
+                        redrawPanels();
+                        System.out.println("Should be called before changing season");
+                        System.out.println("Player Village : "+state.playerVillage.get(state.getCurrentPlayer()));
+
+                        //This is the only location that places a card
+                        //Therefore we need to place the card first and then move to the next function
+                        if(copyLocation != ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                            FunctionWrapper.activateNextFunction();
+                        }
+                    });
+
+                    playerCardPanel.drawWorkerPlacement();
+                    return true;
+            }
+
+        }
+        return false;
+
     }
 
     //This is in charge of providing CARD specific GUI so that the player can make decisions
@@ -543,28 +615,24 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         switch (cardClass) {
             case BARD:
+                redrawPanels();
                 //The player can discard up to 5 cards
                 cardsToDisplay = state.playerHands.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card != c).collect(Collectors.toCollection(ArrayList::new));
 
 
-                this.playerCardPanel.drawPlayerCardsButtons(5, cardsToDisplay, selectedCards::add);
+                this.playerCardPanel.drawPlayerCardsButtons(5, cardsToDisplay, "Select up to 5 cards to discard, Gain 1 point per card", selectedCards::add);
 
                 doneButton = new JButton("Discard Selected Cards");
                 doneButton.addActionListener(k2 -> {
-                    if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
-                        CritterCard cc = (CritterCard) c;
-                        cc.applyCardEffect(state);
-                    }
-                    else{
-                        new PlayCard(c,selectedCards,new HashMap<>()).execute(state);
-                    }
-                    redrawPanels();
+                    cardSelection = selectedCards;
+                    FunctionWrapper.activateNextFunction();
                 });
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
 
                 return true;
 
             case RUINS:
+                redrawPanels();
                 //Get every card that is a construction in the village so that we can send it for selection
                 ArrayList<EverdellCard> constructionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card instanceof ConstructionCard).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.RUINS).collect(Collectors.toCollection(ArrayList::new));
 
@@ -576,8 +644,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 doneButton = new JButton("Discard Selected Card, Refund Resources and Draw 2 Cards");
                 doneButton.addActionListener(k2 -> {
                     System.out.println("Done Button Pressed, Card selection is : "+cardSelection);
-                    new PlayCard(c,cardSelection,resourceSelection).execute(state);
-                    redrawPanels();
+                    //new PlayCard(c,cardSelection,resourceSelection).execute(state);
+                    FunctionWrapper.activateNextFunction();
+                    //redrawPanels();
                 });
 
                 playerCardPanel.add(doneButton, BorderLayout.SOUTH);
@@ -585,63 +654,69 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 return true;
 
             case HUSBAND:
+                redrawPanels();
                 //THIS CAN EASILY BE SIMPLIFIED
-                HusbandCard hc = (HusbandCard) c;
-
-                //Check for wife
-                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
-                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.WIFE){
-                        if(((WifeCard) card).getHusband() == null){
-                            ((WifeCard) card).setHusband(hc);
-                            hc.setWife((WifeCard) card);
-                        }
-                    }
-                }
-                if(hc.getWife() != null){
-                    //Check for farm
-                    for(var card : state.playerVillage.get(state.getCurrentPlayer())){
-                        if(card.getCardEnumValue() == EverdellParameters.CardDetails.FARM){
-                            playerCardPanel.drawResourceSelection(1, "Select 1 Resource to Gain", resourceSelect, game -> {
-                                if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
-                                    CritterCard cc = (CritterCard) c;
-                                    cc.applyCardEffect(state);
-                                }
-                                else{
-                                    new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                                }
-                                redrawPanels();
-                                return true;
-                            });
-                            return true;
-                        }
-                        else{
-                            if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
-                                CritterCard cc = (CritterCard) c;
-                                cc.applyCardEffect(state);
-                            }
-                            else{
-                                new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                            }
-                            redrawPanels();
-                        }
-
-                    }
-
-                }
-                else{
-                    if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
-                        CritterCard cc = (CritterCard) c;
-                        cc.applyCardEffect(state);
-                    }
-                    else {
-                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                    }
-                    redrawPanels();
-                }
+//                HusbandCard hc = (HusbandCard) c;
+//
+//                resourceSelection = new HashMap<ResourceTypes, Counter>();
+//                resourceSelection.put(ResourceTypes.TWIG, new Counter());
+//                resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
+//                resourceSelection.put(ResourceTypes.BERRY, new Counter());
+//                resourceSelection.put(ResourceTypes.RESIN, new Counter());
+//
+//                //Check for wife
+//                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+//                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.WIFE){
+//                        if(((WifeCard) card).getHusband() == null){
+//                            ((WifeCard) card).setHusband(hc);
+//                            hc.setWife((WifeCard) card);
+//                        }
+//                    }
+//                }
+//                if(hc.getWife() != null){
+//                    //Check for farm
+//                    for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+//                        if(card.getCardEnumValue() == EverdellParameters.CardDetails.FARM){
+//                            playerCardPanel.drawResourceSelection(1, "Select 1 Resource to Gain", resourceSelect, game -> {
+//                                if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
+//                                    hc.applyCardEffect(state);
+//                                    redrawPanels();
+//                                }
+//                                else{
+//                                    FunctionWrapper.activateNextFunction();
+//                                }
+//                                redrawPanels();
+//                                return true;
+//                            });
+//                            return true;
+//                        }
+//                        else{
+//                            if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
+//                                hc.applyCardEffect(state);
+//                                redrawPanels();
+//                            }
+//                            else{
+//                                FunctionWrapper.activateNextFunction();
+//                            }
+//                        }
+//
+//                    }
+//
+//                }
+//                else{
+//                    if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
+//                        hc.applyCardEffect(state);
+//                        redrawPanels();
+//                    }
+//                    else {
+//                        FunctionWrapper.activateNextFunction();
+//                    }
+//                }
 
                 return true;
 
             case WOOD_CARVER:
+                redrawPanels();
                 numOfResource = 3;
 
                 this.playerCardPanel.drawResourceSelection(numOfResource, "Trade Up to 3 Twigs for 1 Point Each",new ArrayList<ResourceTypes>(){{
@@ -649,35 +724,36 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 }}, game -> {
                     if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
                         new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                        redrawPanels();
                     }
                     else{
-                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                        FunctionWrapper.activateNextFunction();
                     }
 
-                    redrawPanels();
                     return true;
                 });
 
                 return true;
 
             case DOCTOR:
+                redrawPanels();
                 numOfResource = 3;
                 this.playerCardPanel.drawResourceSelection(numOfResource, "Trade Up to 3 Berries for 1 Point Each",new ArrayList<ResourceTypes>(){{
                     add(ResourceTypes.BERRY);
                 }}, game -> {
                     if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
                         new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                        redrawPanels();
                     }
                     else{
-                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                        FunctionWrapper.activateNextFunction();
                     }
-                    redrawPanels();
                     return true;
                 });
                 return true;
 
             case PEDDLER:
-
+                redrawPanels();
                 PeddlerCard pc = (PeddlerCard) c;
                 numOfResource = 2;
                 this.playerCardPanel.drawResourceSelection(numOfResource, "Give Up to 2 of any resource, get 1 of any resource for each one given", resourceSelect, game -> {
@@ -693,11 +769,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         pc.addResourcesToGain(resourceSelection);
                         if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
                             new PlayCard(pc, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                            redrawPanels();
                         }
                         else{
-                            new PlayCard(pc, cardSelection, resourceSelection).execute(state);
+                            FunctionWrapper.activateNextFunction();
                         }
-                        redrawPanels();
                         return true;
                     });
                     return true;
@@ -705,11 +781,10 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 return true;
 
             case CHIP_SWEEP:
+                redrawPanels();
                 //The player must select a production card from their village, which its effect will be activated.
                 //Get every card that is a green production card in the village so that we can send it for selection
                 ArrayList<EverdellCard> greenProductionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION ).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.CHIP_SWEEP).collect(Collectors.toCollection(ArrayList::new));
-
-                cardSelection.clear();
 
                 this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
                     cardSelection.clear();
@@ -722,11 +797,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     if(cardSelection.isEmpty()){
                         if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
                             new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                            redrawPanels();
                         }
                         else{
-                            new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                            FunctionWrapper.activateNextFunction();
                         }
-                        redrawPanels();
                     }
                     //If it is triggered by a green production event
                     else if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
@@ -743,12 +818,13 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     }
                     //If we are placing the card
                     else{
+                        System.out.println("We are placing the card in chipSweep here : "+cardSelection);
                         if(!checkForAdditionalStepsForCard(state, cardSelection.get(0))){
-                            new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                            redrawPanels();
+                            System.out.println("PLAYCARDCHIP: "+cardSelection);
+                            FunctionWrapper.activateNextFunction();
                         }
                         else{
-                            new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                            FunctionWrapper.activateNextFunction();
                         }
                     }
                 });
@@ -759,6 +835,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
 
             case MONK:
+                redrawPanels();
                 System.out.println("Monk Card");
                 playerCardPanel.drawResourceSelection(2, "Give up to 2 berries to a player, for 2 points each", new ArrayList<ResourceTypes>(){{
                     add(ResourceTypes.BERRY);
@@ -769,31 +846,34 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
                             new PlayCard(mc, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                            redrawPanels();
                         }
                         else{
-                            new PlayCard(mc, cardSelection, resourceSelection).execute(state);
+                            FunctionWrapper.activateNextFunction();
                         }
-                        redrawPanels();
+
                     });
                     return true;
                 });
                 return true;
 
             case FOOL:
+                redrawPanels();
                 playerCardPanel.drawPlayerSelection(player -> {
                     FoolCard fc = (FoolCard) c;
                     fc.setSelectedPlayer(player);
-                    new PlayCard(c, cardSelection, resourceSelection).execute(state);
+                    FunctionWrapper.activateNextFunction();
                     redrawPanels();
                 });
                 return true;
 
             case TEACHER:
+                redrawPanels();
                 ArrayList<EverdellCard> cTD = new ArrayList<>();
                 cTD.add(state.cardDeck.draw());
                 cTD.add(state.cardDeck.draw());
 
-                playerCardPanel.drawPlayerCardsButtons( 1, cTD, card -> {
+                playerCardPanel.drawPlayerCardsButtons( 1, cTD, "Draw 2 cards, Select 1 Keep, Give away the other", card -> {
                     if(card == cTD.get(0)){
                         cardSelection.add(cTD.get(0));
                         cardSelection.add(cTD.get(1));
@@ -802,6 +882,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         cardSelection.add(cTD.get(1));
                         cardSelection.add(cTD.get(0));
                     }
+
                 });
 
                 doneButton = new JButton("Done");
@@ -809,8 +890,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     playerCardPanel.drawPlayerSelection(player -> {
                         TeacherCard tc = (TeacherCard) c;
                         tc.setSelectedPlayer(player);
-                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                        redrawPanels();
+
+                        if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
+                            new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                            redrawPanels();
+                        }
+                        else{
+                            FunctionWrapper.activateNextFunction();
+                        }
                     });
                 });
 
@@ -843,12 +930,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                     redrawPanels();
 
-                    playerCardPanel.drawPlayerCardsButtons(1, state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new)), card -> {
+                    playerCardPanel.drawPlayerCardsButtons(1, state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new)), "Select 1 card to draw from the meadow", card -> {
                         cardSelection.clear();
                         cardSelection.add(card);
 
-                        new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                        redrawPanels();
+                        FunctionWrapper.activateNextFunction();
                     });
                 });
 
@@ -862,12 +948,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 cardsToDraw.add(state.cardDeck.draw());
                 cardsToDraw.add(state.cardDeck.draw());
 
-                playerCardPanel.drawPlayerCardsButtons(1, cardsToDraw, card -> {
+                playerCardPanel.drawPlayerCardsButtons(1, cardsToDraw, "", card -> {
                     cardSelection.add(card);
                     cardSelection.add(cardSelection.get(0) == card ? cardsToDraw.get(1) : cardsToDraw.get(0));
 
-                    new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                    redrawPanels();
+                    FunctionWrapper.activateNextFunction();
 
                     //If the selected card was valid, we must now go through the process of the placing the card
                     if(card.isCardPayedFor()){
@@ -876,6 +961,19 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 });
                 return true;
 
+
+            case SHEPHERD:
+                //The player must select another player to give 3 berries to
+                redrawPanels();
+                playerCardPanel.drawPlayerSelection(player -> {
+                    ShepherdCard sc = (ShepherdCard) c;
+                    sc.setBeforePR(state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue());
+                    sc.setSelectedPlayer(player);
+                    FunctionWrapper.activateNextFunction();
+                });
+                return true;
+
+
             default:
                 redrawPanels();
                 return false;
@@ -883,13 +981,28 @@ public class EverdellGUIManager extends AbstractGUIManager {
         }
     }
 
-    public void checkForTriggeredCardEffects(EverdellGameState state, EverdellCard c){
+    public void afterPlayingCard(EverdellGameState state, EverdellCard c){
+        //Check if the player has any cards placed that are triggered after a card is played
 
         EverdellParameters.CardDetails cardPlaced = c.getCardEnumValue();
 
 
-
         System.out.println("Checking for triggered card effects");
+
+        HashMap<EverdellCard, Callable<Boolean>> triggeredCards = new HashMap<>();
+
+        Consumer<EverdellGameState> listCardsAction = (state2) -> {
+            playerCardPanel.drawPlayerCardsButtons(1, new ArrayList<>(triggeredCards.keySet()), "Cards Have been Triggered, Select which one you want to trigger first", card -> {
+                try {
+                    FunctionWrapper.addAFunction(triggeredCards.get(card));
+                    FunctionWrapper.activateNextFunction();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        };
+
         for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
             EverdellParameters.CardDetails cardClass = card.getCardEnumValue();
 
@@ -907,39 +1020,80 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
             System.out.println("Card Class : "+cardClass);
 
+
             switch (cardClass) {
                 case JUDGE:
                     System.out.println("Judge Card");
+
                     if(cardPlaced == EverdellParameters.CardDetails.JUDGE){
                         continue;
                     }
-                    //The player may swap 1 resource for another whenever a card is played
-                    JudgeCard jc = (JudgeCard) card;
-                    int numOfResource = 1;
-                    this.playerCardPanel.drawResourceSelection(numOfResource, "Give Up to 1 of any resource, get 1 of any resource", resourceSelect, game -> {
-                        //Select the resources to give up
-                        jc.addResourcesToLose(resourceSelection);
+                    Callable judgeAction = () -> {
+                        //The player may swap 1 resource for another whenever a card is played
+                        JudgeCard jc = (JudgeCard) card;
+                        int numOfResource = 1;
+                        this.playerCardPanel.drawResourceSelection(numOfResource, jc.getName()+" : Give Up to 1 of any resource, get 1 of any resource", resourceSelect, game2 -> {
+                            //Select the resources to give up
+                            jc.addResourcesToLose(resourceSelection);
 
-                        //Reset it to 0
-                        resetValues();
-                        redrawPanels();
-
-                        this.playerCardPanel.drawResourceSelection(numOfResource, "Select "+numOfResource+" Resources to Gain", resourceSelect, game2 -> {
-                            //Select the resources to gain
-                            jc.addResourcesToGain(resourceSelection);
-                            if(state.playerVillage.get(state.getCurrentPlayer()).contains(c)){
-                                CritterCard cc = (CritterCard) c;
-                                cc.applyCardEffect(state);
-                            }
-                            else{
-                                new PlayCard(c, cardSelection, resourceSelection).execute(state);
-                            }
+                            //Reset it to 0
+                            resetValues();
                             redrawPanels();
+
+                            this.playerCardPanel.drawResourceSelection(numOfResource, jc.getName()+" : Select "+numOfResource+" Resources to Gain", resourceSelect, game3 -> {
+                                //Select the resources to gain
+                                jc.addResourcesToGain(resourceSelection);
+                                jc.applyCardEffect(state);
+                                redrawPanels();
+                                resetValues();
+                                //FunctionWrapper.activateNextFunction();
+                                return true;
+                            });
                             return true;
                         });
                         return true;
-                    });
+                    };
+                    triggeredCards.put(card, judgeAction);
+                    //FunctionWrapper.addAFunction(judgeAction);
+                    break;
+
+                case COURTHOUSE:
+                    System.out.println("Courthouse Card");
+                    if(cardPlaced == EverdellParameters.CardDetails.COURTHOUSE || !(c instanceof ConstructionCard)){
+                        continue;
+                    }
+
+                    Callable courthouseAction = () -> {
+                        //The player may swap 1 resource for another whenever a card is played
+                        int resourceToGain = 1;
+
+                        resourceSelect.remove(ResourceTypes.BERRY);
+
+
+
+                        this.playerCardPanel.drawResourceSelection(resourceToGain, card.getName()+" : Gain 1 Twig, Resin or Pebble", resourceSelect, game -> {
+                            //Select the resources to gain
+                            new PlayCard(card, cardSelection, resourceSelection).triggerCardEffect(state, card);
+                            redrawPanels();
+                            resetValues();
+                            triggeredCards.remove(card);
+                            listCardsAction.accept(state);
+                            //FunctionWrapper.activateNextFunction();
+                            return true;
+                        });
+                        return true;
+                    };
+                    triggeredCards.put(card, courthouseAction);
+                    //FunctionWrapper.addAFunction(courthouseAction);
+                    break;
             }
+        }
+
+        if(triggeredCards.isEmpty()){
+            FunctionWrapper.activateNextFunction();
+        }
+        else{
+            listCardsAction.accept(state);
         }
 
     }
@@ -987,7 +1141,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 redrawPanels();
             }
             else {
-
+                System.out.println("Green Production, On card : "+greenProductionCards.get(counter));
                 if(!checkForAdditionalStepsForCard(state, greenProductionCards.get(counter))){
                     greenProductionCards.remove(counter);
                 }
@@ -1005,7 +1159,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
     //THIS NEEDS TO BE UPDATED TO USE THE NEW SYSTEM
     //SUMMER GUI IS CURRENTLY NOT WORKING
-    private void summerEventGUI(EverdellGameState state,JPanel playerCardPanel, JPanel playerInfoPanel){
+    private void summerEventGUI(EverdellGameState state){
         cardSelection = new ArrayList<EverdellCard>();
         int cardsToDraw = Math.min(2, state.playerHands.get(state.getCurrentPlayer()).getCapacity() - state.playerHands.get(state.getCurrentPlayer()).getSize());
 
@@ -1034,6 +1188,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         JButton doneButton = new JButton("Done");
         doneButton.addActionListener(k -> {
             new MoveSeason(cardSelection).summerEvent(state);
+            resetValues();
             redrawPanels();
         });
         navigationPanel.add(passButton);

@@ -8,11 +8,10 @@ import games.everdell.EverdellParameters.BasicEvent;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.ResourceTypes;
+import games.everdell.FunctionWrapper;
 import games.everdell.actions.PlaceWorker;
-import games.everdell.components.EverdellCard;
-import games.everdell.components.EverdellLocation;
-import games.everdell.components.MonasteryCard;
-import games.everdell.components.PostOfficeCard;
+import games.everdell.actions.PlayCard;
+import games.everdell.components.*;
 import org.apache.spark.sql.sources.In;
 import scala.collection.immutable.Stream;
 
@@ -100,7 +99,7 @@ public class BottomPanel extends JPanel {
     }
 
     private void drawCards(){
-        JLabel playerCardLabel = new JLabel("Player Cards");
+        JLabel playerCardLabel = new JLabel(labelText);
         playerCardLabel.setHorizontalAlignment(SwingConstants.CENTER);
         this.add(playerCardLabel, BorderLayout.NORTH);
 
@@ -263,24 +262,25 @@ public class BottomPanel extends JPanel {
             }
 
             if(location == RedDestinationLocation.LOOKOUT_DESTINATION){
+                //Copy Basic or Forest Location
                 button.addActionListener(k ->{
                     locationPanel.removeAll();
-                    copyMode = true;
-                    copyAction = copyLocation -> {
+                    activateCopyMode(copyLocation -> {
                         RedDestinationLocation.copyLocationChoice = copyLocation;
                         new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                        copyMode = false;
+                        deactivateCopyMode();
                         everdellGUIManager.redrawPanels();
-                    };
+                    });
                     drawBasicLocationsButton(locationPanel);
                     drawForestLocationsButton(locationPanel);
                 });
             }
             if(location == RedDestinationLocation.QUEEN_DESTINATION){
+                //Place a card with 3 or less points
                 button.addActionListener(k ->{
                    ArrayList<EverdellCard> cards = state.playerHands.get(state.getCurrentPlayer()).stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new));
                    cards.addAll(state.meadowDeck.stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new)));
-                   drawPlayerCardsButtons(1,cards, card -> {
+                   drawPlayerCardsButtons(1,cards, "Play a card worth 3 points or less for free", card -> {
                        everdellGUIManager.cardSelection.add(card);
 
                        new PlaceWorker(location,everdellGUIManager.cardSelection,everdellGUIManager.resourceSelection).execute(state);
@@ -292,9 +292,10 @@ public class BottomPanel extends JPanel {
             }
 
             if(location == RedDestinationLocation.INN_DESTINATION){
+                //Play a meadow card for 3 less resources
                 button.addActionListener(k ->{
                     ArrayList<EverdellCard> cards = state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new));
-                    drawPlayerCardsButtons(1,cards, card -> {
+                    drawPlayerCardsButtons(1,cards, "Select a meadow card to play for 3 less resources", card -> {
 
                         int discountAmount = 3;
 
@@ -311,9 +312,10 @@ public class BottomPanel extends JPanel {
             }
 
             if(location == RedDestinationLocation.POST_OFFICE_DESTINATION){
+                //Give 2 cards, discard any and draw to the limit
                 button.addActionListener(k -> {
 
-                    drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), card -> {
+                    drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), "Give 2 cards, discard any and draw to the limit", card -> {
                         everdellGUIManager.cardSelection.add(card);
                     });
 
@@ -344,6 +346,7 @@ public class BottomPanel extends JPanel {
                     });
                 }
             if(location == RedDestinationLocation.MONASTERY_DESTINATION){
+                //Give 2 resources, gain 4 points
                 button.addActionListener(k -> {
                     drawResourceSelection(2,"Give 2 Resources, Gain 4 points", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
                         drawPlayerSelection(player -> {
@@ -370,6 +373,7 @@ public class BottomPanel extends JPanel {
                 });
             }
             if(location == RedDestinationLocation.CEMETERY_DESTINATION){
+                //Reveal 4 Cards from the deck or the discard pile. Play 1 of them 1 free
                 button.addActionListener(k -> {
                     ArrayList<EverdellCard> drawnCards = new ArrayList<>();
 
@@ -380,8 +384,7 @@ public class BottomPanel extends JPanel {
                     JButton drawFromDiscard = new JButton("Reveal from Discard");
 
                     Consumer<EverdellGameState> selectionAction = state -> {
-                        drawPlayerCardsButtons(1, drawnCards, card -> {
-                            System.out.println("Card Selected: ");
+                        drawPlayerCardsButtons(1, drawnCards, "Select 1 card to play for free",card -> {
                             everdellGUIManager.cardSelection.add(card);
 
                             //Add the rest of the cards to drawnCards
@@ -427,6 +430,51 @@ public class BottomPanel extends JPanel {
 
                     this.add(drawSelectionPanel, BorderLayout.CENTER);
 
+                });
+            }
+
+            if(location == RedDestinationLocation.UNIVERSITY_DESTINATION){
+                //Discard a village card, refund it, gain a resource and 1 point
+                button.addActionListener(k -> {
+                    //They must select a card that they want to discard
+
+                    ArrayList<EverdellCard> villageCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+
+                    drawPlayerCardsButtons(1, villageCards, "Discard a village card, refund it, gain a resource and 1 point", card -> {
+                        everdellGUIManager.cardSelection.add(card);
+
+                        drawResourceSelection(1, "Select 1 Resource to Gain", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                            //Find University Card
+                            boolean found = false;
+                            for(var cardInDeck : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
+                                if(cardInDeck.getCardEnumValue() == EverdellParameters.CardDetails.UNIVERSITY){
+                                    found = true;
+                                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                    everdellGUIManager.redrawPanels();
+                                    break;
+                                }
+                            }
+
+                            //If the card is not found, there is a very big problem. The card HAS to be in the village
+                            if(!found){
+                                try {
+                                    throw new Exception("University Card not found");
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+
+                            return true;
+
+                        });
+                    });
+                });
+            }
+
+            if(location == RedDestinationLocation.CHAPEL_DESTINATION){
+                button.addActionListener(k -> {
+                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                    everdellGUIManager.redrawPanels();
                 });
             }
 
@@ -495,7 +543,7 @@ public class BottomPanel extends JPanel {
                     JButton doneButton = new JButton("Discard Selected Cards");
 
                     if(location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
-                        this.drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), card -> {
+                        this.drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), "Discard Cards, Draw two for each one discarded", card -> {
                             ForestLocations.cardChoices.add(card);
                         });
                         doneButton.addActionListener(k2 -> {
@@ -509,11 +557,9 @@ public class BottomPanel extends JPanel {
                         });
                     }
                     else{
-                        JLabel discardLabel = new JLabel("Discard up to 3 cards");
-                        this.drawPlayerCardsButtons(3, card -> {
+                        this.drawPlayerCardsButtons(3, "Discard up to 3 cards", card -> {
                             ForestLocations.cardChoices.add(card);
                         });
-                        this.add(discardLabel, BorderLayout.NORTH);
 
                         doneButton.addActionListener(k2 -> {
                             drawResourceSelection(ForestLocations.cardChoices.size(),"Select "+ForestLocations.cardChoices.size()+" Resources", rt,
@@ -558,7 +604,7 @@ public class BottomPanel extends JPanel {
                     this.remove(locationPanel);
 
                     ArrayList<EverdellCard> cards = state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new));
-                    drawPlayerCardsButtons(2,cards, card -> {
+                    drawPlayerCardsButtons(2,cards,"Select 2 Meadow Cards", card -> {
 
                         everdellGUIManager.cardSelection.add(card);
                     });
@@ -566,7 +612,7 @@ public class BottomPanel extends JPanel {
                     JButton doneButton = new JButton("Done");
                     doneButton.addActionListener(k2 -> {
 
-                        drawPlayerCardsButtons(1, everdellGUIManager.cardSelection,card -> {
+                        drawPlayerCardsButtons(1, everdellGUIManager.cardSelection, "Select 1 Card to Play at a Discount",card -> {
                             int discountAmount = 1;
                             drawResourceSelection(discountAmount,"Select 1 Resource to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
 
@@ -583,6 +629,7 @@ public class BottomPanel extends JPanel {
                                     copyAction.accept(location);
                                     everdellGUIManager.redrawPanels();
                                     everdellGUIManager.placeACard(state, card);
+                                    FunctionWrapper.activateNextFunction();
                                 }
                                 else {
                                     new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
@@ -782,16 +829,17 @@ public class BottomPanel extends JPanel {
 
     public void drawPlayerCards(){
         resetNavigation();
-        everdellGUIManager.resetValues();
         displayCards = true;
+        labelText = "Player Cards";
 
         draw();
     }
 
-    public void drawPlayerCardsButtons(int numberOfCardSelections, Consumer<EverdellCard> cardButtonAction){
+    public void drawPlayerCardsButtons(int numberOfCardSelections, String title, Consumer<EverdellCard> cardButtonAction){
         this.cardButtonAction = cardButtonAction;
         this.numberOfCardSelections = numberOfCardSelections;
         this.cardsToDisplay = null;
+        this.labelText = title;
 
         resetNavigation();
 
@@ -799,16 +847,27 @@ public class BottomPanel extends JPanel {
         makeCardsButtons = true;
         draw();
     }
-    public void drawPlayerCardsButtons(int numberOfCardSelections, ArrayList<EverdellCard> cardsToDisplay, Consumer<EverdellCard> cardButtonAction){
+    public void drawPlayerCardsButtons(int numberOfCardSelections, ArrayList<EverdellCard> cardsToDisplay, String title, Consumer<EverdellCard> cardButtonAction){
         this.cardButtonAction = cardButtonAction;
         this.numberOfCardSelections = numberOfCardSelections;
         this.cardsToDisplay = cardsToDisplay;
+        this.labelText = title;
 
         resetNavigation();
 
         displayCards = true;
         makeCardsButtons = true;
         draw();
+    }
+
+    public void activateCopyMode(Consumer<EverdellParameters.AbstractLocations> copyAction){
+        copyMode = true;
+        this.copyAction = copyAction;
+    }
+
+    public void deactivateCopyMode(){
+        copyMode = false;
+        copyAction = null;
     }
 
     public void redraw(){

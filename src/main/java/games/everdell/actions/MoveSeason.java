@@ -107,12 +107,14 @@ public class MoveSeason extends AbstractAction {
     }
 
     private void productionEvent(EverdellGameState state){
+
         System.out.println("Production Event");
         //Iterate through all players
         for(int i = 0; i<state.getNPlayers(); i++){
             //Check if player has a production building
             for(var card : state.playerVillage.get(i).getComponents()){
                 if(card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
+                    System.out.println("Green Production, In MoveSeason, Activating Card : "+card.getName());
                     //Apply production effect
                     if(card instanceof ConstructionCard cc){
                         cc.applyCardEffect(state);

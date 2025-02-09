@@ -23,6 +23,10 @@ public class TeacherCard extends CritterCard{
         //Card Selection holds the 2 cards, Card [0[ is the card the player will keep
         //Card [1] is the card the player will give to another player
 
+        if(state.cardSelection.isEmpty()){
+            return;
+        }
+
         //Store the card in the players hand
         if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
             state.playerHands.get(state.getCurrentPlayer()).add(state.cardSelection.get(0));

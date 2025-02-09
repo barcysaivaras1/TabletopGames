@@ -6,11 +6,8 @@ import core.components.Component;
 import core.components.Counter;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
-import games.everdell.components.ConstructionCard;
-import games.everdell.components.CritterCard;
-import games.everdell.components.EverdellCard;
+import games.everdell.components.*;
 import games.everdell.EverdellParameters.CardDetails;
-import games.everdell.components.FoolCard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +69,6 @@ public class PlayCard extends AbstractAction {
 //                System.out.println("You already have this card in your village");
 //                return false;
 //            }
-
 
             //Check if the card is Unique and if the player has this card in their village
             //Cannot have duplicate unique cards
@@ -163,9 +159,14 @@ public class PlayCard extends AbstractAction {
         //Remove card from hand
         //If we fail to remove that card object from the hand, it means that the card was in the meadow
         //We remove the card from the meadow and add a new card to the meadow
+
+        System.out.println("Removing card");
+        System.out.println("Card Selected : "+currentCard.getName());
+
+
         if(!state.playerHands.get(state.getCurrentPlayer()).remove(currentCard)){
+            state.meadowDeck.remove(currentCard);
             if(state.meadowDeck.getSize() < state.meadowDeck.getCapacity()) {
-                state.meadowDeck.remove(currentCard);
                 System.out.println("Card was in the meadow");
                 state.meadowDeck.add(state.cardDeck.draw());
             }
@@ -181,7 +182,6 @@ public class PlayCard extends AbstractAction {
         //Check if the card we played has any cards that need to be activated after playing a card
         //This is for cards that do NOT need GUI elements to be function
         //There is a separate function for cards that need GUI elements to function in the GUIManager
-
 
         for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
 
