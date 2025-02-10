@@ -164,6 +164,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
     }
 
     private void createPaymentChoicePanel(EverdellGameState state, EverdellCard cardToPlace){
+        redrawPanels();
         playerCardPanel.removeAll();
         playerCardPanel.setLayout(new BorderLayout());
         playerCardPanel.setBackground(new Color(147, 136, 40));
@@ -213,7 +214,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         for(var sCard : state.playerVillage.get(state.getCurrentPlayer())){
             if(sCard.getCardEnumValue() == EverdellParameters.CardDetails.CRANE & cardToPlace instanceof ConstructionCard){
                 //Give player the choice to pay via Crane
-                JButton craneButton = new JButton("Pay via Crane");
+                JButton craneButton = new JButton("Discount via Crane");
 
                 craneButton.addActionListener(k -> {
                     //They must select resources they want to discount
@@ -241,7 +242,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
             }
             else if (sCard.getCardEnumValue() == EverdellParameters.CardDetails.INNKEEPER & cardToPlace instanceof CritterCard){
                 //Give player the choice to pay via Innkeeper
-                JButton innkeeperButton = new JButton("Pay via Innkeeper");
+                JButton innkeeperButton = new JButton("Discount via Innkeeper");
 
 
                 innkeeperButton.addActionListener(k -> {
@@ -264,6 +265,39 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     });
                 });
                 paymentPanel.add(innkeeperButton);
+            }
+            //Needs to have dungeon card placed, There needs to be a critter in the village, there must be 1 or more cell available
+            else if(sCard.getCardEnumValue() == EverdellParameters.CardDetails.DUNGEON & state.playerVillage.get(state.getCurrentPlayer()).stream().anyMatch(c -> c instanceof CritterCard)) {
+                DungeonCard dc = (DungeonCard) sCard;
+
+                if (dc.isThereACellFree()){
+                        //Give player the choice to pay via Innkeeper
+                        JButton dungeonButton = new JButton("Discount via Dungeom");
+
+
+                        dungeonButton.addActionListener(k -> {
+                        //They must select resources they want to discount
+
+                        ArrayList<ResourceTypes> r = new ArrayList<>();
+                        r.add(ResourceTypes.BERRY);
+
+                        ArrayList cardsToChooseFrom = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof CritterCard).collect(Collectors.toCollection(ArrayList::new));
+                        villagePanel.drawVillagePanelButtons(cardsToChooseFrom, 1, card -> {
+                            dc.placeCritterInCell((CritterCard) card);
+                            //This happens after a critter card is placed in a cell
+                            playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
+                                //Innkeeper Card is sCard in this instance
+                                //Trigger Innkeeper Card Effect
+                                new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+
+                                //Place the now paid for card
+                                placeACard(state, cardToPlace);
+                                return true;
+                            });
+                        });
+                    });
+                    paymentPanel.add(dungeonButton);
+                }
             }
         }
         playerCardPanel.add(paymentPanel,BorderLayout.CENTER);
@@ -829,6 +863,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 if(isGreenProductionEvent){
                                     if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
                                         new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                                        redrawPanels();
                                     }
                                 }
                                 else{
@@ -1030,7 +1065,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         //Find all location in which the player has a worker on
                         for(var location : state.Locations.values()){
-                            if(location.isPlayerOnLocation(state)){
+                            if(location.isPlayerOnLocation(state) && location.getLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
                                 locationsToDisplayRanger.add(location);
                             }
                         }
@@ -1043,25 +1078,103 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         FunctionWrapper.addAFunction(rangerAction2,0);
 
+                        if(locationsToDisplayRanger.isEmpty()){
+                            FunctionWrapper.activateNextFunction();
+                        }
+
+
                         //Display the locations for the player to remove a worker from
                         for(var location : locationsToDisplayRanger){
                             JButton locationButton = new JButton(location.getLocation().name());
                             locationButton.addActionListener(k -> {
                                 rc.setLocationFrom(location);
                                 state.workers[state.getCurrentPlayer()].increment();
+
+                                playerCardPanel.activateCopyMode(copyLocation -> {
+                                    rc.setLocationTo(state.Locations.get(copyLocation));
+                                    new PlayCard(rc, cardSelection, resourceSelection).execute(state);
+                                    playerCardPanel.deactivateCopyMode();
+                                    redrawPanels();
+
+                                    //This is the only location that places a card
+                                    //Therefore we need to place the card first and then move to the next function
+                                    if(copyLocation != ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT && copyLocation != EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
+                                        FunctionWrapper.activateNextFunction();
+                                    }
+
+                                });
                                 playerCardPanel.drawWorkerPlacement();
                             });
                             playerCardPanel.add(locationButton);
                         }
-
-
-
-
-
                         return true;
                     };
                     cardsToActivate.put(c, rangerAction);
                     break;
+
+                case MINER_MOLE:
+                    Callable minerMoleAction = () -> {
+                        redrawPanels();
+                        //The player must select a production card from their village, which its effect will be activated.
+                        //Get every card that is a green production card in the village so that we can send it for selection
+                        ArrayList<EverdellCard> greenProductionCards = new ArrayList<>();
+                        for(int i=0; i < state.getNPlayers(); i++) {
+                            if(i == state.getCurrentPlayer()){
+                                continue;
+                            }
+                            greenProductionCards.addAll(state.playerVillage.get(i).stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.MINER_MOLE).collect(Collectors.toCollection(ArrayList::new)));
+                        }
+
+                        System.out.println("Green Production Cards : "+greenProductionCards);
+                        this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
+                            cardSelection.clear();
+                            cardSelection.add(card);
+                        });
+
+                        JButton doneButtonMinerMole = new JButton("Done");
+                        doneButtonMinerMole.addActionListener(k2 -> {
+                            //If No cards were selected
+                            if(cardSelection.isEmpty()){
+                                cardsToActivate.remove(c);
+                                listCardsAction.accept(state);
+                                return;
+                            }
+
+                            //This is what has to be run after a card has been copied
+                            Callable minerMoleAction2 = () -> {
+
+                                cardsToActivate.remove(c);
+                                listCardsAction.accept(state);
+                                return true;
+                            };
+
+                            Callable minerMoleAction3 = () -> {
+                                EverdellCard cardToCopy = cardSelection.get(0);
+                                if(isGreenProductionEvent){
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
+                                        new PlayCard(c, new ArrayList<>(List.of(cardToCopy)), resourceSelection).triggerCardEffect(state, c);
+                                        redrawPanels();
+                                    }
+                                }
+                                else{
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
+                                        cardsToActivate.remove(c);
+                                        listCardsAction.accept(state);
+                                    }
+                                }
+                                return true;
+                            };
+                            FunctionWrapper.addAFunction(minerMoleAction2, 0);
+                            FunctionWrapper.activateNextFunction(minerMoleAction3);
+                        });
+
+                        playerCardPanel.add(doneButtonMinerMole, BorderLayout.SOUTH);
+
+                        return true;
+                    };
+                    cardsToActivate.put(c, minerMoleAction);
+                    break;
+
 
             }
         }

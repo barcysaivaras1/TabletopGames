@@ -196,6 +196,15 @@ public class EverdellForwardModel extends StandardForwardModel {
         System.out.println(state.playerHands);
         System.out.println(state.playerVillage);
 
+
+        //Add green production cards to player 2
+        while(state.playerVillage.get(1).getComponents().size() < 5){
+            EverdellCard card = state.cardDeck.draw();
+            if(card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
+                state.playerVillage.get(1).add(card);
+            }
+        }
+
     }
 
     /**

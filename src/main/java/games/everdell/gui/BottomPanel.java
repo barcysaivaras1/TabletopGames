@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -267,9 +268,11 @@ public class BottomPanel extends JPanel {
                     locationPanel.removeAll();
                     activateCopyMode(copyLocation -> {
                         RedDestinationLocation.copyLocationChoice = copyLocation;
+
                         new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         deactivateCopyMode();
                         everdellGUIManager.redrawPanels();
+                        FunctionWrapper.activateNextFunction();
                     });
                     drawBasicLocationsButton(locationPanel);
                     drawForestLocationsButton(locationPanel);
@@ -282,10 +285,20 @@ public class BottomPanel extends JPanel {
                    cards.addAll(state.meadowDeck.stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new)));
                    drawPlayerCardsButtons(1,cards, "Play a card worth 3 points or less for free", card -> {
                        everdellGUIManager.cardSelection.add(card);
-
-                       new PlaceWorker(location,everdellGUIManager.cardSelection,everdellGUIManager.resourceSelection).execute(state);
-                       everdellGUIManager.redrawPanels();
-                       everdellGUIManager.placeACard(state,card);
+                       if(copyMode){
+                           copyAction.accept(location);
+                           everdellGUIManager.redrawPanels();
+                           FunctionWrapper.addAFunction(() -> {
+                               everdellGUIManager.placeACard(state, card);
+                               return true;
+                           }, 0);
+                           FunctionWrapper.activateNextFunction();
+                       }
+                       else {
+                           new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                           everdellGUIManager.redrawPanels();
+                           everdellGUIManager.placeACard(state, card);
+                       }
                    });
 
                 });
@@ -301,9 +314,21 @@ public class BottomPanel extends JPanel {
 
                         drawResourceSelection(discountAmount,"Select 3 Resources to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
                             everdellGUIManager.cardSelection.add(0, card);
-                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                            everdellGUIManager.redrawPanels();
-                            everdellGUIManager.placeACard(state,card);
+
+                            if(copyMode){
+                                copyAction.accept(location);
+                                everdellGUIManager.redrawPanels();
+                                FunctionWrapper.addAFunction(() -> {
+                                    everdellGUIManager.placeACard(state, card);
+                                    return true;
+                                }, 0);
+                                FunctionWrapper.activateNextFunction();
+                            }
+                            else {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                everdellGUIManager.placeACard(state, card);
+                            }
                             return true;
                             });
                     });
@@ -337,8 +362,13 @@ public class BottomPanel extends JPanel {
                             }
                             System.out.println("Location is "+loc.getLocation());
 
-                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                            everdellGUIManager.redrawPanels();
+                            if(copyMode){
+                                copyAction.accept(location);
+                            }
+                            else {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            }
                         });
                     });
 
@@ -362,10 +392,14 @@ public class BottomPanel extends JPanel {
                                     }
                                 }
                             }
-                            System.out.println("Location is "+loc.getLocation());
 
-                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                            everdellGUIManager.redrawPanels();
+                            if(copyMode){
+                                copyAction.accept(location);
+                            }
+                            else {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            }
                         });
                         return true;
                     });
@@ -394,9 +428,20 @@ public class BottomPanel extends JPanel {
                                 }
                             }
 
-                            new PlaceWorker(location,everdellGUIManager.cardSelection,everdellGUIManager.resourceSelection).execute(state);
-                            everdellGUIManager.redrawPanels();
-                            everdellGUIManager.placeACard(state,card);
+                            if(copyMode){
+                                copyAction.accept(location);
+                                everdellGUIManager.redrawPanels();
+                                FunctionWrapper.addAFunction(() -> {
+                                    everdellGUIManager.placeACard(state, card);
+                                    return true;
+                                }, 0);
+                                FunctionWrapper.activateNextFunction();
+                            }
+                            else {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                everdellGUIManager.placeACard(state, card);
+                            }
                         });
                     };
 
@@ -449,8 +494,13 @@ public class BottomPanel extends JPanel {
                             for(var cardInDeck : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                                 if(cardInDeck.getCardEnumValue() == EverdellParameters.CardDetails.UNIVERSITY){
                                     found = true;
-                                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                                    everdellGUIManager.redrawPanels();
+                                    if(copyMode){
+                                        copyAction.accept(location);
+                                    }
+                                    else {
+                                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                        everdellGUIManager.redrawPanels();
+                                    }
                                     break;
                                 }
                             }
@@ -473,8 +523,13 @@ public class BottomPanel extends JPanel {
 
             if(location == RedDestinationLocation.CHAPEL_DESTINATION){
                 button.addActionListener(k -> {
-                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                    everdellGUIManager.redrawPanels();
+                    if(copyMode){
+                        copyAction.accept(location);
+                    }
+                    else {
+                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        everdellGUIManager.redrawPanels();
+                    }
                 });
             }
 
@@ -628,7 +683,10 @@ public class BottomPanel extends JPanel {
                                 if(copyMode){
                                     copyAction.accept(location);
                                     everdellGUIManager.redrawPanels();
-                                    everdellGUIManager.placeACard(state, card);
+                                    FunctionWrapper.addAFunction(() -> {
+                                        everdellGUIManager.placeACard(state, card);
+                                        return true;
+                                    }, 0);
                                     FunctionWrapper.activateNextFunction();
                                 }
                                 else {

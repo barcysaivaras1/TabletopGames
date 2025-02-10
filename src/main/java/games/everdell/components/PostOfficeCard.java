@@ -62,13 +62,12 @@ public class PostOfficeCard extends ConstructionCard{
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(1));
             state.cardCount[occupyingPlayer].decrement(2);
 
-
             for (int i = 0; i < 2; i++) {
                 if (state.playerHands.get(selectedPlayer).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
                     break;
                 }
                 state.playerHands.get(selectedPlayer).add(state.cardSelection.get(i));
-                state.cardCount[state.getCurrentPlayer()].increment();
+                state.cardCount[selectedPlayer].increment();
             }
 
 

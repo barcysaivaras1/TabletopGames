@@ -26,12 +26,34 @@ public class RangerCard extends CritterCard{
         //Placing a worker on a location would work outside of here, because the location might require GUI for a human player
         //For AI, extra steps would have to be taken to ensure the effects are triggered properly
 
+        DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
+        if(dc != null){
+            dc.unlockSecondCell();
+        }
+
+        if(locationFrom == null || locationTo == null || !(locationTo.isLocationFreeForPlayer(state))){
+            return;
+        }
+
         locationFrom.playersOnLocation.remove(state.getCurrentPlayer());
+        locationTo.applyLocationEffect(state);
+        locationTo.playersOnLocation.add(state.getCurrentPlayer());
+        state.workers[state.getCurrentPlayer()].decrement();
+
     }
 
     //Before placing the card, the player must select which locations to move between
     public void setLocationFrom(EverdellLocation locationFrom){
         this.locationFrom = locationFrom;
+    }
+    public void setLocationTo(EverdellLocation locationTo){
+        this.locationTo = locationTo;
+    }
+
+
+    public void removeCardEffect(EverdellGameState state) {
+        DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
+        dc.lockSecondCell();
     }
 
 }
