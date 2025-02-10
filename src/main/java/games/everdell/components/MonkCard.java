@@ -24,10 +24,13 @@ public class MonkCard extends CritterCard{
             mc.unlockSecondLocation();
         });
 
+        int berriesToGive = state.resourceSelection.get(EverdellParameters.ResourceTypes.BERRY).getValue();
         //ResourceSelection will tell us how many berries the player chooses to give up
         //They will receive 2 points for each berry they give to another player
+        if(state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue() < 2){
+            berriesToGive = state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue();
+        }
 
-        int berriesToGive = state.resourceSelection.get(EverdellParameters.ResourceTypes.BERRY).getValue();
 
         state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].decrement(berriesToGive);
         state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[selectedPlayer].increment(berriesToGive);

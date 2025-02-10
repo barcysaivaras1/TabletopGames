@@ -25,8 +25,8 @@ public class WifeCard extends CritterCard{
             if(card instanceof HusbandCard){
                 if(((HusbandCard) card).getWife() == null){
                     ((HusbandCard) card).setWife(this);
+                    husband = (HusbandCard) card;
                 }
-                husband = (HusbandCard) card;
             }
         }
 

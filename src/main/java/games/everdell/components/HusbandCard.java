@@ -24,8 +24,8 @@ public class HusbandCard extends CritterCard{
             if(card instanceof WifeCard){
                 if(((WifeCard) card).getHusband() == null){
                     ((WifeCard) card).setHusband(this);
+                    wife = (WifeCard) card;
                 }
-                wife = (WifeCard) card;
             }
         }
 
@@ -40,10 +40,12 @@ public class HusbandCard extends CritterCard{
                 wife.setIncreasedMaxSize();
             }
 
-            for (var resource : state.PlayerResources.keySet()) {
-                if (state.PlayerResources.get(resource)[state.getCurrentPlayer()].getValue() > 0) {
-                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
-                    break;
+            if (isThereAFarm(state)) {
+                for (var resource : state.resourceSelection.keySet()) {
+                    if (state.resourceSelection.get(resource).getValue() > 0) {
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                        break;
+                    }
                 }
             }
         }
@@ -57,6 +59,15 @@ public class HusbandCard extends CritterCard{
         if(increasedMaxSize){
             state.villageMaxSize[state.getCurrentPlayer()].decrement();
         }
+    }
+
+    public boolean isThereAFarm(EverdellGameState state){
+        for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+            if(card.getCardEnumValue() == EverdellParameters.CardDetails.FARM){
+                return true;
+            }
+        }
+        return false;
     }
 
     public EverdellCard getWife(){
