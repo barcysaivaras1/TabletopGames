@@ -122,6 +122,12 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
 
+        //Setup Haven
+        for (EverdellParameters.HavenLocation event : EverdellParameters.HavenLocation.values()) {
+            state.Locations.put(event, new EverdellLocation(event, 999, true, event.getLocationEffect(state)));
+        }
+
+
         //Set up Basic Events
         for (EverdellParameters.BasicEvent event : EverdellParameters.BasicEvent.values()) {
             state.Locations.put(event, new EverdellLocation(event, exclusiveLocationSpace, false, event.getLocationEffect(state)));

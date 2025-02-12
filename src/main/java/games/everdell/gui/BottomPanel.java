@@ -5,6 +5,7 @@ import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.BasicEvent;
+import games.everdell.EverdellParameters.HavenLocation;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.ResourceTypes;
@@ -51,9 +52,12 @@ public class BottomPanel extends JPanel {
     private Boolean displayBasicLocations;
     private Boolean displayForestLocations;
     private Boolean displayBasicEvents;
+
+    private Boolean displayHavenLocation;
     private Boolean displayRedDestinations;
     private Boolean displayResourceSelection;
     private Boolean displayPlayerSelection;
+
 
     //Modes
     private Boolean copyMode;
@@ -133,6 +137,16 @@ public class BottomPanel extends JPanel {
 
         drawForestLocationsButton(workerOptionsPanel);
 
+
+        JButton havenButton = new JButton("Haven Location");
+        havenButton.addActionListener(k -> {
+            resetNavigation();
+            displayHavenLocation = true;
+            displayWorkerPlacement = true;
+            draw();
+        });
+        workerOptionsPanel.add(havenButton);
+
         JButton basicEventsButton = new JButton("Basic Events");
         basicEventsButton.addActionListener(k -> {
             resetNavigation();
@@ -173,6 +187,10 @@ public class BottomPanel extends JPanel {
 
         if(displayRedDestinations){
             drawRedDestinations();
+        }
+
+        if(displayHavenLocation){
+            drawHavenLocation();
         }
     }
 
@@ -238,6 +256,53 @@ public class BottomPanel extends JPanel {
         this.add(locationPanel,BorderLayout.CENTER);
     }
 
+    private void drawHavenLocation(){
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            displayBasicLocations = false;
+            draw();
+        });
+        this.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : state.Locations.keySet()){
+            //Select only Haven Locations
+            if(!(location instanceof HavenLocation)){
+                continue;
+            }
+            JButton button = new JButton(location.name());
+
+            button.addActionListener(k -> {
+                if(copyMode){
+                    copyAction.accept(location);
+                    return;
+                }
+                //Discard cards from hand
+                System.out.println("Size : "+state.playerHands.get(state.getCurrentPlayer()).getSize());
+                drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), "Discard as many cards as you want, +1 Resource for every 2 discarded", card -> {
+                    everdellGUIManager.cardSelection.add(card);
+                });
+
+                JButton doneButton = new JButton("Done");
+                doneButton.addActionListener(k2 -> {
+                    //The player must select resources
+                    drawResourceSelection(everdellGUIManager.cardSelection.size()/2,"Choose "+everdellGUIManager.cardSelection.size()/2+" Resources to gain", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                        new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        everdellGUIManager.redrawPanels();
+                        return true;
+                    });
+                });
+
+                this.add(doneButton, BorderLayout.SOUTH);
+
+            });
+            locationPanel.add(button);
+        }
+        this.add(locationPanel,BorderLayout.CENTER);
+    }
     private void drawRedDestinations(){
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
@@ -291,7 +356,7 @@ public class BottomPanel extends JPanel {
                            FunctionWrapper.addAFunction(() -> {
                                everdellGUIManager.placeACard(state, card);
                                return true;
-                           }, 0);
+                           }, "Queen Destination Action...", 0);
                            FunctionWrapper.activateNextFunction();
                        }
                        else {
@@ -321,7 +386,7 @@ public class BottomPanel extends JPanel {
                                 FunctionWrapper.addAFunction(() -> {
                                     everdellGUIManager.placeACard(state, card);
                                     return true;
-                                }, 0);
+                                },"Inn Destination Action...", 0);
                                 FunctionWrapper.activateNextFunction();
                             }
                             else {
@@ -434,7 +499,7 @@ public class BottomPanel extends JPanel {
                                 FunctionWrapper.addAFunction(() -> {
                                     everdellGUIManager.placeACard(state, card);
                                     return true;
-                                }, 0);
+                                }, "Cemetery Destination Action...", 0);
                                 FunctionWrapper.activateNextFunction();
                             }
                             else {
@@ -686,7 +751,7 @@ public class BottomPanel extends JPanel {
                                     FunctionWrapper.addAFunction(() -> {
                                         everdellGUIManager.placeACard(state, card);
                                         return true;
-                                    }, 0);
+                                    },"Forest Location - Draw Two Cards, Play 1 Discount Action...", 0);
                                     FunctionWrapper.activateNextFunction();
                                 }
                                 else {
@@ -853,6 +918,7 @@ public class BottomPanel extends JPanel {
         displayCards = false;
         displayRedDestinations = false;
         displayPlayerSelection = false;
+        displayHavenLocation = false;
     }
 
     //PUBLIC ACCESS METHODS

@@ -77,6 +77,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
             return;
         }
 
+        FunctionWrapper.setupFunctionWrapper();
+
         cardSelection = new ArrayList<>();
         resourceSelection = new HashMap<>();
         resourceSelection.put(ResourceTypes.TWIG, new Counter());
@@ -465,13 +467,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
         System.out.println("Placing a card");
         //We check if the player can afford the card
         if(new PlayCard(card, cardSelection, resourceSelection).checkIfPlayerCanBuyCard(state)){
-            FunctionWrapper.setupListOfFunctions(new ArrayList<>(List.of(() -> checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(card)), false), () -> {
-                System.out.println("Placing Card : Function Wrapper");
-                new PlayCard(card, cardSelection, resourceSelection).execute(state);
-                redrawPanels();
-                afterPlayingCard(state, card);
-                return true;
-            })));
+            FunctionWrapper.addAFunction(() -> checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(card)), false),"Checking For Additional Steps...");
+            FunctionWrapper.addAFunction(() -> {
+                        new PlayCard(card, cardSelection, resourceSelection).execute(state);
+                        redrawPanels();
+                        return false;
+                    }
+            ,"Playing the card...");
+            FunctionWrapper.addAFunction(() -> {
+                        afterPlayingCard(state,card);
+                        return true;
+                    }
+                    ,"Checking for After Card steps...");
             FunctionWrapper.activateNextFunction();
         }
         else{
@@ -520,11 +527,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
         moveSeasonButton.addActionListener(k -> {
             redrawPanels();
 
+            FunctionWrapper.addAFunction(() -> cardsActivatedBySeasonChange(state),"Checking if a card was activated by season change...");
+            FunctionWrapper.addAFunction(() ->
+                    {
+                        changeSeason(state);
+                        return true;
+                    }
+                    ,"Changing season...");
 
-            FunctionWrapper.setupListOfFunctions(new ArrayList<>(List.of(() -> cardsActivatedBySeasonChange(state), () -> {
-                changeSeason(state);
-                return true;
-            })));
 
             FunctionWrapper.activateNextFunction();
 
@@ -568,7 +578,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
             FunctionWrapper.addAFunction(() -> {
                 summerEventGUI(state);
                 return true;
-            });
+            },"Displaying Summer GUI...");
         }
         //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
         // need to be taken
@@ -576,7 +586,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
             FunctionWrapper.addAFunction(() -> {
                 greenProductionEventGUI(state);
                 return true;
-            });
+            }, "Displaying Green Production GUI");
         }
         FunctionWrapper.activateNextFunction();
     }
@@ -632,13 +642,13 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 return;
             }
             if(cardsToCheck.size() == 1){
-                FunctionWrapper.activateNextFunction(cardsToActivate.get(cardsToCheck.get(0)));
+                FunctionWrapper.activateNextFunction(cardsToActivate.get(cardsToCheck.get(0)), FunctionWrapper.getDescriptor(cardsToActivate.get(cardsToCheck.get(0))));
 
                 return;
             }
             playerCardPanel.drawPlayerCardsButtons(1, new ArrayList<>(cardsToActivate.keySet()), "Cards Have been Triggered by Green Production, Select which one you want to trigger first", card -> {
                 try {
-                    FunctionWrapper.activateNextFunction(cardsToActivate.get(card));
+                    FunctionWrapper.activateNextFunction(cardsToActivate.get(card),FunctionWrapper.getDescriptor(cardsToActivate.get(cardsToCheck.get(0))));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -688,6 +698,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         playerCardPanel.add(doneButtonBard, BorderLayout.SOUTH);
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(bardAction, "Bard Action...");
                     cardsToActivate.put(c, bardAction);
                     break;
 
@@ -698,20 +709,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         ArrayList<EverdellCard> constructionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card instanceof ConstructionCard).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.RUINS).collect(Collectors.toCollection(ArrayList::new));
 
                         this.villagePanel.drawVillagePanelButtons(constructionCards, 1, card -> {
-                            System.out.println("Village card Selected");
                             cardSelection.add(card);
                         });
 
                         JButton doneButton2 = new JButton("Discard Selected Card, Refund Resources and Draw 2 Cards");
                         doneButton2.addActionListener(k2 -> {
-                            System.out.println("Done Button Pressed, Card selection is : " + cardSelection);
                             cardsToActivate.remove(c);
                             listCardsAction.accept(state);
                         });
-
                         playerCardPanel.add(doneButton2, BorderLayout.SOUTH);
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(ruinsAction, "Ruins Action...");
                     cardsToActivate.put(c, ruinsAction);
                     break;
 
@@ -754,6 +763,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(husbandAction, "Husband Action...");
                     cardsToActivate.put(c, husbandAction);
                     break;
 
@@ -776,6 +786,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(woodCarverAction, "Wood Carver Action...");
                     cardsToActivate.put(c, woodCarverAction);
                     break;
 
@@ -796,6 +807,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(doctorAction, "Doctor Action...");
                     cardsToActivate.put(c, doctorAction);
                     break;
 
@@ -827,6 +839,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(peddlerAction, "Peddler Action...");
                     cardsToActivate.put(c, peddlerAction);
                     break;
 
@@ -875,8 +888,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 return true;
                             };
 
-                            FunctionWrapper.addAFunction(chipSweepAction2, 0);
-                            FunctionWrapper.activateNextFunction(chipSweepAction3);
+                            FunctionWrapper.addAFunction(chipSweepAction2, "Chip Sweep Action 2...", 0);
+                            FunctionWrapper.activateNextFunction(chipSweepAction3, "Chip Sweep Action 3...");
 
                         });
 
@@ -884,6 +897,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(chipSweepAction, "Chip Sweep Action...");
                     cardsToActivate.put(c, chipSweepAction);
                     break;
 
@@ -910,6 +924,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(monkAction, "Monk Action...");
                     cardsToActivate.put(c, monkAction);
                     break;
 
@@ -924,6 +939,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(foolAction, "Fool Action...");
                     cardsToActivate.put(c, foolAction);
                     break;
 
@@ -957,6 +973,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(teacherAction, "Teacher Action...");
                     cardsToActivate.put(c, teacherAction);
                     break;
 
@@ -998,6 +1015,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         playerCardPanel.add(doneButtonUndertaker, BorderLayout.SOUTH);
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(undertakerAction, "Undertaker Action...");
                     cardsToActivate.put(c, undertakerAction);
                     break;
 
@@ -1023,6 +1041,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(postalPigeonAction, "Postal Pigeon Action...");
                     cardsToActivate.put(c, postalPigeonAction);
                     break;
 
@@ -1044,6 +1063,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(shepherdAction, "Shepherd Action...");
                     cardsToActivate.put(c, shepherdAction);
                     break;
 
@@ -1076,7 +1096,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             return true;
                         };
 
-                        FunctionWrapper.addAFunction(rangerAction2,0);
+                        FunctionWrapper.addAFunction(rangerAction2, "Ranger Action 2...",0);
 
                         if(locationsToDisplayRanger.isEmpty()){
                             FunctionWrapper.activateNextFunction();
@@ -1109,12 +1129,15 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         }
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(rangerAction, "Ranger Action...");
                     cardsToActivate.put(c, rangerAction);
                     break;
+
 
                 case MINER_MOLE:
                     Callable minerMoleAction = () -> {
                         redrawPanels();
+
                         //The player must select a production card from their village, which its effect will be activated.
                         //Get every card that is a green production card in the village so that we can send it for selection
                         ArrayList<EverdellCard> greenProductionCards = new ArrayList<>();
@@ -1126,9 +1149,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         }
 
                         System.out.println("Green Production Cards : "+greenProductionCards);
+                        cardSelection.clear();
                         this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
                             cardSelection.clear();
                             cardSelection.add(card);
+                            System.out.println("Card Selected in menu : "+card);
                         });
 
                         JButton doneButtonMinerMole = new JButton("Done");
@@ -1149,29 +1174,38 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             };
 
                             Callable minerMoleAction3 = () -> {
-                                EverdellCard cardToCopy = cardSelection.get(0);
                                 if(isGreenProductionEvent){
+                                    EverdellCard cardToCopy = cardSelection.get(0);
+                                    System.out.println("Condition 1");
+                                    System.out.println("card to copy : "+cardToCopy);
+                                    System.out.println("Card seleciton : "+cardSelection);
                                     if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
+                                        System.out.println("Condition 2");
                                         new PlayCard(c, new ArrayList<>(List.of(cardToCopy)), resourceSelection).triggerCardEffect(state, c);
                                         redrawPanels();
                                     }
+                                    System.out.println("Condition 3");
                                 }
                                 else{
+                                    System.out.println("Condition 4");
                                     if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
+                                        System.out.println("Condition 5");
                                         cardsToActivate.remove(c);
                                         listCardsAction.accept(state);
                                     }
+                                    System.out.println("Condition 6");
                                 }
                                 return true;
                             };
-                            FunctionWrapper.addAFunction(minerMoleAction2, 0);
-                            FunctionWrapper.activateNextFunction(minerMoleAction3);
+                            FunctionWrapper.addAFunction(minerMoleAction2, "Miner Mole Action 2...",0);
+                            FunctionWrapper.activateNextFunction(minerMoleAction3, "Miner Mole Action 3...");
                         });
 
                         playerCardPanel.add(doneButtonMinerMole, BorderLayout.SOUTH);
 
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(minerMoleAction, "Miner Mole Action...");
                     cardsToActivate.put(c, minerMoleAction);
                     break;
 
@@ -1206,7 +1240,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
             }
             playerCardPanel.drawPlayerCardsButtons(1, new ArrayList<>(triggeredCards.keySet()), "Cards Have been Triggered, Select which one you want to trigger first", card -> {
                 try {
-                    FunctionWrapper.addAFunction(triggeredCards.get(card));
+                    FunctionWrapper.addAFunction(triggeredCards.get(card), FunctionWrapper.getDescriptor(triggeredCards.get(card)));
                     FunctionWrapper.activateNextFunction();
 
                 } catch (Exception e) {
@@ -1267,6 +1301,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(judgeAction, "Judge Action...");
                     triggeredCards.put(card, judgeAction);
                     //FunctionWrapper.addAFunction(judgeAction);
                     break;
@@ -1297,6 +1332,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         });
                         return true;
                     };
+                    FunctionWrapper.setDescriptor(courthouseAction, "Courthouse Action...");
                     triggeredCards.put(card, courthouseAction);
                     //FunctionWrapper.addAFunction(courthouseAction);
                     break;
