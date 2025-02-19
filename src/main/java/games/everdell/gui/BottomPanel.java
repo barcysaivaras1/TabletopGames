@@ -5,11 +5,13 @@ import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.BasicEvent;
+import games.everdell.EverdellParameters.SpecialEvent;
 import games.everdell.EverdellParameters.HavenLocation;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.FunctionWrapper;
+import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
 import games.everdell.components.*;
@@ -52,7 +54,8 @@ public class BottomPanel extends JPanel {
     private Boolean displayBasicLocations;
     private Boolean displayForestLocations;
     private Boolean displayBasicEvents;
-
+    private Boolean displaySpecialEvents;
+    private Boolean displayJourneyLocations;
     private Boolean displayHavenLocation;
     private Boolean displayRedDestinations;
     private Boolean displayResourceSelection;
@@ -147,6 +150,17 @@ public class BottomPanel extends JPanel {
         });
         workerOptionsPanel.add(havenButton);
 
+        JButton journeyButton = new JButton("Journey Location");
+        journeyButton.addActionListener(k -> {
+            resetNavigation();
+            displayJourneyLocations = true;
+            displayWorkerPlacement = true;
+            draw();
+        });
+        if(state.currentSeason[state.getCurrentPlayer()] == EverdellParameters.Seasons.AUTUMN) {
+            workerOptionsPanel.add(journeyButton);
+        }
+
         JButton basicEventsButton = new JButton("Basic Events");
         basicEventsButton.addActionListener(k -> {
             resetNavigation();
@@ -156,6 +170,18 @@ public class BottomPanel extends JPanel {
             draw();
         });
         workerOptionsPanel.add(basicEventsButton);
+
+        JButton specialEventsButton = new JButton("Special Events");
+        specialEventsButton.addActionListener(k -> {
+            resetNavigation();
+            displaySpecialEvents = true;
+            displayWorkerPlacement = true;
+
+            draw();
+        });
+        workerOptionsPanel.add(specialEventsButton);
+
+
 
         JButton redDestinationButton = new JButton("Red Destinations");
         redDestinationButton.addActionListener(k -> {
@@ -191,6 +217,13 @@ public class BottomPanel extends JPanel {
 
         if(displayHavenLocation){
             drawHavenLocation();
+        }
+
+        if (displayJourneyLocations){
+            drawJourneyLocations();
+        }
+        if(displaySpecialEvents){
+            drawSpecialEvents();
         }
     }
 
@@ -256,10 +289,59 @@ public class BottomPanel extends JPanel {
         this.add(locationPanel,BorderLayout.CENTER);
     }
 
+    private void drawJourneyLocations(){
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            displayJourneyLocations = false;
+            draw();
+        });
+        this.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : state.Locations.keySet()){
+            //Select only Haven Locations
+            if(!(location instanceof EverdellParameters.JourneyLocations)){
+                continue;
+            }
+            JButton button = new JButton(location.name());
+
+            //If the location is not free for the player, change the background color
+            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+                button.setBackground(Color.LIGHT_GRAY);
+            }
+
+            button.addActionListener(k -> {
+                if(copyMode){
+                    copyAction.accept(location);
+                    return;
+                }
+                //Discard cards from hand
+                System.out.println("Size : "+state.playerHands.get(state.getCurrentPlayer()).getSize());
+                drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), "Discard cards equal to the number of the selected Journey : "+location , card -> {
+                    everdellGUIManager.cardSelection.add(card);
+                });
+
+                JButton doneButton = new JButton("Done");
+                doneButton.addActionListener(k2 -> {
+                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                    everdellGUIManager.redrawPanels();
+                });
+
+                this.add(doneButton, BorderLayout.SOUTH);
+
+            });
+            locationPanel.add(button);
+        }
+        this.add(locationPanel,BorderLayout.CENTER);
+    }
+
     private void drawHavenLocation(){
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
-            displayBasicLocations = false;
+            displayHavenLocation = false;
             draw();
         });
         this.add(back,BorderLayout.SOUTH);
@@ -817,6 +899,274 @@ public class BottomPanel extends JPanel {
         this.add(locationPanel,BorderLayout.CENTER);
     }
 
+    private void drawSpecialEvents(){
+        JButton back = new JButton("Back");
+        back.addActionListener(k -> {
+            displaySpecialEvents = false;
+            draw();
+        });
+        this.add(back,BorderLayout.SOUTH);
+
+        JPanel locationPanel = new JPanel();
+        locationPanel.setLayout(new GridLayout(2,2));
+
+        //Adds a listener to each button that will run the function assigned to it
+        for(var location : state.Locations.keySet()){
+            if(!(location instanceof SpecialEvent)){
+                continue;
+            }
+
+            JButton button = new JButton(location.name());
+            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+                button.setBackground(EverdellParameters.playerColour.get(state.Locations.get(location).playersOnLocation.get(0)));
+            }
+            //Button should not have any effect if the player is on the location
+            if(!state.Locations.get(location).isPlayerOnLocation(state)) {
+                if (location == SpecialEvent.CROAK_WARE_CURE) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.CROAK_WARE_CURE.checkIfConditionMet.apply(state)) {
+                            //Allow the player to select 2 cards to discard
+                            drawPlayerCardsButtons(2, "Lose 2 Berries, Discard 2 Cards and Gain 6 points", card -> {
+                                everdellGUIManager.cardSelection.add(card);
+                            });
+                            JButton doneButton = new JButton("Done");
+                            doneButton.addActionListener(k2 -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            });
+                            this.add(doneButton, BorderLayout.SOUTH);
+                        }
+
+                    });
+                }
+                else if (location == SpecialEvent.TAX_RELIEF) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.TAX_RELIEF.checkIfConditionMet.apply(state)) {
+                            //This will trigger the green production event for all cards that require NO GUI interaction
+                            new MoveSeason(new ArrayList<>()).productionEvent(state);
+                            FunctionWrapper.addAFunction(() -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                return false;
+                            }, "Tax Relief Action...", 0);
+                            FunctionWrapper.activateNextFunction(() -> {
+                                everdellGUIManager.greenProductionEventGUI(state);
+                                return true;
+                            }, "Green Production Event...");
+                        }
+
+                    });
+                }
+
+                else if (location == SpecialEvent.CAPTURE_OF_THE_ACORN_THIEVES) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.CAPTURE_OF_THE_ACORN_THIEVES.checkIfConditionMet.apply(state)) {
+                            //Let the player select 2 critters from their city to remove
+                            ArrayList<EverdellCard> critters = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card instanceof CritterCard).collect(Collectors.toCollection(ArrayList::new));
+
+                            drawPlayerCardsButtons(2, critters, "Select 2 Critters to Remove from your village, Gain 3 points for each 1", card -> {
+                                everdellGUIManager.cardSelection.add(card);
+                            });
+                            JButton doneButton = new JButton("Done");
+                            doneButton.addActionListener(k2 -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            });
+                            this.add(doneButton, BorderLayout.SOUTH);
+                        }
+
+                    });
+                }
+
+                else if (location == SpecialEvent.GRADUATION_OF_SCHOLARS) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.GRADUATION_OF_SCHOLARS.checkIfConditionMet.apply(state)) {
+                            //Let the player select 3 critters from their city to remove
+                            ArrayList<EverdellCard> critters = state.playerHands.get(state.getCurrentPlayer()).stream().filter(card -> card instanceof CritterCard).collect(Collectors.toCollection(ArrayList::new));
+
+                            drawPlayerCardsButtons(3, critters, "Select 3 Critters to Remove from your HAND, Gain 2 points for each 1", card -> {
+                                everdellGUIManager.cardSelection.add(card);
+                            });
+                            JButton doneButton = new JButton("Done");
+                            doneButton.addActionListener(k2 -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            });
+                            this.add(doneButton, BorderLayout.SOUTH);
+                        }
+
+                    });
+                }
+
+                else if (location == SpecialEvent.AN_EVENING_OF_FIREWORKS) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.AN_EVENING_OF_FIREWORKS.checkIfConditionMet.apply(state)) {
+                            //The player must select how many resources they want to give up
+                            drawResourceSelection(3, "Give up 3 Twigs, Gain 2 points for each twig", new ArrayList<>(List.of(ResourceTypes.TWIG)), state -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                return true;
+                            });
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.PERFORMER_IN_RESIDENCE) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.PERFORMER_IN_RESIDENCE.checkIfConditionMet.apply(state)) {
+                            //The player must select how many resources they want to give up
+                            drawResourceSelection(3, "Give up 3 Berry, Gain 2 points for each Berry", new ArrayList<>(List.of(ResourceTypes.BERRY)), state -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                return true;
+                            });
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.ANCIENT_SCROLLS_DISCOVERED) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.ANCIENT_SCROLLS_DISCOVERED.checkIfConditionMet.apply(state)) {
+                            int nCards = 5;
+                            ArrayList<EverdellCard> drawnCards = new ArrayList<>();
+                            for(int i = 0; i < nCards; i++) {
+                                drawnCards.add(state.cardDeck.draw());
+                            }
+                            //Allow the player to select cards to keep, up to 5
+                            drawPlayerCardsButtons(nCards, drawnCards, "Select up to 5 cards to keep, The rest are placed under the event, gain 1 point for each card under the event", card -> {
+                                everdellGUIManager.cardSelection.add(card);
+                            });
+                            JButton doneButton = new JButton("Done");
+                            doneButton.addActionListener(k2 -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            });
+                            this.add(doneButton, BorderLayout.SOUTH);
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.UNDER_NEW_MANAGEMENT) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.UNDER_NEW_MANAGEMENT.checkIfConditionMet.apply(state)) {
+                            drawResourceSelection(3, "Give up 3 of any resource, Gain 1 points for each Twig/Berry, Gain 2 Points for each Pebble/Resin", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                return true;
+                            });
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.PRISTINE_CHAPEL_CEILING) {
+                    button.addActionListener(k -> {
+                        if (SpecialEvent.PRISTINE_CHAPEL_CEILING.checkIfConditionMet.apply(state)) {
+                            //Find Chapel Card
+                            int numberOfPointsPlaced = 0;
+                            int pointsChapelCardsStartWith = 2;
+                            for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                                if(card.getCardEnumValue() == EverdellParameters.CardDetails.CHAPEL){
+                                    numberOfPointsPlaced = card.getPoints()-pointsChapelCardsStartWith;
+                                    break;
+                                }
+                            }
+                            drawResourceSelection(numberOfPointsPlaced, "Gain "+numberOfPointsPlaced+" due to the number of points placed on the Chapel card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                                new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                                return true;
+                            });
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.A_WELL_RUN_CITY) {
+                    button.addActionListener(k -> {
+                        SpecialEvent event = (SpecialEvent) location;
+                        if (event.checkIfConditionMet.apply(state)) {
+                            //Display all Locations that the player has occupied so that they can select 1 worker to bring back
+                            ArrayList<EverdellLocation> locations = new ArrayList<>();
+                            for (EverdellLocation loc : state.Locations.values()) {
+                                if (loc.isPlayerOnLocation(state) && loc.getLocation() != RedDestinationLocation.CEMETERY_DESTINATION && loc.getLocation() != RedDestinationLocation.MONASTERY_DESTINATION) {
+                                    locations.add(loc);
+                                }
+                            }
+                            this.removeAll();
+                            this.setLayout(new BorderLayout());
+                            JLabel label = new JLabel("Select a location to bring a worker back from");
+                            label.setHorizontalAlignment(SwingConstants.CENTER);
+                            this.add(label, BorderLayout.NORTH);
+                            JPanel workerSelectionPanel = new JPanel();
+                            workerSelectionPanel.setLayout(new GridLayout(2, locations.size()/2));
+                            for (EverdellLocation loc : locations) {
+                                JButton workerButton = new JButton(loc.getLocation().name());
+                                workerButton.addActionListener(k2 -> {
+                                    event.selectedLocation = loc;
+                                    new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                    everdellGUIManager.redrawPanels();
+                                });
+                                workerSelectionPanel.add(workerButton);
+                            }
+                            this.add(workerSelectionPanel, BorderLayout.CENTER);
+
+
+                        }
+                    });
+                }
+                else if (location == SpecialEvent.A_BRILLIANT_MARKETING_PLAN) {
+                    button.addActionListener(k -> {
+                        SpecialEvent event = (SpecialEvent) location;
+                        if (event.checkIfConditionMet.apply(state)) {
+                            event.playersToGiveResources = new HashMap<>();
+                           drawSelectingMultiplePlayersToGiveResourcesTo(location);
+
+                        }
+                    });
+                }
+
+                else if (location == SpecialEvent.PATH_OF_THE_PILGRIMS || location == SpecialEvent.MINISTERING_TO_MISCREANTS || location == SpecialEvent.REMEMBERING_THE_FALLEN || location == SpecialEvent.FLYING_DOCTOR_SERVICE || location == SpecialEvent.THE_EVERDELL_GAMES) {
+                    button.addActionListener(k -> {
+                        SpecialEvent event = (SpecialEvent) location;
+                        if (event.checkIfConditionMet.apply(state)) {
+                            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                            everdellGUIManager.redrawPanels();
+                        }
+                    });
+                }
+
+            }
+
+            locationPanel.add(button);
+        }
+        this.add(locationPanel,BorderLayout.CENTER);
+    }
+
+    private void drawSelectingMultiplePlayersToGiveResourcesTo(EverdellParameters.AbstractLocations location){
+        //Create a menu that allows the player to select a player to give resources to
+        SpecialEvent event = (SpecialEvent) location;
+        drawPlayerSelection(player -> {
+            drawResourceSelection(3, "Choose UP TO 3 TOTAL Resources to give to ANY player", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
+                HashMap<ResourceTypes, Counter> rToGive = new HashMap<>();
+                for (ResourceTypes rt : everdellGUIManager.resourceSelection.keySet()) {
+                    rToGive.put(rt, everdellGUIManager.resourceSelection.get(rt).copy());
+                }
+                event.playersToGiveResources.put(player, rToGive);
+                drawSelectingMultiplePlayersToGiveResourcesTo(location);
+                return true;
+            });
+        });
+        JPanel navigationPanel = new JPanel();
+        navigationPanel.setLayout(new GridLayout(1,2));
+        JButton backB = new JButton("Back");
+        backB.addActionListener(k2 -> {
+            drawSelectingMultiplePlayersToGiveResourcesTo(location);
+        });
+        JButton doneB = new JButton("Done");
+        doneB.addActionListener(k3 -> {
+            new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+            everdellGUIManager.redrawPanels();
+        });
+        navigationPanel.add(backB);
+        navigationPanel.add(doneB);
+        this.add(navigationPanel, BorderLayout.SOUTH);
+    }
+
+
+
     private void drawPlayerSelectionPanel(){
         System.out.println("DRAWING PLAYER SELECTION PANEL");
 
@@ -919,6 +1269,8 @@ public class BottomPanel extends JPanel {
         displayRedDestinations = false;
         displayPlayerSelection = false;
         displayHavenLocation = false;
+        displayJourneyLocations = false;
+        displaySpecialEvents = false;
     }
 
     //PUBLIC ACCESS METHODS

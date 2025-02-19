@@ -122,9 +122,34 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
 
+
         //Setup Haven
         for (EverdellParameters.HavenLocation event : EverdellParameters.HavenLocation.values()) {
             state.Locations.put(event, new EverdellLocation(event, 999, true, event.getLocationEffect(state)));
+        }
+
+        //Setup Journey Locations
+        for (EverdellParameters.JourneyLocations event : EverdellParameters.JourneyLocations.values()) {
+            if(event == EverdellParameters.JourneyLocations.JOURNEY_2){
+                state.Locations.put(event, new EverdellLocation(event, 999, true, event.getLocationEffect(state)));
+            }
+            else {
+                state.Locations.put(event, new EverdellLocation(event, exclusiveLocationSpace, false, event.getLocationEffect(state)));
+            }
+        }
+
+        //Setup Special Events
+
+        int numOfSpecialEvents = 4;
+        Set<EverdellParameters.SpecialEvent> selectedSpecialEvents = new HashSet<>();
+        //Ensure the Locations are unique
+        while (selectedSpecialEvents.size() < numOfSpecialEvents) {
+            EverdellParameters.SpecialEvent location = EverdellParameters.SpecialEvent.values()[random.nextInt(EverdellParameters.SpecialEvent.values().length)];
+            selectedSpecialEvents.add(location);
+        }
+        //Insert the selected events into the game state
+        for (EverdellParameters.SpecialEvent location : selectedSpecialEvents) {
+            state.Locations.put(location, new EverdellLocation(location, 1, false, location.getLocationEffect(state)));
         }
 
 

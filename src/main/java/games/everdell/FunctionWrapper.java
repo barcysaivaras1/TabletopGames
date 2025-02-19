@@ -24,7 +24,6 @@ public class FunctionWrapper {
     private static void executeFunction(Callable<Boolean> function) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Boolean> future = executor.submit(function);
-        System.out.println("Function executed : " + functionDescription.get(function));
         functionsToRun.remove(function);
         functionDescription.remove(function);
         printAllFunctions();
@@ -38,10 +37,6 @@ public class FunctionWrapper {
 
     }
 
-
-//    public static void setupListOfFunctions(ArrayList<Callable<Boolean>> functions) {
-//        functionsToRun = functions;
-//    }
 
     public static void setupFunctionWrapper(){
         functionsToRun = new ArrayList<>();
@@ -64,8 +59,8 @@ public class FunctionWrapper {
     }
 
     public static void activateNextFunction(Callable<Boolean> function, String name) {
-            addAFunction(function, name);
-            executeFunction(function);
+            addAFunction(function, name, 0);
+            executeFunction(functionsToRun.get(0));
     }
 
     public static void setDescriptor(Callable<Boolean> function, String name){

@@ -637,7 +637,6 @@ public class EverdellGUIManager extends AbstractGUIManager {
             if (cardsToActivate.isEmpty()){
                 redrawPanels();
                 System.out.println("No cards to activate");
-                System.out.println("Card Selection : "+cardSelection);
                 FunctionWrapper.activateNextFunction();
                 return;
             }
@@ -740,6 +739,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                         ((WifeCard) card).setHusband(hc);
                                         hc.setWife((WifeCard) card);
                                     }
+                                }
+                                if(hc.getWife() != null){
+                                    break;
                                 }
                             }
                         }
@@ -847,19 +849,19 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                     Callable chipSweepAction = () -> {
                         redrawPanels();
+                        CopyCard cc = (CopyCard) c;
                         //The player must select a production card from their village, which its effect will be activated.
                         //Get every card that is a green production card in the village so that we can send it for selection
                         ArrayList<EverdellCard> greenProductionCards = state.playerVillage.get(state.getCurrentPlayer()).stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(card -> card.getCardEnumValue() != EverdellParameters.CardDetails.CHIP_SWEEP).collect(Collectors.toCollection(ArrayList::new));
 
                         this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
-                            cardSelection.clear();
-                            cardSelection.add(card);
+                            cc.setCardToCopy(card);
                         });
 
                         JButton doneButtonChipSweep = new JButton("Done");
                         doneButtonChipSweep.addActionListener(k2 -> {
                             //If No cards were selected
-                            if(cardSelection.isEmpty()){
+                            if(cc.getCardToCopy() == null){
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
                                 return;
@@ -874,16 +876,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                             Callable chipSweepAction3 = () -> {
                                 if(isGreenProductionEvent){
-                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
-                                        new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
-                                        redrawPanels();
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
+                                        new PlayCard(cc, cardSelection, resourceSelection).triggerCardEffect(state, cc);
+                                        FunctionWrapper.activateNextFunction();
                                     }
+                                    cc.setCardToCopy(null);
                                 }
                                 else{
-                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
                                         cardsToActivate.remove(c);
                                         listCardsAction.accept(state);
                                     }
+                                    cc.setCardToCopy(null);
                                 }
                                 return true;
                             };
@@ -1138,6 +1142,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     Callable minerMoleAction = () -> {
                         redrawPanels();
 
+                        CopyCard cc = (CopyCard) c;
                         //The player must select a production card from their village, which its effect will be activated.
                         //Get every card that is a green production card in the village so that we can send it for selection
                         ArrayList<EverdellCard> greenProductionCards = new ArrayList<>();
@@ -1149,17 +1154,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         }
 
                         System.out.println("Green Production Cards : "+greenProductionCards);
-                        cardSelection.clear();
                         this.villagePanel.drawVillagePanelButtons(greenProductionCards, 1, card -> {
-                            cardSelection.clear();
-                            cardSelection.add(card);
-                            System.out.println("Card Selected in menu : "+card);
+                            cc.setCardToCopy(card);
                         });
 
                         JButton doneButtonMinerMole = new JButton("Done");
                         doneButtonMinerMole.addActionListener(k2 -> {
                             //If No cards were selected
-                            if(cardSelection.isEmpty()){
+                            if(cc.getCardToCopy() == null){
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
                                 return;
@@ -1167,7 +1169,6 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                             //This is what has to be run after a card has been copied
                             Callable minerMoleAction2 = () -> {
-
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
                                 return true;
@@ -1175,25 +1176,26 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                             Callable minerMoleAction3 = () -> {
                                 if(isGreenProductionEvent){
-                                    EverdellCard cardToCopy = cardSelection.get(0);
-                                    System.out.println("Condition 1");
-                                    System.out.println("card to copy : "+cardToCopy);
-                                    System.out.println("Card seleciton : "+cardSelection);
-                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
-                                        System.out.println("Condition 2");
-                                        new PlayCard(c, new ArrayList<>(List.of(cardToCopy)), resourceSelection).triggerCardEffect(state, c);
-                                        redrawPanels();
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
+                                        new PlayCard(cc.getCardToCopy(), cardSelection, resourceSelection).triggerCardEffect(state, cc.getCardToCopy());
+                                        FunctionWrapper.activateNextFunction();
                                     }
-                                    System.out.println("Condition 3");
+                                    else {
+                                        if (!(cc.getCardToCopy().getCardEnumValue() == EverdellParameters.CardDetails.MINER_MOLE)) {
+                                            cc.setCardToCopy(null);
+                                        }
+                                    }
                                 }
                                 else{
-                                    System.out.println("Condition 4");
-                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cardSelection.get(0))), true)){
-                                        System.out.println("Condition 5");
+                                    if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
                                         cardsToActivate.remove(c);
                                         listCardsAction.accept(state);
                                     }
-                                    System.out.println("Condition 6");
+                                    else {
+                                        if (!(cc.getCardToCopy().getCardEnumValue() == EverdellParameters.CardDetails.MINER_MOLE)) {
+                                            cc.setCardToCopy(null);
+                                        }
+                                    }
                                 }
                                 return true;
                             };
@@ -1365,7 +1367,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         resourceSelection.put(ResourceTypes.TWIG, new Counter());
     }
 
-    private void greenProductionEventGUI(EverdellGameState state){
+    protected void greenProductionEventGUI(EverdellGameState state){
         //Find all cards that are greenProduction and put it into a list
         System.out.println("Green Production Event GUI");
         ArrayList<EverdellCard> greenProductionCards = new ArrayList<>();

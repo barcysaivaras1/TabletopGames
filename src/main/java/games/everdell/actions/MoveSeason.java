@@ -106,7 +106,7 @@ public class MoveSeason extends AbstractAction {
             return false;
     }
 
-    private void productionEvent(EverdellGameState state){
+    public void productionEvent(EverdellGameState state){
 
         System.out.println("Production Event");
         //Iterate through all players

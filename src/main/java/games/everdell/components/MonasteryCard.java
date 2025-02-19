@@ -22,20 +22,15 @@ public class MonasteryCard extends ConstructionCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
+        this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
+        state.Locations.put(rdl, location);
         //This means they are placing the card, we can assign the playerOwner
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
             unlockSecondLocation();
         });
-
-        this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
-        state.Locations.put(rdl, location);
-        System.out.println(location);
     }
 
     public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
-
-
-
         //Initialise the Location Effect
 
         //ResourceSelection will tell which resource they want to give up

@@ -5,6 +5,7 @@ import core.AbstractParameters;
 import core.components.Counter;
 import evaluation.optimisation.TunableParameters;
 import games.dominion.actions.Chapel;
+import games.everdell.actions.MoveSeason;
 import games.everdell.components.*;
 import org.apache.spark.sql.catalyst.expressions.Abs;
 
@@ -97,6 +98,42 @@ public class EverdellParameters extends AbstractParameters {
                 state.cardCount[state.getCurrentPlayer()].increment();
             };
         }
+    }
+
+    public enum JourneyLocations implements AbstractLocations{
+        JOURNEY_2, JOURNEY_3, JOURNEY_4, JOURNEY_5;
+
+
+        public Consumer<EverdellGameState> applyLocationEffect;
+
+        //Every Journey Location, Number = Amount of Card Discards AND Points earned
+        //Journey_2 = 2 Card Discard and 2 Points
+        //All Journey Locations are EXCLUSIVE, EXCEPT for Journey_2 which can hold any number of workers
+        //Journey location are ONLY AVAILABLE during Autumn
+
+        //Card Selection will hold the cards that the player wants to discard
+
+        @Override
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
+            return state1 -> {
+                if(state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN){
+                    return;
+                }
+
+                //Discard Cards
+                int numOfPoints = 0;
+                for (EverdellCard card : state.cardSelection) {
+                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
+                    state.discardDeck.add(card);
+                    state.cardCount[state.getCurrentPlayer()].decrement();
+                    numOfPoints++;
+                }
+
+                //Gain Points
+                state.pointTokens[state.getCurrentPlayer()].increment(numOfPoints);
+            };
+        }
+
     }
 
     public enum HavenLocation implements AbstractLocations{
@@ -316,6 +353,428 @@ public class EverdellParameters extends AbstractParameters {
 
     }
 
+    public enum SpecialEvent implements AbstractLocations{
+        THE_EVERDELL_GAMES, CROAK_WARE_CURE, TAX_RELIEF, FLYING_DOCTOR_SERVICE, CAPTURE_OF_THE_ACORN_THIEVES, GRADUATION_OF_SCHOLARS,
+        AN_EVENING_OF_FIREWORKS, PERFORMER_IN_RESIDENCE, ANCIENT_SCROLLS_DISCOVERED, A_BRILLIANT_MARKETING_PLAN, UNDER_NEW_MANAGEMENT,
+        PRISTINE_CHAPEL_CEILING, PATH_OF_THE_PILGRIMS, MINISTERING_TO_MISCREANTS, REMEMBERING_THE_FALLEN, A_WELL_RUN_CITY;
+
+        //Applicable to All Events
+        public Consumer<EverdellGameState> applyLocationEffect;
+        public Function<EverdellGameState, Boolean> checkIfConditionMet;
+
+        //Specific to some Events
+        public EverdellLocation selectedLocation;
+        public HashMap<Integer, HashMap<ResourceTypes, Counter>> playersToGiveResources;
+
+
+        public static Boolean defaultCheckIfConditionMet(EverdellGameState state, SpecialEvent event){
+            //Check They meet the card Conditions
+            boolean hasCards = true;
+            for(CardDetails card : event.eventConditions){
+                boolean hasCard = false;
+                for(EverdellCard everdellCard : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(everdellCard.getCardEnumValue() == card){
+                        hasCard = true;
+                        break;
+                    }
+                }
+                if(!hasCard){
+                    hasCards = false;
+                    break;
+                }
+            }
+            return true;
+        }
+
+        public ArrayList<CardDetails> eventConditions;
+
+        @Override
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
+            return applyLocationEffect;
+        }
+
+        static {
+            THE_EVERDELL_GAMES.eventConditions = new ArrayList<>();
+            THE_EVERDELL_GAMES.checkIfConditionMet = (state) -> {
+                //They must have 2 of each type of card in their city
+                //This will give them 9 points upon claiming
+                int TAN_TRAVELLER_Counter = 0;
+                int GREEN_PRODUCTION_Counter = 0;
+                int RED_DESTINATION_Counter = 0;
+                int BLUE_GOVERNANCE_Counter = 0;
+                int PURPLE_PROSPERITY_Counter = 0;
+
+
+                for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
+                    CardType type = card.getCardType();
+                    if (type == CardType.TAN_TRAVELER) {
+                        TAN_TRAVELLER_Counter++;
+                    } else if (type == CardType.GREEN_PRODUCTION) {
+                        GREEN_PRODUCTION_Counter++;
+                    } else if (type == CardType.RED_DESTINATION) {
+                        RED_DESTINATION_Counter++;
+                    } else if (type == CardType.BLUE_GOVERNANCE) {
+                        BLUE_GOVERNANCE_Counter++;
+                    } else if (type == CardType.PURPLE_PROSPERITY) {
+                        PURPLE_PROSPERITY_Counter++;
+                    }
+                }
+                if (TAN_TRAVELLER_Counter >= 2 && GREEN_PRODUCTION_Counter >= 2 && RED_DESTINATION_Counter >= 2 && BLUE_GOVERNANCE_Counter >= 2 && PURPLE_PROSPERITY_Counter >= 2) {
+                    return true;
+                }
+                return false;
+
+            };
+            THE_EVERDELL_GAMES.applyLocationEffect = (state) -> {
+                //This will give them 9 points upon claiming
+                if (THE_EVERDELL_GAMES.checkIfConditionMet.apply(state)) {
+                    state.pointTokens[state.getCurrentPlayer()].increment(9);
+                }
+
+            };
+            CROAK_WARE_CURE.eventConditions = new ArrayList<>(List.of(CardDetails.UNDERTAKER, CardDetails.BARGE_TOAD));
+            CROAK_WARE_CURE.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, CROAK_WARE_CURE);
+            };
+            CROAK_WARE_CURE.applyLocationEffect = (state) -> {
+                //If the player has the cards in the eventConditions, they may activate this card
+                //Upon activation, the player loses 2 berries and discards 2 cards
+                //After the effect, they gain 6 points
+                //Card Selection will hold the cards that the player wants to discard
+
+                //Check They meet the card Conditions
+                if (!CROAK_WARE_CURE.checkIfConditionMet.apply(state)) {
+                    return;
+                }
+
+                //Decrement Berries
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].decrement(2);
+
+                //Discard Cards
+                for (EverdellCard card : state.cardSelection) {
+                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
+                    state.discardDeck.add(card);
+                    state.cardCount[state.getCurrentPlayer()].decrement();
+                }
+
+
+                //Gain Points
+                state.pointTokens[state.getCurrentPlayer()].increment(6);
+            };
+
+
+            TAX_RELIEF.eventConditions = new ArrayList<>(List.of(CardDetails.JUDGE, CardDetails.QUEEN));
+            TAX_RELIEF.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, TAX_RELIEF);
+            };
+            TAX_RELIEF.applyLocationEffect = (state) -> {
+                //This will trigger the green Production Event.
+                //This occurs fully outside of this lambda function
+            };
+
+            FLYING_DOCTOR_SERVICE.eventConditions = new ArrayList<>(List.of(CardDetails.DOCTOR, CardDetails.POSTAL_PIGEON));
+            FLYING_DOCTOR_SERVICE.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, FLYING_DOCTOR_SERVICE);
+            };
+            FLYING_DOCTOR_SERVICE.applyLocationEffect = (state) -> {
+                //Gain 3 points for each Husband/Wife PAIR in the city
+
+                int points = 0;
+
+                //Find Every wife card, check if the wife has a husband
+                //If a wife has a husband, then this means it is a pair
+                for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
+                    if (card.getCardEnumValue() == CardDetails.WIFE) {
+                        WifeCard wc = (WifeCard) card;
+                        if(wc.getHusband() != null){
+                            points += 3;
+                        }
+                    }
+                }
+                state.pointTokens[state.getCurrentPlayer()].increment(points);
+            };
+
+
+            CAPTURE_OF_THE_ACORN_THIEVES.eventConditions = new ArrayList<>(List.of(CardDetails.RANGER, CardDetails.COURTHOUSE));
+            CAPTURE_OF_THE_ACORN_THIEVES.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, CAPTURE_OF_THE_ACORN_THIEVES);
+            };
+            CAPTURE_OF_THE_ACORN_THIEVES.applyLocationEffect = (state) -> {
+                //Place up to 2 critters on this Event from the CITY, aka removing the cards from the city
+                //For each critter placed on this event, gain 3 points
+                //Card Selection will hold the cards that the player wants to place on this event
+
+                int points = 0;
+                for (EverdellCard card : state.cardSelection) {
+                    state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+                    points += 3;
+                }
+                state.pointTokens[state.getCurrentPlayer()].increment(points);
+            };
+
+            GRADUATION_OF_SCHOLARS.eventConditions = new ArrayList<>(List.of(CardDetails.TEACHER, CardDetails.UNIVERSITY));
+            GRADUATION_OF_SCHOLARS.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, GRADUATION_OF_SCHOLARS);
+            };
+            GRADUATION_OF_SCHOLARS.applyLocationEffect = (state) -> {
+                //Place up to 3 critters on this Event from your HAND
+                //For each critter placed on this event, gain 2 points
+                //Card Selection will hold the cards that the player wants to place on this event
+
+                int points = 0;
+                for (EverdellCard card : state.cardSelection) {
+                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
+                    points += 2;
+                }
+                state.pointTokens[state.getCurrentPlayer()].increment(points);
+            };
+
+            AN_EVENING_OF_FIREWORKS.eventConditions = new ArrayList<>(List.of(CardDetails.LOOKOUT, CardDetails.MINER_MOLE));
+            AN_EVENING_OF_FIREWORKS.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, AN_EVENING_OF_FIREWORKS);
+            };
+            AN_EVENING_OF_FIREWORKS.applyLocationEffect = (state) -> {
+                //Place up to 3 wood on this event
+                //Gain 2 points on this event for each wood
+                //Resource Selection will hold the wood they choose to give up
+
+                int twigsGiven = Math.min(state.resourceSelection.get(ResourceTypes.TWIG).getValue(), 3);
+
+                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].decrement(twigsGiven);
+                state.pointTokens[state.getCurrentPlayer()].increment(twigsGiven*2);
+            };
+
+            PERFORMER_IN_RESIDENCE.eventConditions = new ArrayList<>(List.of(CardDetails.INN, CardDetails.BARD));
+            PERFORMER_IN_RESIDENCE.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, PERFORMER_IN_RESIDENCE);
+            };
+            PERFORMER_IN_RESIDENCE.applyLocationEffect = (state) -> {
+                //Place up to 3 Berries on this event
+                //Gain 2 points on this event for each berry
+                //Resource Selection will hold the berry they choose to give up
+
+                int berriesGiven = Math.min(state.resourceSelection.get(ResourceTypes.BERRY).getValue(), 3);
+
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].decrement(berriesGiven);
+                state.pointTokens[state.getCurrentPlayer()].increment(berriesGiven*2);
+            };
+
+            ANCIENT_SCROLLS_DISCOVERED.eventConditions = new ArrayList<>(List.of(CardDetails.HISTORIAN, CardDetails.RUINS));
+            ANCIENT_SCROLLS_DISCOVERED.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, ANCIENT_SCROLLS_DISCOVERED);
+            };
+            ANCIENT_SCROLLS_DISCOVERED.applyLocationEffect = (state) -> {
+                //5 Cards are Revealed From the deck to the player
+                //The player may select however many to draw into their hand and however many to place under the event
+                //Each card that is placed under the event, will give 1 point
+
+                //Card Selection represents the cards they want to draw
+
+                //Draw the cards
+                int points = 5;
+                for (EverdellCard card : state.cardSelection) {
+                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                        state.playerHands.get(state.getCurrentPlayer()).add(card);
+                        state.cardCount[state.getCurrentPlayer()].increment();
+                        points--;
+                    }
+                }
+                //Add Points
+                state.pointTokens[state.getCurrentPlayer()].increment(Math.max(points,0));
+            };
+            UNDER_NEW_MANAGEMENT.eventConditions = new ArrayList<>(List.of(CardDetails.PEDDLER, CardDetails.GENERAL_STORE));
+            UNDER_NEW_MANAGEMENT.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, UNDER_NEW_MANAGEMENT);
+            };
+            UNDER_NEW_MANAGEMENT.applyLocationEffect = (state) -> {
+                //The player can place up to 3 of any resource on this event
+                // Twigs and Berries are worth 1 point each,
+                // Resin and Pebbles are worth 2 points each
+
+                //Resource Selection will represent the resources the player wants to give up
+                int points = 0;
+                int totalResources = 0;
+                for(var resource : state.resourceSelection.keySet()){
+                    for(int i = 0; i< state.resourceSelection.get(resource).getValue(); i++){
+                        if(totalResources == 3){
+                            break;
+                        }
+                        if(resource == ResourceTypes.TWIG || resource == ResourceTypes.BERRY){
+                            points += 1;
+                        } else {
+                            points += 2;
+                        }
+                        totalResources++;
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement();
+                    }
+                    if(totalResources == 3){
+                        break;
+                    }
+                }
+                state.pointTokens[state.getCurrentPlayer()].increment(points);
+            };
+
+            PRISTINE_CHAPEL_CEILING.eventConditions = new ArrayList<>(List.of(CardDetails.CHAPEL, CardDetails.WOOD_CARVER));
+            PRISTINE_CHAPEL_CEILING.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, PRISTINE_CHAPEL_CEILING);
+            };
+            PRISTINE_CHAPEL_CEILING.applyLocationEffect = (state) -> {
+                //Draw 1 card and Gain 1 of any resource for each point on the chapel
+                //Resource Selection will dictate which resource they want to gain
+
+                int numberOfPointsPlaced = 0;
+
+                int pointsChapelCardsStartWith = 2;
+                //Find Chapel Card
+                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(card.getCardEnumValue() == CardDetails.CHAPEL){
+                        numberOfPointsPlaced = card.getPoints()-pointsChapelCardsStartWith;
+                        break;
+                    }
+                }
+
+                //Gain Resources
+                int counter = numberOfPointsPlaced;
+                for(var resource : state.resourceSelection.keySet()){
+                    for(int i = 0; i<state.resourceSelection.get(resource).getValue(); i++){
+                        if (counter == 0){
+                            break;
+                        }
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                        counter--;
+                    }
+                    if(counter == 0){
+                        break;
+                    }
+                }
+                //Draw Cards
+                for (int i = 0; i < numberOfPointsPlaced; i++) {
+                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                        break;
+                    }
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
+                }
+            };
+            PATH_OF_THE_PILGRIMS.eventConditions = new ArrayList<>(List.of(CardDetails.WANDERER, CardDetails.MONASTERY));
+            PATH_OF_THE_PILGRIMS.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, PATH_OF_THE_PILGRIMS);
+            };
+            PATH_OF_THE_PILGRIMS.applyLocationEffect = (state) -> {
+                //Gain 3 points for each worker on the Monastery
+                //Find MonasteryCard
+                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(card.getCardEnumValue() == CardDetails.MONASTERY){
+                        MonasteryCard mc = (MonasteryCard) card;
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*mc.location.playersOnLocation.size());
+                    }
+                }
+
+            };
+            REMEMBERING_THE_FALLEN.eventConditions = new ArrayList<>(List.of(CardDetails.CEMETERY, CardDetails.SHEPHERD));
+            REMEMBERING_THE_FALLEN.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, REMEMBERING_THE_FALLEN);
+            };
+            REMEMBERING_THE_FALLEN.applyLocationEffect = (state) -> {
+                //Gain 3 points for each worker on the Cemetery
+                //Find Cemetery Card
+                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(card.getCardEnumValue() == CardDetails.CEMETERY){
+                        CemeteryCard cc = (CemeteryCard) card;
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.location.playersOnLocation.size());
+                    }
+                }
+
+            };
+            MINISTERING_TO_MISCREANTS.eventConditions = new ArrayList<>(List.of(CardDetails.MONK, CardDetails.DUNGEON));
+            MINISTERING_TO_MISCREANTS.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, PATH_OF_THE_PILGRIMS);
+            };
+            MINISTERING_TO_MISCREANTS.applyLocationEffect = (state) -> {
+                //Gain 3 points for each Critter on the Dungeon
+                //Find Dungeon Card
+                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(card.getCardEnumValue() == CardDetails.DUNGEON){
+                        DungeonCard dc = (DungeonCard) card;
+                        int crittersJailed = 0;
+                        if(dc.cell1 != null){
+                            crittersJailed++;
+                        }
+                        if(dc.cell2 != null){
+                            crittersJailed++;
+                        }
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*crittersJailed);
+                    }
+                }
+            };
+            A_WELL_RUN_CITY.eventConditions = new ArrayList<>(List.of(CardDetails.CHIP_SWEEP, CardDetails.CLOCK_TOWER));
+            A_WELL_RUN_CITY.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, A_WELL_RUN_CITY);
+            };
+            A_WELL_RUN_CITY.applyLocationEffect = (state) -> {
+                //Bring Back A Deployed Worker
+                A_WELL_RUN_CITY.selectedLocation.playersOnLocation.remove(state.getCurrentPlayer());
+                state.workers[state.getCurrentPlayer()].increment();
+
+                //Give player 4 points
+                state.pointTokens[state.getCurrentPlayer()].increment(4);
+            };
+
+            A_BRILLIANT_MARKETING_PLAN.eventConditions = new ArrayList<>(List.of(CardDetails.POST_OFFICE, CardDetails.SHOP_KEEPER));
+            A_BRILLIANT_MARKETING_PLAN.checkIfConditionMet = (state) -> {
+                //Check They meet the card Conditions
+                return defaultCheckIfConditionMet(state, A_BRILLIANT_MARKETING_PLAN);
+            };
+            A_BRILLIANT_MARKETING_PLAN.applyLocationEffect = (state) -> {
+                //The player can give up to 3 resources to opponents.
+                //For each resource given, the player gains 2 points
+
+                //playersToGiveResources will hold which resources and how many are given to what players
+                //This will have to be filled in at the GUI/AI Level
+
+                int maxResourcesToGiveOut = 3;
+                int counter = 0;
+                //Give out Resources
+                for(int player : A_BRILLIANT_MARKETING_PLAN.playersToGiveResources.keySet()){
+                    HashMap<ResourceTypes, Counter> resourcesToGive = A_BRILLIANT_MARKETING_PLAN.playersToGiveResources.get(player);
+                    for(var resource : resourcesToGive.keySet()){
+                        for(int i = 0; i<resourcesToGive.get(player).getValue(); i++){
+                            if (counter == maxResourcesToGiveOut){
+                                break;
+                            }
+                            state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement();
+                            state.PlayerResources.get(resource)[player].increment();
+                            state.pointTokens[state.getCurrentPlayer()].increment(2);
+                            counter++;
+                        }
+                        if (counter == maxResourcesToGiveOut){
+                            break;
+                        }
+                    }
+                    if (counter == maxResourcesToGiveOut){
+                        break;
+                    }
+                }
+
+            };
+
+        }
+    }
+
     public enum RedDestinationLocation implements AbstractLocations{
         LOOKOUT_DESTINATION, QUEEN_DESTINATION, INN_DESTINATION, POST_OFFICE_DESTINATION,
         MONASTERY_DESTINATION, CEMETERY_DESTINATION, UNIVERSITY_DESTINATION, CHAPEL_DESTINATION;
@@ -412,6 +871,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
             };
+
 
         }
 
@@ -757,6 +1217,7 @@ public class EverdellParameters extends AbstractParameters {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how much wood was given
                     //It can take a max of 3 wood
+                    System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(EverdellParameters.ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
                     int amount = Math.min(state.resourceSelection.get(ResourceTypes.TWIG).getValue(), 3);
                     amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
                     state.pointTokens[state.getCurrentPlayer()].increment(amount);
@@ -769,6 +1230,7 @@ public class EverdellParameters extends AbstractParameters {
                     state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
                     state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
                 }
+                System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(EverdellParameters.ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
 
                 return true;
             }, (everdellGameState -> {
@@ -830,32 +1292,13 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }));
 
-            CHIP_SWEEP.createEverdellCard = (gameState) -> new CritterCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
+            CHIP_SWEEP.createEverdellCard = (gameState) -> new CopyCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
             }}, (state) -> {
                 //Chip Sweep takes in a production card and copies its effect.
                 //The player can select which production card to copy
 
-                if (state.cardSelection.isEmpty()) {
-                    return false;
-                }
-
-                EverdellCard card = state.cardSelection.get(0);
-
-                System.out.println("Chip Sweep is copying: " + card);
-
-                if (card.getCardType() == CardType.GREEN_PRODUCTION) {
-                    if (card instanceof ConstructionCard constructionCard) {
-                        constructionCard.applyCardEffect(state);
-                    } else {
-                        CritterCard critterCard = (CritterCard) card;
-                        critterCard.applyCardEffect(state);
-                    }
-                    return true;
-                }
-
-
-                return false;
+                return true;
             }, (everdellGameState -> {
             }));
 
@@ -1148,29 +1591,13 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(RANGER)));
 
-            MINER_MOLE.createEverdellCard = (gameState) -> new CritterCard("Miner Mole", MINER_MOLE, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>() {{
+            MINER_MOLE.createEverdellCard = (gameState) -> new CopyCard("Miner Mole", MINER_MOLE, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
             }}, (state) -> {
 
                 //Miner Mole takes in a production card and copies its effect.
                 //The player can select which production card to copy
-
-                if (state.cardSelection.isEmpty()) {
-                    return false;
-                }
-
-                EverdellCard card = state.cardSelection.get(0);
-
-                if (card.getCardType() == CardType.GREEN_PRODUCTION) {
-                    if (card instanceof ConstructionCard constructionCard) {
-                        constructionCard.applyCardEffect(state);
-                    } else {
-                        CritterCard critterCard = (CritterCard) card;
-                        critterCard.applyCardEffect(state);
-                    }
-                    return true;
-                }
-                return false;
+                return true;
             }, (everdellGameState -> {
             }));
 
@@ -1198,8 +1625,8 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 3);
-        put(CardDetails.HUSBAND, 3);
+        put(CardDetails.WIFE, 10);
+        put(CardDetails.HUSBAND, 10);
         put(CardDetails.FAIRGROUNDS, 0);
         put(CardDetails.MINE, 0);
         put(CardDetails.TWIG_BARGE, 0);
@@ -1212,7 +1639,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.SCHOOL, 0);
         put(CardDetails.BARD, 0);
         put(CardDetails.RUINS, 0);
-        put(CardDetails.WOOD_CARVER, 15);
+        put(CardDetails.WOOD_CARVER, 0);
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
@@ -1220,15 +1647,15 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.INN, 0);
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.MONK, 0);
-        put(CardDetails.FOOL, 10);
+        put(CardDetails.FOOL, 0);
         put(CardDetails.TEACHER, 0);
         put(CardDetails.MONASTERY, 0);
         put(CardDetails.HISTORIAN, 0);
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.UNDERTAKER, 0);
         put(CardDetails.POSTAL_PIGEON, 0);
-        put(CardDetails.JUDGE, 0);
-        put(CardDetails.CHIP_SWEEP, 15);
+        put(CardDetails.JUDGE, 10);
+        put(CardDetails.CHIP_SWEEP, 0);
         put(CardDetails.CRANE, 3);
         put(CardDetails.INNKEEPER, 3);
         put(CardDetails.UNIVERSITY, 3);
@@ -1237,8 +1664,8 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.RANGER, 0);
-        put(CardDetails.DUNGEON, 15);
-        put(CardDetails.MINER_MOLE, 10);
+        put(CardDetails.DUNGEON, 0);
+        put(CardDetails.MINER_MOLE, 0);
     }};
 
     @Override

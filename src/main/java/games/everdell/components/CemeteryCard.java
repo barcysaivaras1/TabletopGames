@@ -19,14 +19,11 @@ public class CemeteryCard extends ConstructionCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
-        //This means they are placing the card, we can assign the playerOwner
-        //REPLACE MONK WITH UNDERTAKER
-        state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
-            unlockSecondLocation();
-        });
-
         this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
         state.Locations.put(rdl, location);
+        state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER ).forEach(c -> {
+            unlockSecondLocation();
+        });
     }
 
     public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){

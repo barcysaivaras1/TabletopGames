@@ -21,11 +21,16 @@ public class WifeCard extends CritterCard{
 
     public void applyCardEffect(EverdellGameState state) {
 
-        for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
-            if(card instanceof HusbandCard){
-                if(((HusbandCard) card).getWife() == null){
-                    ((HusbandCard) card).setWife(this);
-                    husband = (HusbandCard) card;
+        if(husband == null) {
+            for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
+                if (card instanceof HusbandCard) {
+                    if (((HusbandCard) card).getWife() == null) {
+                        ((HusbandCard) card).setWife(this);
+                        setHusband((HusbandCard) card);
+                    }
+                }
+                if(husband != null){
+                    break;
                 }
             }
         }

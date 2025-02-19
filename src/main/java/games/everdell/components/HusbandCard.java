@@ -20,15 +20,20 @@ public class HusbandCard extends CritterCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
-        for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
-            if(card instanceof WifeCard){
-                if(((WifeCard) card).getHusband() == null){
-                    ((WifeCard) card).setHusband(this);
-                    wife = (WifeCard) card;
+        if(wife == null) {
+            for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
+                if (card instanceof WifeCard) {
+                    if (((WifeCard) card).getHusband() == null) {
+                        ((WifeCard) card).setHusband(this);
+                        setWife((WifeCard) card);
+                    }
+                }
+                if(wife != null) {
+                    break;
                 }
             }
-        }
 
+        }
         //If the husband has a wife, and a farm is present, the husband will allow the player to choose 1 resource
         //Resource selection will say which resource the player chose
 
