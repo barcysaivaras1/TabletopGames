@@ -1112,8 +1112,7 @@ public class BottomPanel extends JPanel {
                         SpecialEvent event = (SpecialEvent) location;
                         if (event.checkIfConditionMet.apply(state)) {
                             event.playersToGiveResources = new HashMap<>();
-                           drawSelectingMultiplePlayersToGiveResourcesTo(location);
-
+                            drawSelectingMultiplePlayersToGiveResourcesTo(location);
                         }
                     });
                 }
@@ -1136,32 +1135,51 @@ public class BottomPanel extends JPanel {
     }
 
     private void drawSelectingMultiplePlayersToGiveResourcesTo(EverdellParameters.AbstractLocations location){
-        //Create a menu that allows the player to select a player to give resources to
+        //Need a menu to select a player
+        this.removeAll();
         SpecialEvent event = (SpecialEvent) location;
+        event.playersToGiveResources.put(1, new HashMap<>());
         drawPlayerSelection(player -> {
+
+
+            //When a player is selected a menu to select resources should come up
+            /*THe player will be give buttons to go back to player selection and select another
+            * player to give resources to, the done button within the resource selection should confirm
+            * that selection, after a selection has been confirmed, they should not be able to select the same player
+            * again (This would make me worry about less bugs). When they press done in the player selection screen
+            * that confirms all their choices and performs the specialEvents actions.
+            * It can be a good idea to make it recursive. */
             drawResourceSelection(3, "Choose UP TO 3 TOTAL Resources to give to ANY player", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
-                HashMap<ResourceTypes, Counter> rToGive = new HashMap<>();
-                for (ResourceTypes rt : everdellGUIManager.resourceSelection.keySet()) {
-                    rToGive.put(rt, everdellGUIManager.resourceSelection.get(rt).copy());
+                if(event.playersToGiveResources.get(player).isEmpty()){
+                    for(ResourceTypes resource : state.resourceSelection.keySet()){
+                        //event.playersToGiveResources.get(player).put(resource, state.resourceSelection.get(resource).copy());
+                        System.out.println(state.resourceSelection.get(ResourceTypes.TWIG).getValue());
+                        Counter c = new Counter();
+                        c.increment(state.resourceSelection.get(resource).getValue());
+                        event.playersToGiveResources.get(player).put(resource, c);
+                        System.out.println("Copy time!");
+                        System.out.println(event.playersToGiveResources.get(player).get(resource).getValue());
+                    }
                 }
-                event.playersToGiveResources.put(player, rToGive);
                 drawSelectingMultiplePlayersToGiveResourcesTo(location);
                 return true;
             });
+
+
         });
         JPanel navigationPanel = new JPanel();
         navigationPanel.setLayout(new GridLayout(1,2));
-        JButton backB = new JButton("Back");
-        backB.addActionListener(k2 -> {
-            drawSelectingMultiplePlayersToGiveResourcesTo(location);
-        });
-        JButton doneB = new JButton("Done");
-        doneB.addActionListener(k3 -> {
+        JButton doneButton = new JButton("Done");
+        doneButton.addActionListener(k -> {
             new PlaceWorker(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
             everdellGUIManager.redrawPanels();
         });
-        navigationPanel.add(backB);
-        navigationPanel.add(doneB);
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(k -> {
+            drawSpecialEvents();
+        });
+        navigationPanel.add(backButton);
+        navigationPanel.add(doneButton);
         this.add(navigationPanel, BorderLayout.SOUTH);
     }
 
