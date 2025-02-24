@@ -17,8 +17,12 @@ import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.components.EverdellLocation;
 import games.tictactoe.TicTacToeGameState;
+import games.uno.UnoGameState;
 
 import java.util.*;
+
+import static core.CoreConstants.GameResult.GAME_END;
+import static core.CoreConstants.GameResult.GAME_ONGOING;
 
 /**
  * <p>The forward model contains all the game rules and logic. It is mainly responsible for declaring rules for:</p>
@@ -264,16 +268,27 @@ public class EverdellForwardModel extends StandardForwardModel {
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
-        //Basic Locations
+
+        //Problem 2
+//        System.out.println("Computing Available Actions");
+//        System.out.println("Current Player: "+egs.getCurrentPlayer());
+//        //Basic Locations
 //        for(EverdellLocation location : egs.Locations.values()){
 //            if(location.getLocation() instanceof BasicLocations){
+//
 //                if(location.isLocationFreeForPlayer(gameState)){
-//                    actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
+//
+//                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
+//                        actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
+//                    }
 //                }
 //            }
 //        }
+//
+//        System.out.println("List of Actions: "+actions);
 
 
+        //Problem 3
         //Card Decisions
 
         //Iterate Over the player hands and add the PlayCard action for each card
@@ -287,7 +302,22 @@ public class EverdellForwardModel extends StandardForwardModel {
 
     @Override
     protected void _afterAction(AbstractGameState currentState, AbstractAction action) {
-
+        System.out.println("After Action");
         endPlayerTurn(currentState);
+        if(checkEnd((EverdellGameState) currentState)){
+            System.out.println("Game End");
+            currentState.setGameStatus(GAME_END);
+        }
+    }
+
+
+    private boolean checkEnd(EverdellGameState state){
+        for (int i = 0; i < state.getNPlayers(); i++) {
+            if (state.workers[i].getValue() > 0) {
+                return false;
+            }
+        }
+        return true;
+
     }
 }

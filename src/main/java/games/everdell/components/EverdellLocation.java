@@ -45,6 +45,7 @@ public class EverdellLocation {
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
         boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
+        System.out.println("isThereSpace at "+location+": " + isThereSpace);
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 

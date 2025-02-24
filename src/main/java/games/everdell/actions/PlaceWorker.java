@@ -59,7 +59,8 @@ public class PlaceWorker extends AbstractAction {
         EverdellGameState state = (EverdellGameState) gs;
 
         //Check if this location is free
-        if(state.workers[0].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
+        if(state.workers[state.getCurrentPlayer()].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
+            System.out.println("Placing Worker in ");
 
             state.cardSelection = cardSelection;
             state.resourceSelection = resourceSelection;
@@ -79,7 +80,7 @@ public class PlaceWorker extends AbstractAction {
             }
 
 
-            state.workers[0].decrement();
+            state.workers[state.getCurrentPlayer()].decrement();
             EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
             everdellLocation.applyLocationEffect(state);
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());

@@ -8,6 +8,7 @@ import core.components.Deck;
 import games.catan.CatanGameState;
 import games.catan.CatanParameters;
 import games.catan.gui.CatanGUI;
+import games.everdell.EverdellForwardModel;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.FunctionWrapper;
@@ -70,12 +71,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
     public ArrayList<EverdellCard> cardSelection;
     public HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
+    EverdellForwardModel efm;
 
     public EverdellGUIManager(GamePanel parent, Game game, ActionController ac, Set<Integer> human) {
         super(parent, game, ac, human);
         if (game == null) {
             return;
         }
+        efm = (EverdellForwardModel) game.getForwardModel();
 
         FunctionWrapper.setupFunctionWrapper();
 
@@ -509,6 +512,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
         cardActionPanel.setBackground(Color.BLUE);
         JPanel seasonActionPanel = new JPanel();
         seasonActionPanel.setBackground(Color.GREEN);
+        JPanel endTurnPanel = new JPanel();
+        endTurnPanel.setBackground(new Color(165, 163, 163, 255));
 
         JButton placeWorkerButton = new JButton("Place Worker");
         placeWorkerButton.addActionListener(k -> {
@@ -546,13 +551,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
 
             FunctionWrapper.activateNextFunction();
-
-//            if(!cardsActivatedBySeasonChange(state)){
-//                changeSeason(state);
-//            }
-
         });
         seasonActionPanel.add(moveSeasonButton);
+
+
+        JButton endTurnButton = new JButton("End Turn");
+        endTurnButton.addActionListener(k -> {
+            redrawPanels();
+            System.out.println("Ending Turn : "+state.getCurrentPlayer());
+            efm.endPlayerTurn(state);
+        });
+        endTurnPanel.add(endTurnButton);
+
 
         // Place workerActionPanel on the far left
         gbc.gridx = 0;
@@ -574,6 +584,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
         playerActionsPanel.add(seasonActionPanel, gbc);
+
+        // Place endTurnPanel on the far right
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        playerActionsPanel.add(endTurnPanel, gbc);
+
     }
 
     private void changeSeason(EverdellGameState state){
