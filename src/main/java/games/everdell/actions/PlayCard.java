@@ -105,7 +105,7 @@ public class PlayCard extends AbstractAction {
 
 
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
-            System.out.println("You have placed a card");
+            System.out.println("You have placed a card : "+currentCard);
 
             state.cardSelection.clear();
             for(var resource : state.resourceSelection.keySet()){

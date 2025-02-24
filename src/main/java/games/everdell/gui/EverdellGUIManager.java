@@ -207,6 +207,15 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     placeACard(state, cardToPlace);
                 }
                 //If there is more than 1 card it can occupy, then there is ambiguity on which card they would like to occupy
+                else{
+                    villagePanel.drawVillagePanelButtons(cardsThatCanOccupy, 1, card -> {
+                        ConstructionCard cc = (ConstructionCard) card;
+                        cc.occupyConstruction((CritterCard) cardToPlace);
+
+                        //Place the card
+                        placeACard(state, cardToPlace);
+                    });
+                }
             });
             paymentPanel.add(occupationButton);
         }

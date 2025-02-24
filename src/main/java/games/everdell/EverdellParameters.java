@@ -745,14 +745,13 @@ public class EverdellParameters extends AbstractParameters {
 
                 //playersToGiveResources will hold which resources and how many are given to what players
                 //This will have to be filled in at the GUI/AI Level
-
                 int maxResourcesToGiveOut = 3;
                 int counter = 0;
                 //Give out Resources
                 for(int player : A_BRILLIANT_MARKETING_PLAN.playersToGiveResources.keySet()){
                     HashMap<ResourceTypes, Counter> resourcesToGive = A_BRILLIANT_MARKETING_PLAN.playersToGiveResources.get(player);
                     for(var resource : resourcesToGive.keySet()){
-                        for(int i = 0; i<resourcesToGive.get(player).getValue(); i++){
+                        for(int i = 0; i<resourcesToGive.get(resource).getValue(); i++){
                             if (counter == maxResourcesToGiveOut){
                                 break;
                             }
@@ -799,23 +798,6 @@ public class EverdellParameters extends AbstractParameters {
                 state.cardSelection.get(0).payForCard();
             };
 
-            INN_DESTINATION.applyLocationEffect = (state) -> {
-                //From gameState Resource Selection will tell us how much of a discount will be applied.
-                //The card selection will hold the card that the player selected to play at a discount
-
-
-
-                for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
-                    int discount = state.resourceSelection.get(resource).getValue();
-                    int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
-
-                    int finalCost = Math.max(initialCost - discount, 0);
-
-                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
-                }
-                state.cardSelection.get(0).payForCard();
-            };
-
             UNIVERSITY_DESTINATION.applyLocationEffect = (state) -> {
                 //Allows the player to select a card to discard from the city
                 //The cost of the card will be refunded and the university will generate 1 of any resource and 1 point
@@ -842,10 +824,7 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Gain a point
                 state.pointTokens[state.getCurrentPlayer()].increment();
-
             };
-
-
             CHAPEL_DESTINATION.applyLocationEffect = (state) -> {
                 //Places 1 point on the Chapel card
                 //Makes the player draw 2 cards for every point that is on the chapel
@@ -868,13 +847,8 @@ public class EverdellParameters extends AbstractParameters {
                     state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
                     state.cardCount[state.getCurrentPlayer()].increment();
                 }
-
-
             };
-
-
         }
-
     }
 
     public enum CardType {
@@ -1318,7 +1292,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }));
 
-            INN.createEverdellCard = (gameState) -> new ConstructionCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
+            INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
                 put(ResourceTypes.TWIG, 2);
                 put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
@@ -1644,8 +1618,8 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
         put(CardDetails.QUEEN, 3);
-        put(CardDetails.INN, 0);
-        put(CardDetails.POST_OFFICE, 0);
+        put(CardDetails.INN, 15);
+        put(CardDetails.POST_OFFICE, 15);
         put(CardDetails.MONK, 0);
         put(CardDetails.FOOL, 0);
         put(CardDetails.TEACHER, 0);

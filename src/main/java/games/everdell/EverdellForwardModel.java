@@ -140,7 +140,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Setup Special Events
 
-        int numOfSpecialEvents = 4;
+        int numOfSpecialEvents = 12;
         Set<EverdellParameters.SpecialEvent> selectedSpecialEvents = new HashSet<>();
         //Ensure the Locations are unique
         while (selectedSpecialEvents.size() < numOfSpecialEvents) {
@@ -235,8 +235,19 @@ public class EverdellForwardModel extends StandardForwardModel {
                 state.playerVillage.get(1).add(card);
             }
         }
+        //Add the inn card to player 2
+        while(state.playerVillage.get(1).getComponents().size() < 6){
+            EverdellCard card = state.cardDeck.draw();
+            if(card.getCardEnumValue() == EverdellParameters.CardDetails.INN){
+                card.payForCard();
+                endPlayerTurn(state);
+                new PlayCard(card, new ArrayList<>(), new HashMap<>()).execute(state);
+            }
+        }
 
     }
+
+
 
     /**
      * Calculates the list of currently available actions, possibly depending on the game phase.
