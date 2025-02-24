@@ -11,6 +11,7 @@ import games.everdell.EverdellParameters.CardDetails;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -53,6 +54,7 @@ public class PlayCard extends AbstractAction {
     @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
+        System.out.println("Yay, I'm playing a card");
         EverdellGameState state = (EverdellGameState) gs;
 
         if(currentCard instanceof FoolCard){
@@ -127,7 +129,13 @@ public class PlayCard extends AbstractAction {
         state.cardSelection = cardSelection;
         state.resourceSelection = resourceSelection;
 
-        if(currentCard instanceof ConstructionCard cc){
+        System.out.println("Triggering Card Effect");
+        System.out.println("Card Selected : "+currentCard.getName());
+        System.out.println("Card is Construction : "+currentCard.isConstruction());
+
+        if(currentCard.isConstruction()){
+            System.out.println("Construction Card");
+            ConstructionCard cc = (ConstructionCard) currentCard;
             cc.applyCardEffect(state);
         }
         else{
@@ -295,19 +303,21 @@ public class PlayCard extends AbstractAction {
     @Override
     public PlayCard copy() {
         // TODO: copy non-final variables appropriately
-        return this;
+        PlayCard copy = new PlayCard(currentCard, cardSelection, resourceSelection);
+        return copy;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        // TODO: compare all other variables in the class
-        return obj instanceof EverdellAction;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlayCard playCard = (PlayCard) o;
+        return Objects.equals(currentCard, playCard.currentCard) && Objects.equals(cardSelection, playCard.cardSelection) && Objects.equals(resourceSelection, playCard.resourceSelection);
     }
 
     @Override
     public int hashCode() {
-        // TODO: return the hash of all other variables in the class
-        return 0;
+        return Objects.hash(currentCard, cardSelection, resourceSelection);
     }
 
     @Override

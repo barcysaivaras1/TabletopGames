@@ -1595,12 +1595,12 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 10);
+        put(CardDetails.FARM, 50);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 10);
-        put(CardDetails.HUSBAND, 10);
+        put(CardDetails.WIFE, 0);
+        put(CardDetails.HUSBAND, 0);
         put(CardDetails.FAIRGROUNDS, 0);
         put(CardDetails.MINE, 0);
         put(CardDetails.TWIG_BARGE, 0);
@@ -1617,9 +1617,9 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
-        put(CardDetails.QUEEN, 3);
-        put(CardDetails.INN, 15);
-        put(CardDetails.POST_OFFICE, 15);
+        put(CardDetails.QUEEN, 0);
+        put(CardDetails.INN, 0);
+        put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.MONK, 0);
         put(CardDetails.FOOL, 0);
         put(CardDetails.TEACHER, 0);
@@ -1628,11 +1628,11 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.UNDERTAKER, 0);
         put(CardDetails.POSTAL_PIGEON, 0);
-        put(CardDetails.JUDGE, 10);
+        put(CardDetails.JUDGE, 0);
         put(CardDetails.CHIP_SWEEP, 0);
-        put(CardDetails.CRANE, 3);
-        put(CardDetails.INNKEEPER, 3);
-        put(CardDetails.UNIVERSITY, 3);
+        put(CardDetails.CRANE, 0);
+        put(CardDetails.INNKEEPER, 0);
+        put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.CHAPEL, 0);
         put(CardDetails.SHEPHERD, 0);
         put(CardDetails.CLOCK_TOWER, 0);

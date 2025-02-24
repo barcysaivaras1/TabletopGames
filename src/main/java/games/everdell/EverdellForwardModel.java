@@ -228,6 +228,12 @@ public class EverdellForwardModel extends StandardForwardModel {
         System.out.println(state.playerVillage);
 
 
+        //populateWithTest(state);
+
+    }
+
+
+    private void populateWithTest(EverdellGameState state){
         //Add green production cards to player 2
         while(state.playerVillage.get(1).getComponents().size() < 5){
             EverdellCard card = state.cardDeck.draw();
@@ -247,8 +253,6 @@ public class EverdellForwardModel extends StandardForwardModel {
 
     }
 
-
-
     /**
      * Calculates the list of currently available actions, possibly depending on the game phase.
      * @return - List of AbstractAction objects.
@@ -260,12 +264,21 @@ public class EverdellForwardModel extends StandardForwardModel {
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
-        for(EverdellLocation location : egs.Locations.values()){
-            if(location.getLocation() instanceof BasicLocations){
-                if(location.isLocationFreeForPlayer(gameState)){
-                    actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
-                }
-            }
+        //Basic Locations
+//        for(EverdellLocation location : egs.Locations.values()){
+//            if(location.getLocation() instanceof BasicLocations){
+//                if(location.isLocationFreeForPlayer(gameState)){
+//                    actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
+//                }
+//            }
+//        }
+
+
+        //Card Decisions
+
+        //Iterate Over the player hands and add the PlayCard action for each card
+        for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
+            actions.add(new PlayCard(card, egs.cardSelection, egs.resourceSelection));
         }
 
         return actions;
