@@ -28,7 +28,6 @@ public class EverdellCard extends Card {
 
     private boolean isCardPayedFor;
     private boolean isUnique;
-    private boolean paidForByResources;
 
     public int roundCardWasBought = -1;  // -1 is not bought
     //public final String cardDescription;
@@ -45,9 +44,8 @@ public class EverdellCard extends Card {
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
         isCardPayedFor = false;
-        paidForByResources = false;
     }
-    private EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
+    protected EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
         super(name, id);
         this.name = name;
         this.cardEnumValue = cardEnumValue;
@@ -63,9 +61,16 @@ public class EverdellCard extends Card {
 
     @Override
     public EverdellCard copy() {
-        EverdellCard card = new EverdellCard(name,cardEnumValue,cardType,isConstruction, isUnique, points,resourceCost,applyCardEffect,removeCardEffect);
-        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
-        return card;
+        if(this instanceof ConstructionCard){
+            ConstructionCard card = (ConstructionCard) copy();
+            card.roundCardWasBought = -1;
+            return card;
+        }
+        else {
+            CritterCard card = (CritterCard) copy();
+            card.roundCardWasBought = -1;
+            return card;
+        }
     }
 
 
@@ -79,6 +84,7 @@ public class EverdellCard extends Card {
     protected void applyCardEffect(EverdellGameState state) {
         applyCardEffect.apply(state);
     }
+    protected Function<EverdellGameState, Boolean> getApplyCardEffect() { return applyCardEffect; }
     public void removeCardEffect(EverdellGameState state) {
         removeCardEffect.accept(state);
     }

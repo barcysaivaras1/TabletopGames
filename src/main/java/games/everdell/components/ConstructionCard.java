@@ -35,6 +35,21 @@ public class ConstructionCard extends EverdellCard{
         this.redDestinationLocation = rdl;
     }
 
+    //Copy constructors
+    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
+        this.cardsThatCanOccupy = cardsThatCanOccupy;
+        isOccupied = false;
+    }
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
+        this.cardsThatCanOccupy = cardsThatCanOccupy;
+        isOccupied = false;
+
+        //RED DESTINATION VARIABLE
+        this.redDestinationLocation = rdl;
+    }
+
 
     @Override
     public void applyCardEffect(EverdellGameState state) {
@@ -78,5 +93,17 @@ public class ConstructionCard extends EverdellCard{
         return cardsThatCanOccupy;
     }
 
+    @Override
+    public ConstructionCard copy() {
+        if(redDestinationLocation != null){
+            ConstructionCard card = new ConstructionCard(redDestinationLocation, getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+            card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+            return card;
+        }
+
+        ConstructionCard card = new ConstructionCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
+    }
 
 }

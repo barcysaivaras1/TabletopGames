@@ -83,7 +83,10 @@ public class EverdellGameState extends AbstractGameState {
 
     public void printAllComponents(){
         System.out.println("Printing all components");
-        System.out.println(_getAllComponents());
+        for(var component : _getAllComponents()){
+            System.out.println(component+" : "+component.getComponentID()+" : "+component.getComponentID());
+        }
+        System.out.println("End of components");
     }
 
     /**
@@ -101,6 +104,9 @@ public class EverdellGameState extends AbstractGameState {
         components.add(meadowDeck.copy());
         for(var hand : playerHands){
             components.add(hand.copy());
+            for(var card : hand){
+                components.add(card.copy());
+            }
         }
         for(var village : playerVillage){
             components.add(village.copy());
@@ -124,6 +130,10 @@ public class EverdellGameState extends AbstractGameState {
         //Locations
         for(EverdellLocation location : Locations.values()){
             components.add(location.copy());
+        }
+
+        if(currentCard != null){
+            components.add(currentCard.copy());
         }
 
         return components;
@@ -175,7 +185,6 @@ public class EverdellGameState extends AbstractGameState {
             copy.villageMaxSize[i] = villageMaxSize[i].copy();
         }
 
-
         copy.resourceSelection = new HashMap<>();
         for(var resource : resourceSelection.keySet()){
             copy.resourceSelection.put(resource, resourceSelection.get(resource).copy());
@@ -206,8 +215,8 @@ public class EverdellGameState extends AbstractGameState {
         }
 
         if(currentCard != null){
-        copy.currentCard = currentCard.copy();
-}
+            copy.currentCard = currentCard.copy();
+        }
         return copy;
     }
 

@@ -23,6 +23,15 @@ public class CritterCard extends EverdellCard{
         redDestinationLocation = rdl;
     }
 
+    //Copy Constructors
+    public CritterCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int compID) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
+    }
+    public CritterCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int compID) {
+        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
+        redDestinationLocation = rdl;
+    }
+
     @Override
     public void applyCardEffect(EverdellGameState state){
         if(redDestinationLocation != null){
@@ -31,5 +40,12 @@ public class CritterCard extends EverdellCard{
         else {
             super.applyCardEffect(state);
         }
+    }
+
+    @Override
+    public CritterCard copy() {
+        CritterCard card = new CritterCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, componentID);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

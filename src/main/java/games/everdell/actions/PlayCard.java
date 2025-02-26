@@ -43,16 +43,16 @@ public class PlayCard extends AbstractAction {
 
     private int currentCardID;
 
-    private ArrayList<EverdellCard> cardSelection;
-    private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
+    private ArrayList<Integer> cardSelectionID;
+    private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
 
 
 
-    public PlayCard(int cardID, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection){
+    public PlayCard(int cardID, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues){
 //        currentCard = card;
-        this.cardSelection = cardSelection;
-        this.resourceSelection = resourceSelection;
+        this.cardSelectionID = new ArrayList<>(cardSelectionID);
+        this.resourceSelectionValues = new HashMap<>(resourceSelectionValues);
         currentCardID = cardID;
     }
 
@@ -60,13 +60,20 @@ public class PlayCard extends AbstractAction {
     @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
-        System.out.println("Yay, I'm playing a card");
         EverdellGameState state = (EverdellGameState) gs;
 
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-
-
+        ArrayList<EverdellCard> cardSelection = new ArrayList<>();
+        for(var cardID : cardSelectionID){
+            cardSelection.add((EverdellCard) state.getComponentById(cardID));
+        }
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+        for(var resource : resourceSelectionValues.keySet()){
+            resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+        }
+        System.out.println("Card ID : "+currentCardID);
+        state.printAllComponents();
 
         if(currentCard instanceof FoolCard){
             //Fool Card has a special case where the player must select a player to give the card to
@@ -77,7 +84,6 @@ public class PlayCard extends AbstractAction {
         if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < state.villageMaxSize[state.getCurrentPlayer()].getValue()){
             state.currentCard = currentCard;
             state.cardSelection = cardSelection;
-            state.resourceSelection = resourceSelection;
 //            if(state.playerVillage.get(state.getCurrentPlayer()).contains(currentCard)){
 //                System.out.println("You already have this card in your village");
 //                return false;
@@ -112,7 +118,7 @@ public class PlayCard extends AbstractAction {
             removeCard(state);
 
 
-
+            System.out.println("TRIGGER");
             //Apply Card Effect
             triggerCardEffect(state, currentCard);
 
@@ -135,8 +141,17 @@ public class PlayCard extends AbstractAction {
 
     public void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
         //If the card is already in the village, we will assume we want to trigger the card effect
+        ArrayList<EverdellCard> cardSelection = new ArrayList<>();
+        for(var cardID : cardSelectionID){
+            cardSelection.add((EverdellCard) state.getComponentById(cardID));
+        }
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+        for(var resource : resourceSelectionValues.keySet()){
+            resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+        }
 
-        state.currentCard = currentCard;
+
+        state.currentCard = (EverdellCard) state.getComponentById(currentCard.getComponentID());
         state.cardSelection = cardSelection;
         state.resourceSelection = resourceSelection;
 
@@ -144,13 +159,12 @@ public class PlayCard extends AbstractAction {
         System.out.println("Card Selected : "+currentCard.getName());
         System.out.println("Card is Construction : "+currentCard.isConstruction());
 
-        if(currentCard.isConstruction()){
+        if(state.currentCard instanceof ConstructionCard cc){
             System.out.println("Construction Card");
-            ConstructionCard cc = (ConstructionCard) currentCard;
             cc.applyCardEffect(state);
         }
         else{
-            CritterCard cc = (CritterCard) currentCard;
+            CritterCard cc = (CritterCard) state.currentCard;
             cc.applyCardEffect(state);
         }
     }
@@ -256,6 +270,8 @@ public class PlayCard extends AbstractAction {
 
     public Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
         //Check if the player has enough resources to buy the card
+        System.out.println("Current Card ID : "+currentCardID);
+        System.out.println("Current Card : "+state.getComponentById(currentCardID));
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
 
         //The card can be paid with occupation.
@@ -320,21 +336,21 @@ public class PlayCard extends AbstractAction {
     @Override
     public PlayCard copy() {
         // TODO: copy non-final variables appropriately
-        PlayCard copy = new PlayCard(currentCardID, cardSelection, resourceSelection);
-        return copy;
+        ArrayList<Integer> csID = new ArrayList<>(cardSelectionID);
+        HashMap<EverdellParameters.ResourceTypes, Integer> rsID = new HashMap<>(resourceSelectionValues);
+        return new PlayCard(currentCardID, csID, rsID);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayCard playCard = (PlayCard) o;
-        return currentCardID == playCard.currentCardID && Objects.equals(cardSelection, playCard.cardSelection) && Objects.equals(resourceSelection, playCard.resourceSelection);
+        return currentCardID == playCard.currentCardID && Objects.equals(cardSelectionID, playCard.cardSelectionID) && Objects.equals(resourceSelectionValues, playCard.resourceSelectionValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentCardID, cardSelection, resourceSelection);
+        return Objects.hash(currentCardID, cardSelectionID, resourceSelectionValues);
     }
 
     @Override

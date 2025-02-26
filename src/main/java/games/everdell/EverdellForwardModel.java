@@ -267,31 +267,39 @@ public class EverdellForwardModel extends StandardForwardModel {
 
 
         //Problem 2
-        System.out.println("Computing Available Actions");
-        System.out.println("Current Player: "+egs.getCurrentPlayer());
-        //Basic Locations
-        for(EverdellLocation location : egs.Locations.values()){
-            if(location.getAbstractLocation() instanceof BasicLocations){
+//        System.out.println("Computing Available Actions");
+//        System.out.println("Current Player: "+egs.getCurrentPlayer());
+//        //Basic Locations
+//        for(EverdellLocation location : egs.Locations.values()){
+//            if(location.getAbstractLocation() instanceof BasicLocations){
+//
+//                if(location.isLocationFreeForPlayer(gameState)){
+//
+//                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
+//                        actions.add(new PlaceWorker(location.getComponentID(), egs.cardSelection, egs.resourceSelection));
+//                    }
+//                }
+//            }
+//        }
 
-                if(location.isLocationFreeForPlayer(gameState)){
-
-                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
-                        actions.add(new PlaceWorker(location.getComponentID(), egs.cardSelection, egs.resourceSelection));
-                    }
-                }
-            }
-        }
-
-        System.out.println("List of Actions: "+actions);
 
 
         //Problem 3
         //Card Decisions
 
         //Iterate Over the player hands and add the PlayCard action for each card
-//        for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
-//            actions.add(new PlayCard(card, egs.cardSelection, egs.resourceSelection));
-//        }
+        for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
+            ArrayList<Integer> csID = new ArrayList<>();
+            for (EverdellCard c : egs.cardSelection){
+                csID.add(c.getComponentID());
+            }
+            HashMap<ResourceTypes, Integer> rsID = new HashMap<>();
+            for (Map.Entry<ResourceTypes, Counter> entry : egs.resourceSelection.entrySet()){
+                rsID.put(entry.getKey(), entry.getValue().getComponentID());
+            }
+            actions.add(new PlayCard(card.getComponentID(), csID, rsID));
+        }
+        System.out.println("List of Actions: "+actions);
 
         return actions;
     }
