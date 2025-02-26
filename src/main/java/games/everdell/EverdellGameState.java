@@ -5,6 +5,7 @@ import core.AbstractParameters;
 import core.components.Component;
 import core.components.Counter;
 import core.components.Deck;
+import core.components.FrenchCard;
 import games.GameType;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
@@ -79,6 +80,12 @@ public class EverdellGameState extends AbstractGameState {
         return GameType.Everdell;
     }
 
+
+    public void printAllComponents(){
+        System.out.println("Printing all components");
+        System.out.println(_getAllComponents());
+    }
+
     /**
      * Returns all Components used in the game and referred to by componentId from actions or rules.
      * This method is called after initialising the game state, so all components will be initialised already.
@@ -114,7 +121,12 @@ public class EverdellGameState extends AbstractGameState {
             components.add(resourceSelection.get(resource).copy());
         }
 
-        return new ArrayList<>();
+        //Locations
+        for(EverdellLocation location : Locations.values()){
+            components.add(location.copy());
+        }
+
+        return components;
     }
 
     /**
@@ -182,8 +194,7 @@ public class EverdellGameState extends AbstractGameState {
 
         copy.Locations = new HashMap<>();
         for(var location : Locations.keySet()){
-            EverdellLocation loc = new EverdellLocation(location, Locations.get(location).getNumberOfSpaces(), Locations.get(location).canTheSamePlayerBeOnLocationMultipleTimes(), location.getLocationEffect(this));
-            copy.Locations.put(location, loc);
+            copy.Locations.put(location, Locations.get(location).copy());
         }
 
         copy.PlayerResources = new HashMap<>();

@@ -12,6 +12,7 @@ import games.everdell.EverdellForwardModel;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.FunctionWrapper;
+import games.everdell.actions.EndTurn;
 import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
 import games.everdell.actions.PlayCard;
@@ -71,14 +72,15 @@ public class EverdellGUIManager extends AbstractGUIManager {
     public ArrayList<EverdellCard> cardSelection;
     public HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
-    EverdellForwardModel efm;
+    ActionController aC;
 
     public EverdellGUIManager(GamePanel parent, Game game, ActionController ac, Set<Integer> human) {
         super(parent, game, ac, human);
         if (game == null) {
             return;
         }
-        efm = (EverdellForwardModel) game.getForwardModel();
+
+        aC = ac;
 
         FunctionWrapper.setupFunctionWrapper();
 
@@ -197,7 +199,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
 
         //Check if they can pay via occupation
-        ArrayList<EverdellCard> cardsThatCanOccupy = new PlayCard(cardToPlace,cardSelection,resourceSelection).canPayWithOccupation(state, cardToPlace);
+        ArrayList<EverdellCard> cardsThatCanOccupy = new PlayCard(cardToPlace.getComponentID(),cardSelection,resourceSelection).canPayWithOccupation(state, cardToPlace);
         if(!cardsThatCanOccupy.isEmpty()){
             JButton occupationButton = new JButton("Pay With Occupation");
             occupationButton.addActionListener(k -> {
@@ -241,7 +243,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
                         //Crane Card is sCard in this instance
                         //Trigger Crane Card Effect
-                        new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+                        new PlayCard(cardToPlace.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(s, sCard);
 
                         //Card needs to be removed from the village
                         state.playerVillage.get(state.getCurrentPlayer()).remove(sCard);
@@ -268,7 +270,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
                         //Innkeeper Card is sCard in this instance
                         //Trigger Innkeeper Card Effect
-                        new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+                        new PlayCard(cardToPlace.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(s, sCard);
 
                         //Card needs to be removed from the village
                         state.playerVillage.get(state.getCurrentPlayer()).remove(sCard);
@@ -302,7 +304,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             playerCardPanel.drawResourceSelection(3, "Select 3 Resources to discount", r, (s) -> {
                                 //Innkeeper Card is sCard in this instance
                                 //Trigger Innkeeper Card Effect
-                                new PlayCard(cardToPlace, cardSelection, resourceSelection).triggerCardEffect(s, sCard);
+                                new PlayCard(cardToPlace.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(s, sCard);
 
                                 //Place the now paid for card
                                 placeACard(state, cardToPlace);
@@ -478,10 +480,10 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         System.out.println("Placing a card");
         //We check if the player can afford the card
-        if(new PlayCard(card, cardSelection, resourceSelection).checkIfPlayerCanBuyCard(state)){
+        if(new PlayCard(card.getComponentID(), cardSelection, resourceSelection).checkIfPlayerCanBuyCard(state)){
             FunctionWrapper.addAFunction(() -> checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(card)), false),"Checking For Additional Steps...");
             FunctionWrapper.addAFunction(() -> {
-                        new PlayCard(card, cardSelection, resourceSelection).execute(state);
+                        new PlayCard(card.getComponentID(), cardSelection, resourceSelection).execute(state);
                         redrawPanels();
                         return false;
                     }
@@ -559,7 +561,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         endTurnButton.addActionListener(k -> {
             redrawPanels();
             System.out.println("Ending Turn : "+state.getCurrentPlayer());
-            efm.endPlayerTurn(state);
+            ac.addAction(new EndTurn());
         });
         endTurnPanel.add(endTurnButton);
 
@@ -632,7 +634,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                     playerCardPanel.removeAll();
                     playerCardPanel.activateCopyMode(copyLocation -> {
                         ct.selectLocation(copyLocation);
-                        new PlayCard(card, cardSelection, resourceSelection).triggerCardEffect(state, ct);
+                        new PlayCard(card.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, ct);
                         playerCardPanel.deactivateCopyMode();
                         redrawPanels();
                         System.out.println("Should be called before changing season");
@@ -778,7 +780,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             //Allow worker to select 1 resource to gain
                             playerCardPanel.drawResourceSelection(1, "Select 1 Resource to Gain", new ArrayList<>(List.of(ResourceTypes.values())), state1 -> {
                                 if(isGreenProductionEvent){
-                                    new PlayCard(hc, cardSelection, resourceSelection).triggerCardEffect(state, hc);
+                                    new PlayCard(hc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, hc);
                                 }
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
@@ -805,7 +807,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             add(ResourceTypes.TWIG);
                         }}, game -> {
                             if(isGreenProductionEvent){
-                                new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                                new PlayCard(c.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, c);
                             }
 
                             cardsToActivate.remove(c);
@@ -828,7 +830,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             add(ResourceTypes.BERRY);
                         }}, game -> {
                             if(isGreenProductionEvent){
-                                new PlayCard(c, cardSelection, resourceSelection).triggerCardEffect(state, c);
+                                new PlayCard(c.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, c);
                             }
                             cardsToActivate.remove(c);
                             listCardsAction.accept(state);
@@ -857,7 +859,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 //Select the resources to gain
                                 pc.addResourcesToGain(resourceSelection);
                                 if (isGreenProductionEvent) {
-                                    new PlayCard(pc, cardSelection, resourceSelection).triggerCardEffect(state, pc);
+                                    new PlayCard(pc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, pc);
                                 }
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
@@ -904,7 +906,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             Callable chipSweepAction3 = () -> {
                                 if(isGreenProductionEvent){
                                     if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
-                                        new PlayCard(cc, cardSelection, resourceSelection).triggerCardEffect(state, cc);
+                                        new PlayCard(cc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, cc);
                                         FunctionWrapper.activateNextFunction();
                                     }
                                     cc.setCardToCopy(null);
@@ -945,7 +947,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 mc.setSelectedPlayer(player);
 
                                 if(isGreenProductionEvent){
-                                    new PlayCard(mc, cardSelection, resourceSelection).triggerCardEffect(state, mc);
+                                    new PlayCard(mc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, mc);
                                 }
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
@@ -996,7 +998,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 tc.setSelectedPlayer(player);
 
                                 if(isGreenProductionEvent){
-                                    new PlayCard(tc, cardSelection, resourceSelection).triggerCardEffect(state, tc);
+                                    new PlayCard(tc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, tc);
                                 }
                                 cardsToActivate.remove(c);
                                 listCardsAction.accept(state);
@@ -1087,7 +1089,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             sc.setSelectedPlayer(player);
 
                             if(isGreenProductionEvent){
-                                new PlayCard(sc, cardSelection, resourceSelection).triggerCardEffect(state, sc);
+                                new PlayCard(sc.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, sc);
                             }
                             cardsToActivate.remove(c);
                             listCardsAction.accept(state);
@@ -1116,7 +1118,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         //Find all location in which the player has a worker on
                         for(var location : state.Locations.values()){
-                            if(location.isPlayerOnLocation(state) && location.getLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
+                            if(location.isPlayerOnLocation(state) && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
                                 locationsToDisplayRanger.add(location);
                             }
                         }
@@ -1136,14 +1138,14 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         //Display the locations for the player to remove a worker from
                         for(var location : locationsToDisplayRanger){
-                            JButton locationButton = new JButton(location.getLocation().name());
+                            JButton locationButton = new JButton(location.getAbstractLocation().name());
                             locationButton.addActionListener(k -> {
                                 rc.setLocationFrom(location);
                                 state.workers[state.getCurrentPlayer()].increment();
 
                                 playerCardPanel.activateCopyMode(copyLocation -> {
                                     rc.setLocationTo(state.Locations.get(copyLocation));
-                                    new PlayCard(rc, cardSelection, resourceSelection).execute(state);
+                                    new PlayCard(rc.getComponentID(), cardSelection, resourceSelection).execute(state);
                                     playerCardPanel.deactivateCopyMode();
                                     redrawPanels();
 
@@ -1204,7 +1206,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                             Callable minerMoleAction3 = () -> {
                                 if(isGreenProductionEvent){
                                     if(!checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(cc.getCardToCopy())), true)){
-                                        new PlayCard(cc.getCardToCopy(), cardSelection, resourceSelection).triggerCardEffect(state, cc.getCardToCopy());
+                                        new PlayCard(cc.getCardToCopy().getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, cc.getCardToCopy());
                                         FunctionWrapper.activateNextFunction();
                                     }
                                     else {
@@ -1351,7 +1353,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         this.playerCardPanel.drawResourceSelection(resourceToGain, card.getName()+" : Gain 1 Twig, Resin or Pebble", resourceSelect, game -> {
                             //Select the resources to gain
-                            new PlayCard(card, cardSelection, resourceSelection).triggerCardEffect(state, card);
+                            new PlayCard(card.getComponentID(), cardSelection, resourceSelection).triggerCardEffect(state, card);
                             redrawPanels();
                             resetValues();
                             triggeredCards.remove(card);

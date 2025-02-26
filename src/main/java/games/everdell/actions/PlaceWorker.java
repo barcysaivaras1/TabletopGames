@@ -42,12 +42,13 @@ public class PlaceWorker extends AbstractAction {
      * @param gs - game state which should be modified by this action.
      * @return - true if successfully executed, false otherwise.
      */
-    private EverdellParameters.AbstractLocations locationToPlaceIn;
+    //private EverdellParameters.AbstractLocations locationToPlaceIn;
+    private int locationComponentID;
     private ArrayList<EverdellCard> cardSelection;
     private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
-    public PlaceWorker(EverdellParameters.AbstractLocations location, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection) {
-        locationToPlaceIn = location;
+    public PlaceWorker(int location, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection) {
+        locationComponentID = location;
         this.cardSelection = cardSelection;
         this.resourceSelection = resourceSelection;
     }
@@ -57,6 +58,16 @@ public class PlaceWorker extends AbstractAction {
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
+        System.out.println("Placing Worker in LocationID : " + locationComponentID);
+        System.out.println("List of all Locations and their IDs");
+        for (var location : state.Locations.entrySet()) {
+            System.out.println(location.getKey() + " : " + location.getValue() + " : " + location.getValue().getComponentID());
+        }
+        state.printAllComponents();
+        System.out.println("Component : "+state.getComponentById(locationComponentID));
+        EverdellParameters.AbstractLocations locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID)).getAbstractLocation();
+
+
 
         //Check if this location is free
         if(state.workers[state.getCurrentPlayer()].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
@@ -91,6 +102,7 @@ public class PlaceWorker extends AbstractAction {
     }
 
     public Boolean canWePlaceOnThisBasicEvent(EverdellGameState state){
+        EverdellParameters.AbstractLocations locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID)).getAbstractLocation();
         int target;
         int counter;
         switch ((BasicEvent) locationToPlaceIn){
@@ -157,7 +169,8 @@ public class PlaceWorker extends AbstractAction {
     @Override
     public PlaceWorker copy() {
         // TODO: copy non-final variables appropriately
-        PlaceWorker copy = new PlaceWorker(locationToPlaceIn, cardSelection, resourceSelection);
+
+        PlaceWorker copy = new PlaceWorker(locationComponentID, cardSelection, resourceSelection);
         return copy;
     }
 
@@ -167,18 +180,18 @@ public class PlaceWorker extends AbstractAction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlaceWorker that = (PlaceWorker) o;
-        return Objects.equals(locationToPlaceIn, that.locationToPlaceIn);
+        return locationComponentID == that.locationComponentID && Objects.equals(cardSelection, that.cardSelection) && Objects.equals(resourceSelection, that.resourceSelection);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(locationToPlaceIn);
+        return Objects.hash(locationComponentID, cardSelection, resourceSelection);
     }
 
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "Place Worker in " + locationToPlaceIn;
+        return "Place Worker in LocationID : " + locationComponentID;
     }
 
     /**

@@ -39,15 +39,21 @@ public class PlayCard extends AbstractAction {
      * @return - true if successfully executed, false otherwise.
      */
 
-    private EverdellCard currentCard;
+    //private EverdellCard currentCard;
+
+    private int currentCardID;
+
     private ArrayList<EverdellCard> cardSelection;
     private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
 
-    public PlayCard(EverdellCard card, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection){
-        currentCard = card;
+
+
+    public PlayCard(int cardID, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection){
+//        currentCard = card;
         this.cardSelection = cardSelection;
         this.resourceSelection = resourceSelection;
+        currentCardID = cardID;
     }
 
 
@@ -57,6 +63,11 @@ public class PlayCard extends AbstractAction {
         System.out.println("Yay, I'm playing a card");
         EverdellGameState state = (EverdellGameState) gs;
 
+
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
+
+
+
         if(currentCard instanceof FoolCard){
             //Fool Card has a special case where the player must select a player to give the card to
             return foolSpecialTreatment(state);
@@ -64,7 +75,7 @@ public class PlayCard extends AbstractAction {
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
         if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < state.villageMaxSize[state.getCurrentPlayer()].getValue()){
-            state.currentCard = this.currentCard;
+            state.currentCard = currentCard;
             state.cardSelection = cardSelection;
             state.resourceSelection = resourceSelection;
 //            if(state.playerVillage.get(state.getCurrentPlayer()).contains(currentCard)){
@@ -125,7 +136,7 @@ public class PlayCard extends AbstractAction {
     public void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
         //If the card is already in the village, we will assume we want to trigger the card effect
 
-        state.currentCard = this.currentCard;
+        state.currentCard = currentCard;
         state.cardSelection = cardSelection;
         state.resourceSelection = resourceSelection;
 
@@ -167,6 +178,8 @@ public class PlayCard extends AbstractAction {
         //Remove card from hand
         //If we fail to remove that card object from the hand, it means that the card was in the meadow
         //We remove the card from the meadow and add a new card to the meadow
+
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
 
         System.out.println("Removing card");
         System.out.println("Card Selected : "+currentCard.getName());
@@ -230,6 +243,7 @@ public class PlayCard extends AbstractAction {
 
     private Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state){
         //Check if the player has this Unique card in their village
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         if(currentCard.isUnique()){
             for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
                 if(card.getCardEnumValue() == currentCard.getCardEnumValue()){
@@ -242,6 +256,7 @@ public class PlayCard extends AbstractAction {
 
     public Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
         //Check if the player has enough resources to buy the card
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
 
         //The card can be paid with occupation.
         if(currentCard.isCardPayedFor()){
@@ -258,6 +273,7 @@ public class PlayCard extends AbstractAction {
 
     private void makePlayerPayForCard(EverdellGameState state){
         //Make the player pay for the resources
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         for(var resource : currentCard.getResourceCost().keySet()){
             state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(currentCard.getResourceCost().get(resource));
         }
@@ -267,6 +283,7 @@ public class PlayCard extends AbstractAction {
         //Fool Card has a special case where the player must select a player to give the card to
         //Check if the card is Unique and if the player has this card in their village
         //Cannot have duplicate unique cards
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         FoolCard foolCard = (FoolCard) currentCard;
 
         if(state.playerVillage.get(foolCard.getSelectedPlayer()).stream().anyMatch(card -> card.getCardEnumValue() == CardDetails.FOOL)){
@@ -303,7 +320,7 @@ public class PlayCard extends AbstractAction {
     @Override
     public PlayCard copy() {
         // TODO: copy non-final variables appropriately
-        PlayCard copy = new PlayCard(currentCard, cardSelection, resourceSelection);
+        PlayCard copy = new PlayCard(currentCardID, cardSelection, resourceSelection);
         return copy;
     }
 
@@ -312,18 +329,18 @@ public class PlayCard extends AbstractAction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlayCard playCard = (PlayCard) o;
-        return Objects.equals(currentCard, playCard.currentCard) && Objects.equals(cardSelection, playCard.cardSelection) && Objects.equals(resourceSelection, playCard.resourceSelection);
+        return currentCardID == playCard.currentCardID && Objects.equals(cardSelection, playCard.cardSelection) && Objects.equals(resourceSelection, playCard.resourceSelection);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentCard, cardSelection, resourceSelection);
+        return Objects.hash(currentCardID, cardSelection, resourceSelection);
     }
 
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "Placing Card : " + currentCard.getName();
+        return "Placing Card : " + currentCardID;
     }
 
     /**

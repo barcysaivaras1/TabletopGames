@@ -9,6 +9,7 @@ import games.everdell.actions.MoveSeason;
 import games.everdell.components.*;
 import org.apache.spark.sql.catalyst.expressions.Abs;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class EverdellParameters extends AbstractParameters {
 
     }
 
-    public interface AbstractLocations {
+    public interface AbstractLocations{
         Consumer<EverdellGameState> getLocationEffect(EverdellGameState state);
         String name();
     }
@@ -1031,7 +1032,7 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
 
                 for (var loc : state.Locations.values()) {
-                    if (loc.getLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
+                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }

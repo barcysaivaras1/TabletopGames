@@ -1,18 +1,21 @@
 package games.everdell.components;
 
 import core.AbstractGameState;
+import core.CoreConstants;
+import core.components.Component;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class EverdellLocation {
+public class EverdellLocation extends Component {
 
     boolean shared;
     int numberOfSpaces;
@@ -27,6 +30,16 @@ public class EverdellLocation {
     public List<Integer> playersOnLocation;
 
     public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect){
+        super(CoreConstants.ComponentType.LOCATION);
+        this.location = location;
+        //this.shared = shared;
+        this.locationEffect = locationEffect;
+        this.numberOfSpaces = numberOfSpaces;
+        this.playersOnLocation = new ArrayList<>();
+        this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
+    }
+    public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect, int compID){
+        super(CoreConstants.ComponentType.LOCATION, compID);
         this.location = location;
         //this.shared = shared;
         this.locationEffect = locationEffect;
@@ -53,7 +66,7 @@ public class EverdellLocation {
         return playersOnLocation.contains(state.getCurrentPlayer());
     }
 
-    public AbstractLocations getLocation(){
+    public AbstractLocations getAbstractLocation(){
         return location;
     }
     public int getNumberOfSpaces(){
@@ -68,5 +81,11 @@ public class EverdellLocation {
     }
 
 
+    public EverdellLocation copy(){
+        EverdellLocation copy = new EverdellLocation(location, numberOfSpaces, canTheSamePlayerBeOnLocationMultipleTimes, locationEffect, componentID);
+        copy.playersOnLocation = new ArrayList<>();
+        copy.playersOnLocation.addAll(playersOnLocation);
+        return copy;
+    }
 
 }

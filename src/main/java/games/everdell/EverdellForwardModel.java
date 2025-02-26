@@ -6,10 +6,7 @@ import core.StandardForwardModel;
 import core.actions.AbstractAction;
 import core.components.Counter;
 import core.components.Deck;
-import games.everdell.actions.EverdellAction;
-import games.everdell.actions.MoveSeason;
-import games.everdell.actions.PlaceWorker;
-import games.everdell.actions.PlayCard;
+import games.everdell.actions.*;
 import games.everdell.components.ConstructionCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
@@ -251,7 +248,7 @@ public class EverdellForwardModel extends StandardForwardModel {
             if(card.getCardEnumValue() == EverdellParameters.CardDetails.INN){
                 card.payForCard();
                 endPlayerTurn(state);
-                new PlayCard(card, new ArrayList<>(), new HashMap<>()).execute(state);
+                new PlayCard(card.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
             }
         }
 
@@ -270,31 +267,31 @@ public class EverdellForwardModel extends StandardForwardModel {
 
 
         //Problem 2
-//        System.out.println("Computing Available Actions");
-//        System.out.println("Current Player: "+egs.getCurrentPlayer());
-//        //Basic Locations
-//        for(EverdellLocation location : egs.Locations.values()){
-//            if(location.getLocation() instanceof BasicLocations){
-//
-//                if(location.isLocationFreeForPlayer(gameState)){
-//
-//                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
-//                        actions.add(new PlaceWorker(location.getLocation(), egs.cardSelection, egs.resourceSelection));
-//                    }
-//                }
-//            }
-//        }
-//
-//        System.out.println("List of Actions: "+actions);
+        System.out.println("Computing Available Actions");
+        System.out.println("Current Player: "+egs.getCurrentPlayer());
+        //Basic Locations
+        for(EverdellLocation location : egs.Locations.values()){
+            if(location.getAbstractLocation() instanceof BasicLocations){
+
+                if(location.isLocationFreeForPlayer(gameState)){
+
+                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
+                        actions.add(new PlaceWorker(location.getComponentID(), egs.cardSelection, egs.resourceSelection));
+                    }
+                }
+            }
+        }
+
+        System.out.println("List of Actions: "+actions);
 
 
         //Problem 3
         //Card Decisions
 
         //Iterate Over the player hands and add the PlayCard action for each card
-        for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
-            actions.add(new PlayCard(card, egs.cardSelection, egs.resourceSelection));
-        }
+//        for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
+//            actions.add(new PlayCard(card, egs.cardSelection, egs.resourceSelection));
+//        }
 
         return actions;
     }
