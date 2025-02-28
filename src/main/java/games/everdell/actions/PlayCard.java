@@ -118,6 +118,8 @@ public class PlayCard extends AbstractAction {
             removeCard(state);
 
 
+            System.out.println("Current Card1 : "+ currentCard.getName());
+
             System.out.println("TRIGGER");
             //Apply Card Effect
             triggerCardEffect(state, currentCard);

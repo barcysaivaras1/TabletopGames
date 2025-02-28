@@ -44,7 +44,15 @@ public class CritterCard extends EverdellCard{
 
     @Override
     public CritterCard copy() {
-        CritterCard card = new CritterCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, componentID);
+        CritterCard card;
+        if(redDestinationLocation != null){
+            card = new CritterCard(redDestinationLocation ,null, null, null, false, false, 0, null, null, null, componentID);
+        }
+        else {
+            card = new CritterCard(null, null, null, false, false, 0, null, null, null, componentID);
+        }
+
+        super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }

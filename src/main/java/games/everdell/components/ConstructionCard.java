@@ -93,15 +93,31 @@ public class ConstructionCard extends EverdellCard{
         return cardsThatCanOccupy;
     }
 
+
+
+//    @Override
+//    public ConstructionCard copy() {
+//        if(redDestinationLocation != null){
+//            ConstructionCard card = new ConstructionCard(redDestinationLocation, getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+//            card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+//            return card;
+//        }
+//
+//        ConstructionCard card = new ConstructionCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+//        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+//        return card;
+//    }
     @Override
     public ConstructionCard copy() {
         if(redDestinationLocation != null){
-            ConstructionCard card = new ConstructionCard(redDestinationLocation, getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+            ConstructionCard card = new ConstructionCard(redDestinationLocation, null, null, null, false, false, 0, null, null,  null, cardsThatCanOccupy, componentID);
+            super.copyTo(card);
             card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
             return card;
         }
 
-        ConstructionCard card = new ConstructionCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
+        ConstructionCard card = new ConstructionCard(null, null, null, false, false, 0, null, null,  null, cardsThatCanOccupy, componentID);
+        super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }

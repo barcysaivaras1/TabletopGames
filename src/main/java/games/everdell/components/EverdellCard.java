@@ -16,14 +16,14 @@ import java.util.function.Function;
 public class EverdellCard extends Card {
 
 
-    private final String name;
-    private final CardDetails cardEnumValue;
-    private final CardType cardType;
-    private final boolean isConstruction;
+    private  String name;
+    private  CardDetails cardEnumValue;
+    private  CardType cardType;
+    private  boolean isConstruction;
     private int points;
-    private final HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
+    private  HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
 
-    private final Function<EverdellGameState, Boolean> applyCardEffect;
+    private  Function<EverdellGameState, Boolean> applyCardEffect;
     public Consumer<EverdellGameState> removeCardEffect;
 
     private boolean isCardPayedFor;
@@ -59,18 +59,33 @@ public class EverdellCard extends Card {
         isCardPayedFor = false;
     }
 
+
+    public void copyTo(EverdellCard card){
+        card.name = this.name;
+        card.cardType = this.cardType;
+        card.isConstruction = this.isConstruction;
+        card.cardEnumValue = this.cardEnumValue;
+        card.points = this.points;
+        card.resourceCost = this.resourceCost;
+        card.applyCardEffect = this.applyCardEffect;
+        card.removeCardEffect = this.removeCardEffect;
+        card.isUnique = this.isUnique;
+        card.isCardPayedFor = this.isCardPayedFor;
+    }
     @Override
     public EverdellCard copy() {
-        if(this instanceof ConstructionCard){
-            ConstructionCard card = (ConstructionCard) copy();
-            card.roundCardWasBought = -1;
-            return card;
-        }
-        else {
-            CritterCard card = (CritterCard) copy();
-            card.roundCardWasBought = -1;
-            return card;
-        }
+//
+//        if(this instanceof ConstructionCard){
+//            ConstructionCard card = (ConstructionCard) copy();
+//            card.roundCardWasBought = -1;
+//            return card;
+//        }
+//        else {
+//            CritterCard card = (CritterCard) copy();
+//            card.roundCardWasBought = -1;
+//            return card;
+//        }
+        return this;
     }
 
 

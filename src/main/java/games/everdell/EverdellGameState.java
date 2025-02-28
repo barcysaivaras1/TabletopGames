@@ -63,6 +63,20 @@ public class EverdellGameState extends AbstractGameState {
 
 
 
+    //METRICS TRACKING
+
+    //Track cards that have been placed
+    //Track cards that have been removed from the village
+    //Track cards that have been played via occupation
+    //Track locations that have been claimed
+    //Track what turn each player moves seasons
+    //Track the number of times the haven location is used
+    //Track the number of times basic and special events are claimed
+    //Track how much different types of cards are used i.e green production, blue governance
+    //Track which resources are gained, is pebble the most popular etc.
+
+
+
 
 
     public EverdellGameState(AbstractParameters gameParameters, int nPlayers) {
