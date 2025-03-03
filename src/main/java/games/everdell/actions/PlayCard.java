@@ -73,7 +73,6 @@ public class PlayCard extends AbstractAction {
             resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
         }
         System.out.println("Card ID : "+currentCardID);
-        state.printAllComponents();
 
         if(currentCard instanceof FoolCard){
             //Fool Card has a special case where the player must select a player to give the card to

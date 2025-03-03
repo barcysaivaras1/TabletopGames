@@ -19,7 +19,14 @@ public class ShepherdCard extends CritterCard{
 
         beforePR = new Counter();
         afterPR = new Counter();
-       }
+    }
+
+    private ShepherdCard(String name, int compID, int selectedPlayer, Counter beforePR, Counter afterPR) {
+        super(name, compID);
+        this.selectedPlayer = selectedPlayer;
+        this.beforePR = beforePR;
+        this.afterPR = afterPR;
+    }
 
 
     public void applyCardEffect(EverdellGameState state) {
@@ -53,6 +60,15 @@ public class ShepherdCard extends CritterCard{
     //Berries before
     public void setBeforePR(int berryCount){
         beforePR.increment(berryCount);
+    }
+
+    @Override
+    public ShepherdCard copy() {
+        ShepherdCard card;
+        card = new ShepherdCard(getName(), componentID, selectedPlayer, beforePR.copy(), afterPR.copy());
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }

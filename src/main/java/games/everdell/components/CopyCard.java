@@ -18,6 +18,11 @@ public class CopyCard extends CritterCard{
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
+    private CopyCard(String name, int compID, EverdellCard cardToCopy) {
+        super(name, compID);
+        this.cardToCopy = cardToCopy;
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
 
@@ -48,5 +53,15 @@ public class CopyCard extends CritterCard{
     }
     public EverdellCard getCardToCopy(){
         return cardToCopy;
+    }
+
+
+    @Override
+    public CopyCard copy() {
+        CopyCard card;
+        card = new CopyCard(getName(), componentID, cardToCopy.copy());
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

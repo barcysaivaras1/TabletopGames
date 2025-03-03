@@ -20,6 +20,10 @@ public class MonasteryCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
+    private MonasteryCard(String name, int compID, int selectedPlayer, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+        super(name, compID);
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
@@ -76,6 +80,15 @@ public class MonasteryCard extends ConstructionCard{
     public void setPlayers(int selectedPlayer){
         this.selectedPlayer = selectedPlayer;
 
+    }
+
+    @Override
+    public MonasteryCard copy() {
+        MonasteryCard card;
+        card = new MonasteryCard(getName(), componentID, selectedPlayer, location.copy(), rdl);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }

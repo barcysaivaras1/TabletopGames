@@ -18,6 +18,14 @@ public class DungeonCard extends ConstructionCard{
     public DungeonCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
     }
+    private DungeonCard(String name, int compID, boolean secondCellUnlocked, CritterCard cell1, CritterCard cell2, boolean canDiscount) {
+        super(name, compID);
+        this.secondCellUnlocked = secondCellUnlocked;
+        this.cell1 = cell1;
+        this.cell2 = cell2;
+        this.canDiscount = canDiscount;
+    }
+
 
 
     public void applyCardEffect(EverdellGameState state) {
@@ -88,9 +96,19 @@ public class DungeonCard extends ConstructionCard{
     }
 
     public void unlockSecondCell(){
-
+        secondCellUnlocked = true;
     }
 
     public void lockSecondCell(){
+        secondCellUnlocked = false;
+    }
+
+    @Override
+    public DungeonCard copy() {
+        DungeonCard card;
+        card = new DungeonCard(getName(), componentID, secondCellUnlocked, cell1.copy(), cell2.copy(), canDiscount);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

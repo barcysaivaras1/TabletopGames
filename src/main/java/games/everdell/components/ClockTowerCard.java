@@ -16,6 +16,11 @@ public class ClockTowerCard extends ConstructionCard{
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
     }
 
+    private ClockTowerCard(String name, int compID, EverdellParameters.AbstractLocations locationSelected) {
+        super(name, compID);
+        this.locationSelected = locationSelected;
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         if(locationSelected == null){
@@ -35,6 +40,16 @@ public class ClockTowerCard extends ConstructionCard{
 
     public void selectLocation(EverdellParameters.AbstractLocations location) {
         locationSelected = location;
+    }
+
+    @Override
+    public ClockTowerCard copy() {
+        ClockTowerCard card;
+        card = new ClockTowerCard(getName(), componentID, locationSelected);
+
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }

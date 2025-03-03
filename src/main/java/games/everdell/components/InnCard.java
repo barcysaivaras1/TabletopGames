@@ -22,6 +22,10 @@ public class InnCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
+    private InnCard(String name, int compID, int playerOwner, int occupyingPlayer, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+        super(name, compID);
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         //This means they are placing the card, we can assign the playerOwner
@@ -69,5 +73,14 @@ public class InnCard extends ConstructionCard{
     //Players NEED to be set before the location EFFECT is called
     public void setPlayers(int occupyingPlayer){
         this.occupyingPlayer = occupyingPlayer;
+    }
+
+    @Override
+    public InnCard copy() {
+        InnCard card;
+        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer, location.copy(), rdl);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

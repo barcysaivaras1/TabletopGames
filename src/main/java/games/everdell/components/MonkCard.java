@@ -17,6 +17,11 @@ public class MonkCard extends CritterCard{
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
+    private MonkCard(String name, int compID, int selectedPlayer) {
+        super(name, compID);
+        this.selectedPlayer = selectedPlayer;
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonasteryCard).forEach(c -> {
@@ -47,6 +52,15 @@ public class MonkCard extends CritterCard{
     public void removeCardEffect(EverdellGameState state) {
         MonasteryCard mc = (MonasteryCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonasteryCard).findFirst().get();
         mc.lockSecondLocation();
+    }
+
+    @Override
+    public MonkCard copy() {
+        MonkCard card;
+        card = new MonkCard(getName(), componentID, selectedPlayer);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 

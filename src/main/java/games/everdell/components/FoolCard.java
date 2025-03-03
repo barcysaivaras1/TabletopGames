@@ -17,6 +17,10 @@ public class FoolCard extends CritterCard{
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
+    private FoolCard(String name, int compID, int selectedPlayer) {
+        super(name, compID);
+        this.selectedPlayer = selectedPlayer;
+    }
 
     public void applyCardEffect(EverdellGameState state) {
         //The player must place this card in another players village
@@ -30,5 +34,14 @@ public class FoolCard extends CritterCard{
 
     public int getSelectedPlayer(){
         return selectedPlayer;
+    }
+
+    @Override
+    public FoolCard copy() {
+        FoolCard card;
+        card = new FoolCard(getName(), componentID, selectedPlayer);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

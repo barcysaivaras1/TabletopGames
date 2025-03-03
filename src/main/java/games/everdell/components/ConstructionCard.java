@@ -36,13 +36,15 @@ public class ConstructionCard extends EverdellCard{
     }
 
     //Copy constructors
-    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
-        this.cardsThatCanOccupy = cardsThatCanOccupy;
-        isOccupied = false;
+    public ConstructionCard(String name, int compID) {
+        super(name, compID);
     }
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, compID);
+    public ConstructionCard(ArrayList<CardDetails> cardsThatCanOccupy, String name, int compID) {
+        super(name, compID);
+        this.cardsThatCanOccupy = cardsThatCanOccupy;
+    }
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+        super(name, compID);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
 
@@ -94,29 +96,24 @@ public class ConstructionCard extends EverdellCard{
     }
 
 
+    public void copyTo(ConstructionCard card){
+        ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
+        if(redDestinationLocation != null){
+            card.redDestinationLocation = this.redDestinationLocation;
+        }
+        card.cardsThatCanOccupy = cardsThatCanOccupy;
+        super.copyTo(card);
+    }
 
-//    @Override
-//    public ConstructionCard copy() {
-//        if(redDestinationLocation != null){
-//            ConstructionCard card = new ConstructionCard(redDestinationLocation, getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
-//            card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
-//            return card;
-//        }
-//
-//        ConstructionCard card = new ConstructionCard(getName(), getCardEnumValue(), getCardType(), isConstruction(), isUnique(), getPoints(), getResourceCost(), getApplyCardEffect(), removeCardEffect, cardsThatCanOccupy, componentID);
-//        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
-//        return card;
-//    }
     @Override
     public ConstructionCard copy() {
+        ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
+        ConstructionCard card;
         if(redDestinationLocation != null){
-            ConstructionCard card = new ConstructionCard(redDestinationLocation, null, null, null, false, false, 0, null, null,  null, cardsThatCanOccupy, componentID);
-            super.copyTo(card);
-            card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
-            return card;
+            card = new ConstructionCard(redDestinationLocation, getName(), cardsThatCanOccupy, componentID);
+        }else{
+            card = new ConstructionCard(cardsThatCanOccupy, getName(), componentID);
         }
-
-        ConstructionCard card = new ConstructionCard(null, null, null, false, false, 0, null, null,  null, cardsThatCanOccupy, componentID);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

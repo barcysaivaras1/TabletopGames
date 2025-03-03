@@ -17,6 +17,15 @@ public class CemeteryCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
+    //Copy Constructor
+    private CemeteryCard(String name, int compID, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+        super(name, compID);
+        this.location = location;
+        this.rdl = rdl;
+    }
+
+
+
 
     public void applyCardEffect(EverdellGameState state) {
         this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
@@ -55,6 +64,16 @@ public class CemeteryCard extends ConstructionCard{
 
     public void lockSecondLocation(){
         location.setNumberOfSpaces(1);
+    }
+
+    @Override
+    public CemeteryCard copy() {
+        CemeteryCard card;
+        card = new CemeteryCard(getName(), componentID, location.copy(), rdl);
+
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }

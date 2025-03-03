@@ -26,6 +26,15 @@ public class PostOfficeCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
+    private PostOfficeCard(String name, int compID, int playerOwner, int selectedPlayer, int occupyingPlayer, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+        super(name, compID);
+        this.playerOwner = playerOwner;
+        this.selectedPlayer = selectedPlayer;
+        this.occupyingPlayer = occupyingPlayer;
+        this.location = location;
+        this.rdl = rdl;
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         //This means they are placing the card, we can assign the playerOwner
@@ -93,6 +102,15 @@ public class PostOfficeCard extends ConstructionCard{
         this.selectedPlayer = selectedPlayer;
         this.occupyingPlayer = occupyingPlayer;
 
+    }
+
+    @Override
+    public PostOfficeCard copy() {
+        PostOfficeCard card;
+        card = new PostOfficeCard(getName(), componentID, playerOwner, selectedPlayer, occupyingPlayer, location.copy(), rdl);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 

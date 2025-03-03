@@ -18,15 +18,18 @@ public class PeddlerCard extends CritterCard {
         resourcesToLose = new HashMap<>();
         resourcesToGain = new HashMap<>();
 
-        resourcesToGain.put(EverdellParameters.ResourceTypes.BERRY, new Counter());
-        resourcesToGain.put(EverdellParameters.ResourceTypes.TWIG, new Counter());
-        resourcesToGain.put(EverdellParameters.ResourceTypes.RESIN, new Counter());
-        resourcesToGain.put(EverdellParameters.ResourceTypes.PEBBLE, new Counter());
+        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
+            resourcesToGain.put(rt, new Counter());
+        }
+        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
+            resourcesToLose.put(rt, new Counter());
+        }
+    }
 
-        resourcesToLose.put(EverdellParameters.ResourceTypes.BERRY, new Counter());
-        resourcesToLose.put(EverdellParameters.ResourceTypes.TWIG, new Counter());
-        resourcesToLose.put(EverdellParameters.ResourceTypes.RESIN, new Counter());
-        resourcesToLose.put(EverdellParameters.ResourceTypes.PEBBLE, new Counter());
+    private PeddlerCard(String name, int compID, HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose, HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain) {
+        super(name, compID);
+        this.resourcesToLose = resourcesToLose;
+        this.resourcesToGain = resourcesToGain;
     }
 
     public void applyCardEffect(EverdellGameState state) {
@@ -80,5 +83,23 @@ public class PeddlerCard extends CritterCard {
         for (EverdellParameters.ResourceTypes rt : rtg.keySet()) {
             resourcesToGain.get(rt).increment(rtg.get(rt).getValue());
         }
+    }
+
+    @Override
+    public PeddlerCard copy() {
+        PeddlerCard card;
+
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose = new HashMap<>();
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain = new HashMap<>();
+        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
+            resourcesToGain.put(rt, new Counter());
+        }
+        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
+            resourcesToLose.put(rt, new Counter());
+        }
+        card = new PeddlerCard(getName(), componentID, resourcesToLose, resourcesToGain);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 }

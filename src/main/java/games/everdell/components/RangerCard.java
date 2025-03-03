@@ -17,6 +17,11 @@ public class RangerCard extends CritterCard{
     public RangerCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
+    private RangerCard(String name, int compID, EverdellLocation locationFrom, EverdellLocation locationTo) {
+        super(name, compID);
+        this.locationFrom = locationFrom;
+        this.locationTo = locationTo;
+    }
 
 
     public void applyCardEffect(EverdellGameState state) {
@@ -54,6 +59,15 @@ public class RangerCard extends CritterCard{
     public void removeCardEffect(EverdellGameState state) {
         DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
         dc.lockSecondCell();
+    }
+
+    @Override
+    public RangerCard copy() {
+        RangerCard card;
+        card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class EverdellCard extends Card {
+public abstract class EverdellCard extends Card {
 
 
     private  String name;
@@ -45,6 +45,7 @@ public class EverdellCard extends Card {
         this.isUnique = isUnique;
         isCardPayedFor = false;
     }
+
     protected EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
         super(name, id);
         this.name = name;
@@ -57,6 +58,9 @@ public class EverdellCard extends Card {
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
         isCardPayedFor = false;
+    }
+    public EverdellCard(String name, int compID) {
+        super(name,compID);
     }
 
 
@@ -74,17 +78,6 @@ public class EverdellCard extends Card {
     }
     @Override
     public EverdellCard copy() {
-//
-//        if(this instanceof ConstructionCard){
-//            ConstructionCard card = (ConstructionCard) copy();
-//            card.roundCardWasBought = -1;
-//            return card;
-//        }
-//        else {
-//            CritterCard card = (CritterCard) copy();
-//            card.roundCardWasBought = -1;
-//            return card;
-//        }
         return this;
     }
 

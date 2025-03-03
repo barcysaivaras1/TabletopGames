@@ -17,6 +17,12 @@ public class WifeCard extends CritterCard{
         husband = null;
         increasedMaxSize = false;
     }
+    
+    private WifeCard(String name, int compID, HusbandCard husband, boolean increasedMaxSize) {
+        super(name, compID);
+        this.husband = husband;
+        this.increasedMaxSize = increasedMaxSize;
+    }
 
 
     public void applyCardEffect(EverdellGameState state) {
@@ -69,4 +75,12 @@ public class WifeCard extends CritterCard{
         this.husband = husband;
     }
 
+    @Override
+    public WifeCard copy() {
+        WifeCard card;
+        card = new WifeCard(getName(), componentID, husband.copy(), increasedMaxSize);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
+    }
 }

@@ -13,6 +13,7 @@ import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.components.EverdellLocation;
+import games.everdell.gui.EverdellGUIManager;
 import games.tictactoe.TicTacToeGameState;
 import games.uno.UnoGameState;
 
@@ -265,26 +266,20 @@ public class EverdellForwardModel extends StandardForwardModel {
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
+        //Basic Locations
+        for(EverdellLocation location : egs.Locations.values()){
+            if(location.getAbstractLocation() instanceof BasicLocations){
 
-        //Problem 2
-//        System.out.println("Computing Available Actions");
-//        System.out.println("Current Player: "+egs.getCurrentPlayer());
-//        //Basic Locations
-//        for(EverdellLocation location : egs.Locations.values()){
-//            if(location.getAbstractLocation() instanceof BasicLocations){
-//
-//                if(location.isLocationFreeForPlayer(gameState)){
-//
-//                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
-//                        actions.add(new PlaceWorker(location.getComponentID(), egs.cardSelection, egs.resourceSelection));
-//                    }
-//                }
-//            }
-//        }
+                if(location.isLocationFreeForPlayer(gameState)){
+
+                    if(egs.workers[egs.getCurrentPlayer()].getValue() > 0){
+                        actions.add(new PlaceWorker(location.getComponentID(), egs.cardSelection, egs.resourceSelection));
+                    }
+                }
+            }
+        }
 
 
-
-        //Problem 3
         //Card Decisions
 
         //Iterate Over the player hands and add the PlayCard action for each card
@@ -309,16 +304,32 @@ public class EverdellForwardModel extends StandardForwardModel {
     protected void _afterAction(AbstractGameState currentState, AbstractAction action) {
         System.out.println("After Action");
         endPlayerTurn(currentState);
+
+
+        //Can I end the game for a specific player?
+        if(checkEndForPlayer((EverdellGameState) currentState)){
+            System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
+            currentState.setPlayerResult(GAME_END, currentState.getCurrentPlayer());
+            endPlayerTurn(currentState);
+        }
+
         if(checkEnd((EverdellGameState) currentState)){
             System.out.println("Game End");
             currentState.setGameStatus(GAME_END);
         }
     }
 
+    private boolean checkEndForPlayer(EverdellGameState state){
+        if(state.workers[state.getCurrentPlayer()].getValue() > 0 || state.playerHands.get(state.getCurrentPlayer()).getSize() > 0){
+            return false;
+        }
+        return true;
+    }
+
 
     private boolean checkEnd(EverdellGameState state){
         for (int i = 0; i < state.getNPlayers(); i++) {
-            if (state.workers[i].getValue() > 0) {
+            if (state.workers[i].getValue() > 0 || state.playerHands.get(i).getSize() > 0) {
                 return false;
             }
         }

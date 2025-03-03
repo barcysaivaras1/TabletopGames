@@ -16,6 +16,11 @@ public class TeacherCard extends CritterCard{
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
+    private TeacherCard(String name, int compID, int selectedPlayer) {
+        super(name, compID);
+        this.selectedPlayer = selectedPlayer;
+    }
+
 
     public void applyCardEffect(EverdellGameState state) {
         //The player draw 2 cards from the deck, and then gives 1 card to another player
@@ -45,6 +50,15 @@ public class TeacherCard extends CritterCard{
     //Before placing the card, the player must select a player to give berries to
     public void setSelectedPlayer(int selectedPlayer){
         this.selectedPlayer = selectedPlayer;
+    }
+
+    @Override
+    public TeacherCard copy() {
+        TeacherCard card;
+        card = new TeacherCard(getName(), componentID, selectedPlayer);
+        super.copyTo(card);
+        card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
+        return card;
     }
 
 }
