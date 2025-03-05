@@ -58,15 +58,7 @@ public class PlaceWorker extends AbstractAction {
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
-        System.out.println("Placing Worker in LocationID : " + locationComponentID);
-        System.out.println("List of all Locations and their IDs");
-        for (var location : state.Locations.entrySet()) {
-            System.out.println(location.getKey() + " : " + location.getValue() + " : " + location.getValue().getComponentID());
-        }
-        state.printAllComponents();
-        System.out.println("Component : "+state.getComponentById(locationComponentID));
         EverdellParameters.AbstractLocations locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID)).getAbstractLocation();
-
 
 
         //Check if this location is free

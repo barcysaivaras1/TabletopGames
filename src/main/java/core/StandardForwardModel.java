@@ -95,7 +95,7 @@ public abstract class StandardForwardModel extends AbstractForwardModel {
         int turnOwner = gs.turnOwner;
         do {
             turnOwner = (turnOwner + 1) % gs.nPlayers;
-            if (turnOwner == gs.turnOwner) {
+            if (turnOwner == gs.turnOwner && !gs.isNotTerminalForPlayer(turnOwner)) {
                 throw new AssertionError("Infinite loop - apparently all players are terminal, but game state is not. " +
                         "Last action played: " + gs.getHistory().get(gs.getHistory().size() - 1));
             }

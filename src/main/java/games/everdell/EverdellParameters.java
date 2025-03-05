@@ -1596,7 +1596,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 70);
+        put(CardDetails.FARM, 0);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
@@ -1614,7 +1614,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.SCHOOL, 0);
         put(CardDetails.BARD, 0);
         put(CardDetails.RUINS, 0);
-        put(CardDetails.WOOD_CARVER, 0);
+        put(CardDetails.WOOD_CARVER, 70);
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);

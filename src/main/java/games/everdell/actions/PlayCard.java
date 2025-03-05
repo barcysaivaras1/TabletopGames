@@ -52,7 +52,7 @@ public class PlayCard extends AbstractAction {
     public PlayCard(int cardID, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues){
 //        currentCard = card;
         this.cardSelectionID = new ArrayList<>(cardSelectionID);
-        this.resourceSelectionValues = new HashMap<>(resourceSelectionValues);
+        this.resourceSelectionValues = resourceSelectionValues;
         currentCardID = cardID;
     }
 
@@ -61,6 +61,8 @@ public class PlayCard extends AbstractAction {
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
+
+        System.out.println("Play Card Resources : "+resourceSelectionValues);
 
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
@@ -117,22 +119,19 @@ public class PlayCard extends AbstractAction {
             removeCard(state);
 
 
-            System.out.println("Current Card1 : "+ currentCard.getName());
-
             System.out.println("TRIGGER");
             //Apply Card Effect
             triggerCardEffect(state, currentCard);
 
 
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
-            System.out.println("You have placed a card : "+currentCard);
 
             state.cardSelection.clear();
             for(var resource : state.resourceSelection.keySet()){
                 state.resourceSelection.put(resource, new Counter());
             }
 
-            System.out.println("This is the max village size "+state.villageMaxSize[state.getCurrentPlayer()].getValue());;
+            //System.out.println("This is the max village size "+state.villageMaxSize[state.getCurrentPlayer()].getValue());;
 
             return true;
         }

@@ -16,6 +16,7 @@ import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
 import games.tictactoe.TicTacToeGameState;
 import games.uno.UnoGameState;
+import shapeless.ops.nat;
 
 import java.util.*;
 
@@ -197,6 +198,9 @@ public class EverdellForwardModel extends StandardForwardModel {
         for (int i = 0; i < state.getNPlayers(); i++) {
 
             state.PlayerResources.get(ResourceTypes.TWIG)[i] = new Counter();
+            //TEST
+            state.PlayerResources.get(ResourceTypes.TWIG)[i].increment(10);
+            //******
             state.PlayerResources.get(ResourceTypes.PEBBLE)[i] = new Counter();
             state.PlayerResources.get(ResourceTypes.BERRY)[i] = new Counter();
             state.PlayerResources.get(ResourceTypes.RESIN)[i] = new Counter();
@@ -290,9 +294,18 @@ public class EverdellForwardModel extends StandardForwardModel {
             }
             HashMap<ResourceTypes, Integer> rsID = new HashMap<>();
             for (Map.Entry<ResourceTypes, Counter> entry : egs.resourceSelection.entrySet()){
-                rsID.put(entry.getKey(), entry.getValue().getComponentID());
+                rsID.put(entry.getKey(), entry.getValue().getValue());
             }
-            actions.add(new PlayCard(card.getComponentID(), csID, rsID));
+            //Cards with Additional Actions
+            if(card.getCardEnumValue() == EverdellParameters.CardDetails.WOOD_CARVER){
+                //Add the action for all amount selections
+                for(int i = 0; i <= Math.min(3, egs.PlayerResources.get(ResourceTypes.TWIG)[egs.getCurrentPlayer()].getValue()); i++){
+                    actions.add(new AmountSelect(card.getComponentID(), csID, rsID, i, ResourceTypes.TWIG));
+                }
+            }else{
+                //Cards with No Additional Actions
+                actions.add(new PlayCard(card.getComponentID(), csID, rsID));
+            }
         }
         System.out.println("List of Actions: "+actions);
 
@@ -302,21 +315,16 @@ public class EverdellForwardModel extends StandardForwardModel {
 
     @Override
     protected void _afterAction(AbstractGameState currentState, AbstractAction action) {
-        System.out.println("After Action");
-        endPlayerTurn(currentState);
-
-
-        //Can I end the game for a specific player?
         if(checkEndForPlayer((EverdellGameState) currentState)){
             System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
             currentState.setPlayerResult(GAME_END, currentState.getCurrentPlayer());
-            endPlayerTurn(currentState);
         }
-
         if(checkEnd((EverdellGameState) currentState)){
             System.out.println("Game End");
-            currentState.setGameStatus(GAME_END);
+            endGame(currentState);
+            return;
         }
+        endPlayerTurn(currentState);
     }
 
     private boolean checkEndForPlayer(EverdellGameState state){
