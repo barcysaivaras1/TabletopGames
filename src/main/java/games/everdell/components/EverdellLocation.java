@@ -17,7 +17,6 @@ import java.util.function.Function;
 
 public class EverdellLocation extends Component {
 
-    boolean shared;
     int numberOfSpaces;
     //boolean occupied;
     boolean canTheSamePlayerBeOnLocationMultipleTimes;
@@ -32,7 +31,6 @@ public class EverdellLocation extends Component {
     public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect){
         super(CoreConstants.ComponentType.LOCATION);
         this.location = location;
-        //this.shared = shared;
         this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
         this.playersOnLocation = new ArrayList<>();
@@ -58,7 +56,6 @@ public class EverdellLocation extends Component {
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
         boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
-        System.out.println("isThereSpace at "+location+": " + isThereSpace);
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 

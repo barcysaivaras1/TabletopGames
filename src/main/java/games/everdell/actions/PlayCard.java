@@ -62,8 +62,7 @@ public class PlayCard extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
 
-        System.out.println("Play Card Resources : "+resourceSelectionValues);
-
+        System.out.println("Executing Play Card Action");
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
@@ -74,7 +73,6 @@ public class PlayCard extends AbstractAction {
         for(var resource : resourceSelectionValues.keySet()){
             resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
         }
-        System.out.println("Card ID : "+currentCardID);
 
         if(currentCard instanceof FoolCard){
             //Fool Card has a special case where the player must select a player to give the card to
@@ -119,7 +117,6 @@ public class PlayCard extends AbstractAction {
             removeCard(state);
 
 
-            System.out.println("TRIGGER");
             //Apply Card Effect
             triggerCardEffect(state, currentCard);
 
@@ -156,11 +153,8 @@ public class PlayCard extends AbstractAction {
         state.resourceSelection = resourceSelection;
 
         System.out.println("Triggering Card Effect");
-        System.out.println("Card Selected : "+currentCard.getName());
-        System.out.println("Card is Construction : "+currentCard.isConstruction());
 
         if(state.currentCard instanceof ConstructionCard cc){
-            System.out.println("Construction Card");
             cc.applyCardEffect(state);
         }
         else{
@@ -180,7 +174,6 @@ public class PlayCard extends AbstractAction {
             if (c instanceof ConstructionCard) {
                 //Can the card occupy this construction
                 if(((ConstructionCard) c).canCardOccupyThis(state, cardToCheck)){
-                    System.out.println("A card can occupy this");
                     cardsThatCanOccupy.add(c);
                 }
             }
@@ -195,14 +188,10 @@ public class PlayCard extends AbstractAction {
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
 
-        System.out.println("Removing card");
-        System.out.println("Card Selected : "+currentCard.getName());
-
 
         if(!state.playerHands.get(state.getCurrentPlayer()).remove(currentCard)){
             state.meadowDeck.remove(currentCard);
             if(state.meadowDeck.getSize() < state.meadowDeck.getCapacity()) {
-                System.out.println("Card was in the meadow");
                 state.meadowDeck.add(state.cardDeck.draw());
             }
         }
@@ -226,7 +215,6 @@ public class PlayCard extends AbstractAction {
                 return true;
             }
             if(card.getCardEnumValue() == CardDetails.HISTORIAN){
-                System.out.println("Historian");
                 //Trigger Historian effect
                 triggerCardEffect(state, card);
                 return true;
@@ -255,7 +243,7 @@ public class PlayCard extends AbstractAction {
         return false;
     }
 
-    private Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state){
+    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state){
         //Check if the player has this Unique card in their village
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         if(currentCard.isUnique()){
@@ -270,9 +258,8 @@ public class PlayCard extends AbstractAction {
 
     public Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
         //Check if the player has enough resources to buy the card
-        System.out.println("Current Card ID : "+currentCardID);
-        System.out.println("Current Card : "+state.getComponentById(currentCardID));
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
+        System.out.println("The current card is : "+currentCard.getName());
 
         //The card can be paid with occupation.
         if(currentCard.isCardPayedFor()){

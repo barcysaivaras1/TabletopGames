@@ -9,8 +9,10 @@ import games.everdell.EverdellParameters.Seasons;
 import games.everdell.components.ConstructionCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
+import org.apache.spark.sql.sources.In;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * <p>Actions are unit things players can do in the game (e.g. play a card, move a pawn, roll dice, attack etc.).</p>
@@ -37,10 +39,14 @@ public class MoveSeason extends AbstractAction {
      * @return - true if successfully executed, false otherwise.
      */
 
-    ArrayList<EverdellCard> cardSelection;
+    private ArrayList<Integer> cardSelectionID;
 
-    public MoveSeason(ArrayList<EverdellCard> cardSelection){
-        this.cardSelection = cardSelection;
+
+    //String printout value
+    private String seasonName;
+
+    public MoveSeason(ArrayList<Integer> cardSelection){
+        this.cardSelectionID = cardSelection;
     }
 
     //This will need to have unique effects implemented each season
@@ -54,6 +60,11 @@ public class MoveSeason extends AbstractAction {
         // TODO: Some functionality applied which changes the given game state.
 
         EverdellGameState state = (EverdellGameState) gs;
+
+        ArrayList<EverdellCard> cardSelection = new ArrayList<>();
+        for (var id : cardSelectionID){
+            cardSelection.add((EverdellCard) state.getComponentById(id));
+        }
 
         if (state.workers[state.getCurrentPlayer()].getValue() == 0 && state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN) {
             state.cardSelection = cardSelection;
@@ -96,9 +107,12 @@ public class MoveSeason extends AbstractAction {
                         continue;
                     }
 
+                    System.out.println("Players on Location : "+state.Locations.get(location).playersOnLocation);
                     //If player is on the location, remove them and increment their workers
-                    state.Locations.get(location).playersOnLocation.remove(state.getCurrentPlayer());
-                    state.workers[state.getCurrentPlayer()].increment();
+                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer())){
+                        state.Locations.get(location).playersOnLocation.remove((Integer)state.getCurrentPlayer());
+                        state.workers[state.getCurrentPlayer()].increment();
+                    }
                 }
 
                 return true;
@@ -132,6 +146,11 @@ public class MoveSeason extends AbstractAction {
     public void summerEvent(EverdellGameState state){
         //Take cards from meadow and place in player hand
         //It is assumed that the player has space in their hand
+
+        ArrayList<EverdellCard> cardSelection = new ArrayList<>();
+        for (var id : cardSelectionID){
+            cardSelection.add((EverdellCard) state.getComponentById(id));
+        }
         for(var c : cardSelection){
             state.playerHands.get(state.getCurrentPlayer()).add(c);
             state.cardCount[state.getCurrentPlayer()].increment();
@@ -154,21 +173,21 @@ public class MoveSeason extends AbstractAction {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        // TODO: compare all other variables in the class
-        return obj instanceof EverdellAction;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MoveSeason that = (MoveSeason) o;
+        return Objects.equals(cardSelectionID, that.cardSelectionID);
     }
 
     @Override
     public int hashCode() {
-        // TODO: return the hash of all other variables in the class
-        return 0;
+        return Objects.hashCode(cardSelectionID);
     }
 
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "My action name";
+        return "Moving to Season : "+seasonName;
     }
 
     /**
@@ -179,6 +198,7 @@ public class MoveSeason extends AbstractAction {
      */
     @Override
     public String getString(AbstractGameState gameState) {
+        seasonName = ((EverdellGameState) gameState).currentSeason[((EverdellGameState) gameState).getCurrentPlayer()].toString();
         return toString();
     }
 

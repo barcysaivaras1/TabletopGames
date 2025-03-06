@@ -1158,8 +1158,14 @@ public class BottomPanel extends JPanel {
                     button.addActionListener(k -> {
                         SpecialEvent event = (SpecialEvent) location;
                         if (event.checkIfConditionMet.apply(state)) {
-                            new PlaceWorker(state.Locations.get(location).getComponentID(), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
-                            everdellGUIManager.redrawPanels();
+                            if(copyMode){
+                                copyAction.accept(event);
+                                everdellGUIManager.redrawPanels();
+                            }
+                            else {
+                                new PlaceWorker(state.Locations.get(location).getComponentID(), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                everdellGUIManager.redrawPanels();
+                            }
                         }
                     });
                 }

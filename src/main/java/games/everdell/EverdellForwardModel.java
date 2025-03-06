@@ -16,6 +16,7 @@ import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
 import games.tictactoe.TicTacToeGameState;
 import games.uno.UnoGameState;
+import gui.GUI;
 import shapeless.ops.nat;
 
 import java.util.*;
@@ -270,6 +271,16 @@ public class EverdellForwardModel extends StandardForwardModel {
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
+
+        ArrayList<Integer> csID = new ArrayList<>();
+        for (EverdellCard c : egs.cardSelection){
+            csID.add(c.getComponentID());
+        }
+        HashMap<ResourceTypes, Integer> rsID = new HashMap<>();
+        for (Map.Entry<ResourceTypes, Counter> entry : egs.resourceSelection.entrySet()){
+            rsID.put(entry.getKey(), entry.getValue().getValue());
+        }
+
         //Basic Locations
         for(EverdellLocation location : egs.Locations.values()){
             if(location.getAbstractLocation() instanceof BasicLocations){
@@ -288,26 +299,29 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         //Iterate Over the player hands and add the PlayCard action for each card
         for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer())){
-            ArrayList<Integer> csID = new ArrayList<>();
-            for (EverdellCard c : egs.cardSelection){
-                csID.add(c.getComponentID());
-            }
-            HashMap<ResourceTypes, Integer> rsID = new HashMap<>();
-            for (Map.Entry<ResourceTypes, Counter> entry : egs.resourceSelection.entrySet()){
-                rsID.put(entry.getKey(), entry.getValue().getValue());
+            PlayCard playCardAction = new PlayCard(card.getComponentID(), new ArrayList<>(), new HashMap<>());
+            if(!(playCardAction.checkIfPlayerCanBuyCard(egs) && playCardAction.checkIfPlayerCanPlaceThisUniqueCard(egs))){
+                continue;
             }
             //Cards with Additional Actions
             if(card.getCardEnumValue() == EverdellParameters.CardDetails.WOOD_CARVER){
                 //Add the action for all amount selections
-                for(int i = 0; i <= Math.min(3, egs.PlayerResources.get(ResourceTypes.TWIG)[egs.getCurrentPlayer()].getValue()); i++){
-                    actions.add(new AmountSelect(card.getComponentID(), csID, rsID, i, ResourceTypes.TWIG));
-                }
-            }else{
+                actions.addAll(new AmountSelect(card.getComponentID(), csID, rsID, 3, ResourceTypes.TWIG)._computeAvailableActions(egs));
+            }
+            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.DOCTOR){
+                //Add the action for all amount selections
+                actions.addAll(new AmountSelect(card.getComponentID(), csID, rsID, 3, ResourceTypes.BERRY)._computeAvailableActions(egs));
+            }
+            else{
                 //Cards with No Additional Actions
                 actions.add(new PlayCard(card.getComponentID(), csID, rsID));
             }
         }
         System.out.println("List of Actions: "+actions);
+
+        if(egs.workers[egs.getCurrentPlayer()].getValue() == 0 && egs.currentSeason[egs.getCurrentPlayer()] != EverdellParameters.Seasons.AUTUMN){
+            actions.add(new MoveSeason(csID));
+        }
 
         return actions;
     }
@@ -324,11 +338,13 @@ public class EverdellForwardModel extends StandardForwardModel {
             endGame(currentState);
             return;
         }
+
+
         endPlayerTurn(currentState);
     }
 
     private boolean checkEndForPlayer(EverdellGameState state){
-        if(state.workers[state.getCurrentPlayer()].getValue() > 0 || state.playerHands.get(state.getCurrentPlayer()).getSize() > 0){
+        if(!_computeAvailableActions(state).isEmpty()){
             return false;
         }
         return true;
@@ -337,7 +353,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
     private boolean checkEnd(EverdellGameState state){
         for (int i = 0; i < state.getNPlayers(); i++) {
-            if (state.workers[i].getValue() > 0 || state.playerHands.get(i).getSize() > 0) {
+            if (!_computeAvailableActions(state).isEmpty()) {
                 return false;
             }
         }

@@ -31,8 +31,13 @@ public class RangerCard extends CritterCard{
         //Placing a worker on a location would work outside of here, because the location might require GUI for a human player
         //For AI, extra steps would have to be taken to ensure the effects are triggered properly
 
-        DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
-        if(dc != null){
+        System.out.println("Applying Ranger Card Effect");
+        System.out.println("Ranger Location From: " + locationFrom);
+        System.out.println("Ranger Location To: " + locationTo);
+
+        boolean isThereDungeon = state.playerVillage.get(state.getCurrentPlayer()).stream().anyMatch(c -> c instanceof DungeonCard);
+        if(isThereDungeon){
+            DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
             dc.unlockSecondCell();
         }
 
@@ -49,9 +54,11 @@ public class RangerCard extends CritterCard{
 
     //Before placing the card, the player must select which locations to move between
     public void setLocationFrom(EverdellLocation locationFrom){
+        System.out.println("Setting Location From: " + locationFrom.getAbstractLocation());
         this.locationFrom = locationFrom;
     }
     public void setLocationTo(EverdellLocation locationTo){
+        System.out.println("Setting Location To: " + locationTo.getAbstractLocation());
         this.locationTo = locationTo;
     }
 
@@ -64,7 +71,19 @@ public class RangerCard extends CritterCard{
     @Override
     public RangerCard copy() {
         RangerCard card;
-        card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
+
+        if (locationFrom == null && locationTo == null) {
+            card = new RangerCard(getName(), componentID, null, null);
+        }
+        else if (locationTo == null) {
+            card = new RangerCard(getName(), componentID, locationFrom.copy(), null);
+        }
+        else {
+            card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
+        }
+        //card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
+
+        //Calls CritterCard copy
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

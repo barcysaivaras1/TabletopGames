@@ -24,9 +24,9 @@ public class FunctionWrapper {
     private static void executeFunction(Callable<Boolean> function) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Boolean> future = executor.submit(function);
+        printAllFunctions();
         functionsToRun.remove(function);
         functionDescription.remove(function);
-        printAllFunctions();
         try {
             if(!future.get()){
                 activateNextFunction();

@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ConstructionCard extends EverdellCard{
-    private Boolean isOccupied;
+    private boolean isOccupied;
     ArrayList<CardDetails> cardsThatCanOccupy;
 
     //RED DESTINATION VARIABLE

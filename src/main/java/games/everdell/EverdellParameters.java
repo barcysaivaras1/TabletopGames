@@ -14,6 +14,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -384,6 +385,7 @@ public class EverdellParameters extends AbstractParameters {
                     break;
                 }
             }
+            //Needs to Return hasCard, currently true for testing
             return true;
         }
 
@@ -423,7 +425,8 @@ public class EverdellParameters extends AbstractParameters {
                 if (TAN_TRAVELLER_Counter >= 2 && GREEN_PRODUCTION_Counter >= 2 && RED_DESTINATION_Counter >= 2 && BLUE_GOVERNANCE_Counter >= 2 && PURPLE_PROSPERITY_Counter >= 2) {
                     return true;
                 }
-                return false;
+                //SHOULD BE FALSE, TRUE FOR TESTING
+                return true;
 
             };
             THE_EVERDELL_GAMES.applyLocationEffect = (state) -> {
@@ -1596,7 +1599,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 0);
+        put(CardDetails.FARM, 50);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
@@ -1614,7 +1617,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.SCHOOL, 0);
         put(CardDetails.BARD, 0);
         put(CardDetails.RUINS, 0);
-        put(CardDetails.WOOD_CARVER, 70);
+        put(CardDetails.WOOD_CARVER, 0);
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
@@ -1638,7 +1641,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.SHEPHERD, 0);
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
-        put(CardDetails.RANGER, 0);
+        put(CardDetails.RANGER, 50);
         put(CardDetails.DUNGEON, 0);
         put(CardDetails.MINER_MOLE, 0);
     }};
@@ -1650,16 +1653,19 @@ public class EverdellParameters extends AbstractParameters {
         return this;
     }
 
+
+
+
     @Override
-    protected boolean _equals(Object o) {
-        // TODO: compare all variables.
-        return o instanceof EverdellParameters;
+    public boolean _equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        EverdellParameters that = (EverdellParameters) o;
+        return Objects.equals(cardColour, that.cardColour) && Objects.equals(everdellCardCount, that.everdellCardCount);
     }
 
     @Override
     public int hashCode() {
-        // TODO: include the hashcode of all variables.
-        return super.hashCode();
+        return Objects.hash(super.hashCode(), cardColour, everdellCardCount);
     }
-
 }

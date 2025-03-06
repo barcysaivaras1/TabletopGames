@@ -30,8 +30,10 @@ import core.components.Counter;
 import gui.IScreenHighlight;
 import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
 import org.apache.log4j.Layout;
+import org.apache.spark.sql.sources.In;
 import org.w3c.dom.css.RGBColor;
 import players.human.ActionController;
+import players.human.HumanGUIPlayer;
 import scala.collection.immutable.Stream;
 import shapeless.ops.function;
 import utilities.Hash;
@@ -599,7 +601,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
     private void changeSeason(EverdellGameState state){
         System.out.println("Changing Season");
-        new MoveSeason(cardSelection).execute(state);
+        ArrayList<Integer> csID = new ArrayList<>();
+        for(var c : cardSelection){
+            csID.add(c.getComponentID());
+        }
+        new MoveSeason(csID).execute(state);
 
         EverdellParameters.Seasons currentSeason = state.currentSeason[state.getCurrentPlayer()];
 
@@ -1145,9 +1151,10 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 state.workers[state.getCurrentPlayer()].increment();
 
                                 playerCardPanel.activateCopyMode(copyLocation -> {
-                                    rc.setLocationTo(state.Locations.get(copyLocation));
-                                    playCardActionWithComponentToIDConversion(state, rc, cardSelection, resourceSelection).execute(state);
+                                    System.out.println("Copy Mode Activated");
+                                    System.out.println("Copy Location : "+copyLocation);
 
+                                    rc.setLocationTo(state.Locations.get(copyLocation));
                                     playerCardPanel.deactivateCopyMode();
                                     redrawPanels();
 
@@ -1259,7 +1266,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         EverdellParameters.CardDetails cardPlaced = c.getCardEnumValue();
 
 
-        System.out.println("Checking for triggered card effects");
+        System.out.println("Checking for post card placement effects");
 
         HashMap<EverdellCard, Callable<Boolean>> triggeredCards = new HashMap<>();
 
@@ -1294,9 +1301,6 @@ public class EverdellGUIManager extends AbstractGUIManager {
             resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
             resourceSelection.put(ResourceTypes.BERRY, new Counter());
             resourceSelection.put(ResourceTypes.RESIN, new Counter());
-
-            System.out.println("Card Class : "+cardClass);
-
 
             switch (cardClass) {
                 case JUDGE:
@@ -1392,7 +1396,6 @@ public class EverdellGUIManager extends AbstractGUIManager {
             rsID.put(r, resourceSelection.get(r).getValue());
         }
 
-        System.out.println("Resource Keys : "+rsID.keySet()+ "  Resource Values : "+rsID.values());
         return new PlayCard(cardID, csID, rsID);
     }
 
@@ -1487,7 +1490,12 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         JButton doneButton = new JButton("Done");
         doneButton.addActionListener(k -> {
-            new MoveSeason(cardSelection).summerEvent(state);
+            ArrayList<Integer> csID = new ArrayList<>();
+            for(var c : cardSelection){
+                csID.add(c.getComponentID());
+            }
+
+            new MoveSeason(csID).summerEvent(state);
             resetValues();
             redrawPanels();
         });
@@ -1520,8 +1528,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
     @Override
     protected void _update(AbstractPlayer player, AbstractGameState gameState) {
         // TODO
-
+        if(!(player instanceof HumanGUIPlayer)){
+            redrawPanels();
+        }
         playerInfoPanel.drawPlayerInfoPanel();
-
     }
 }

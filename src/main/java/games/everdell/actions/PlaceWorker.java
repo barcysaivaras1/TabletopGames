@@ -44,6 +44,7 @@ public class PlaceWorker extends AbstractAction {
      */
     //private EverdellParameters.AbstractLocations locationToPlaceIn;
     private int locationComponentID;
+    private String locationName;
     private ArrayList<EverdellCard> cardSelection;
     private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
 
@@ -183,7 +184,7 @@ public class PlaceWorker extends AbstractAction {
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "Place Worker in LocationID : " + locationComponentID;
+        return "Place Worker in Location : " + locationName;
     }
 
     /**
@@ -194,6 +195,7 @@ public class PlaceWorker extends AbstractAction {
      */
     @Override
     public String getString(AbstractGameState gameState) {
+        locationName = ((EverdellLocation) gameState.getComponentById(locationComponentID)).getAbstractLocation().toString();
         return toString();
     }
 
