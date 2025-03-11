@@ -28,6 +28,11 @@ public class TeacherCard extends CritterCard{
         //Card Selection holds the 2 cards, Card [0[ is the card the player will keep
         //Card [1] is the card the player will give to another player
 
+        System.out.println("Applying Teacher Card Effect");
+        System.out.println("Player " + state.getCurrentPlayer() + " is giving a card to Player " + selectedPlayer);
+
+        System.out.println("Card Selection: " + state.cardSelection);
+
         if(state.cardSelection.isEmpty()){
             return;
         }

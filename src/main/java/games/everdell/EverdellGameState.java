@@ -42,7 +42,7 @@ public class EverdellGameState extends AbstractGameState {
     public List<Deck<EverdellCard>> playerVillage;
     public EverdellParameters.Seasons[] currentSeason;
 
-    public HashMap<AbstractLocations,EverdellLocation> Locations;
+    public HashMap<AbstractLocations, EverdellLocation> Locations;
 
     public HashMap<ResourceTypes,Counter[]> PlayerResources;
 
@@ -53,7 +53,6 @@ public class EverdellGameState extends AbstractGameState {
     public Counter[] villageMaxSize;
 
     //These values are used to indicate what the player has selected in their turn
-    //I'm not sure what is better. To use it like this or try to send the actions values instead?
     //I think this keeps things more organised
 
     public EverdellCard currentCard;
@@ -137,13 +136,12 @@ public class EverdellGameState extends AbstractGameState {
             components.add(villageMaxSize[i].copy());
         }
 
-        for(var resource : resourceSelection.keySet()){
-            components.add(resourceSelection.get(resource).copy());
+        for(var location : Locations.keySet()){
+            components.add(Locations.get(location).copy());
         }
 
-        //Locations
-        for(EverdellLocation location : Locations.values()){
-            components.add(location.copy());
+        for(var resource : resourceSelection.keySet()){
+            components.add(resourceSelection.get(resource).copy());
         }
 
         if(currentCard != null){
@@ -198,6 +196,7 @@ public class EverdellGameState extends AbstractGameState {
             copy.cardCount[i] = cardCount[i].copy();
             copy.villageMaxSize[i] = villageMaxSize[i].copy();
         }
+
 
         copy.resourceSelection = new HashMap<>();
         for(var resource : resourceSelection.keySet()){
@@ -260,21 +259,31 @@ public class EverdellGameState extends AbstractGameState {
         return 0;
     }
 
-
-
-
     @Override
     public boolean _equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState that = (EverdellGameState) o;
-        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
+        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(discardDeck, that.discardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && deepEquals(villageMaxSize, that.villageMaxSize) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), currentCard, resourceSelection, cardSelection);
+        return hash(cardDeck, discardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), currentCard, resourceSelection, cardSelection);
     }
+
+
+    //    @Override
+//    public boolean _equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        EverdellGameState that = (EverdellGameState) o;
+//        return Objects.equals(cardDeck, that.cardDeck) && Objects.equals(meadowDeck, that.meadowDeck) && Objects.equals(playerHands, that.playerHands) && Objects.equals(playerVillage, that.playerVillage) && deepEquals(currentSeason, that.currentSeason) && Objects.equals(Locations, that.Locations) && Objects.equals(PlayerResources, that.PlayerResources) && deepEquals(cardCount, that.cardCount) && deepEquals(workers, that.workers) && deepEquals(pointTokens, that.pointTokens) && Objects.equals(currentCard, that.currentCard) && Objects.equals(resourceSelection, that.resourceSelection) && Objects.equals(cardSelection, that.cardSelection);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return hash(cardDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), Locations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), currentCard, resourceSelection, cardSelection);
+//    }
 
 
     // TODO: Consider the methods below for possible implementation

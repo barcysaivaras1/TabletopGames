@@ -12,6 +12,7 @@ import games.everdell.EverdellParameters.ForestLocations;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -24,7 +25,6 @@ public class EverdellLocation extends Component {
     private final AbstractLocations location;
 
     private Consumer<EverdellGameState> locationEffect;
-
 
     public List<Integer> playersOnLocation;
 
@@ -40,9 +40,9 @@ public class EverdellLocation extends Component {
         super(CoreConstants.ComponentType.LOCATION, compID);
         this.location = location;
         //this.shared = shared;
+        this.playersOnLocation = new ArrayList<>();
         this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
-        this.playersOnLocation = new ArrayList<>();
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
     }
 
@@ -55,7 +55,19 @@ public class EverdellLocation extends Component {
 
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
+//        if(location instanceof EverdellParameters.RedDestinationLocation){
+//            if(location != EverdellParameters.RedDestinationLocation.INN_DESTINATION && location != EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
+//                //We need to check if the player owns this location, as this is not a public location
+//                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+//
+//                }
+//            }
+//        }
+
         boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
+        System.out.println("Is the location free for the player : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
+        System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
+        System.out.println("Component Id : " + componentID);
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 
@@ -80,9 +92,7 @@ public class EverdellLocation extends Component {
 
     public EverdellLocation copy(){
         EverdellLocation copy = new EverdellLocation(location, numberOfSpaces, canTheSamePlayerBeOnLocationMultipleTimes, locationEffect, componentID);
-        copy.playersOnLocation = new ArrayList<>();
-        copy.playersOnLocation.addAll(playersOnLocation);
+        copy.playersOnLocation = new ArrayList<>(playersOnLocation);
         return copy;
     }
-
 }

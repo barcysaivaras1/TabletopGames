@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class MonasteryCard extends ConstructionCard{
     int selectedPlayer;
 
-    public EverdellLocation location;
+    public int locationId;
 
     EverdellParameters.RedDestinationLocation rdl;
 
@@ -20,17 +20,18 @@ public class MonasteryCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
-    private MonasteryCard(String name, int compID, int selectedPlayer, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+    private MonasteryCard(String name, int compID, int selectedPlayer, int location, EverdellParameters.RedDestinationLocation rdl) {
         super(name, compID);
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
-        this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
+        location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
         state.Locations.put(rdl, location);
         //This means they are placing the card, we can assign the playerOwner
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
-            unlockSecondLocation();
+            unlockSecondLocation(state);
         });
     }
 
@@ -68,11 +69,13 @@ public class MonasteryCard extends ConstructionCard{
         };
     }
 
-    public void unlockSecondLocation(){
+    public void unlockSecondLocation(EverdellGameState state){
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
         location.setNumberOfSpaces(2);
     }
 
-    public void lockSecondLocation(){
+    public void lockSecondLocation(EverdellGameState state){
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
         location.setNumberOfSpaces(1);
     }
 
@@ -85,7 +88,8 @@ public class MonasteryCard extends ConstructionCard{
     @Override
     public MonasteryCard copy() {
         MonasteryCard card;
-        card = new MonasteryCard(getName(), componentID, selectedPlayer, location.copy(), rdl);
+        card = new MonasteryCard(getName(), componentID, selectedPlayer, locationId, rdl);
+
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

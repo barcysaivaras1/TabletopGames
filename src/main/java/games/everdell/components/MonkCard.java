@@ -26,7 +26,7 @@ public class MonkCard extends CritterCard{
     public void applyCardEffect(EverdellGameState state) {
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonasteryCard).forEach(c -> {
             MonasteryCard mc = (MonasteryCard) c;
-            mc.unlockSecondLocation();
+            mc.unlockSecondLocation(state);
         });
 
         int berriesToGive = state.resourceSelection.get(EverdellParameters.ResourceTypes.BERRY).getValue();
@@ -51,7 +51,7 @@ public class MonkCard extends CritterCard{
 
     public void removeCardEffect(EverdellGameState state) {
         MonasteryCard mc = (MonasteryCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonasteryCard).findFirst().get();
-        mc.lockSecondLocation();
+        mc.lockSecondLocation(state);
     }
 
     @Override

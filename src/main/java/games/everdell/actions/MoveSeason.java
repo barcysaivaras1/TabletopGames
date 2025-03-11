@@ -9,6 +9,7 @@ import games.everdell.EverdellParameters.Seasons;
 import games.everdell.components.ConstructionCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
+import games.everdell.components.EverdellLocation;
 import org.apache.spark.sql.sources.In;
 
 import java.util.ArrayList;
@@ -93,7 +94,6 @@ public class MoveSeason extends AbstractAction {
 
                 //Bring back all workers
                 for (var location : state.Locations.keySet()) {
-
                     //Monastery and Cemetery Card has a special case where the worker is not returned
                     if(location == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION || location == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
                         continue;

@@ -58,7 +58,8 @@ public class ConstructionCard extends EverdellCard{
         System.out.println("CONSTRUCTION CARD");
         if(redDestinationLocation != null){
             System.out.println("RED DESTINATION CARD");
-            state.Locations.put(redDestinationLocation, new EverdellLocation(redDestinationLocation,1, false, redDestinationLocation.getLocationEffect(state)));
+            EverdellLocation location = new EverdellLocation(redDestinationLocation,1, false, redDestinationLocation.getLocationEffect(state));
+            state.Locations.put(redDestinationLocation, location);
         }
         else {
             super.applyCardEffect(state);

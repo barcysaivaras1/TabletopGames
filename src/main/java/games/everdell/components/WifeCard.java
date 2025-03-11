@@ -78,7 +78,12 @@ public class WifeCard extends CritterCard{
     @Override
     public WifeCard copy() {
         WifeCard card;
-        card = new WifeCard(getName(), componentID, husband.copy(), increasedMaxSize);
+        if(husband != null){
+            card = new WifeCard(getName(), componentID, husband.copy(), increasedMaxSize);
+        }
+        else {
+            card = new WifeCard(getName(), componentID, null, increasedMaxSize);
+        }
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

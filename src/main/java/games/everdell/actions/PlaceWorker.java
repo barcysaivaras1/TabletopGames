@@ -11,6 +11,8 @@ import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.gui.EverdellGUIManager;
+import org.apache.spark.sql.sources.In;
+import scala.Int;
 
 import javax.xml.stream.Location;
 import java.util.ArrayList;
@@ -45,13 +47,13 @@ public class PlaceWorker extends AbstractAction {
     //private EverdellParameters.AbstractLocations locationToPlaceIn;
     private int locationComponentID;
     private String locationName;
-    private ArrayList<EverdellCard> cardSelection;
-    private HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection;
+    private ArrayList<Integer> cardSelectionIds;
+    private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
-    public PlaceWorker(int location, ArrayList<EverdellCard> cardSelection, HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection) {
+    public PlaceWorker(int location, ArrayList<Integer> cardSelectionIds, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
         locationComponentID = location;
-        this.cardSelection = cardSelection;
-        this.resourceSelection = resourceSelection;
+        this.cardSelectionIds = cardSelectionIds;
+        this.resourceSelectionValues = resourceSelection;
     }
 
 
@@ -64,14 +66,21 @@ public class PlaceWorker extends AbstractAction {
 
         //Check if this location is free
         if(state.workers[state.getCurrentPlayer()].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
-            System.out.println("Placing Worker in ");
+            System.out.println("Placing Worker in : " + locationToPlaceIn);
 
-            state.cardSelection = cardSelection;
-            state.resourceSelection = resourceSelection;
+            state.cardSelection = new ArrayList<>();
+            for(var cardId : cardSelectionIds){
+                state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
+            }
+
+            HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+            for(var resource : resourceSelectionValues.keySet()){
+                resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+            }
 
             //Check if we meet the requirements for the basic event
-            if(locationToPlaceIn instanceof EverdellParameters.BasicEvent){
-                if(!canWePlaceOnThisBasicEvent(state)){
+            if(locationToPlaceIn instanceof EverdellParameters.BasicEvent be){
+                if(!BasicEvent.defaultCheckIfConditionMet(state, be)){
                     return false;
                 }
                 for(var card : state.playerVillage.get(state.getCurrentPlayer())){
@@ -83,76 +92,22 @@ public class PlaceWorker extends AbstractAction {
                 }
             }
 
-
             state.workers[state.getCurrentPlayer()].decrement();
             EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
             everdellLocation.applyLocationEffect(state);
             everdellLocation.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
+
+
+            //Reset the resource selection
+            state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+            //Reset Card Selection
+            state.cardSelection = new ArrayList<>();
             return true;
         }
 
         return false;
     }
 
-    public Boolean canWePlaceOnThisBasicEvent(EverdellGameState state){
-        EverdellParameters.AbstractLocations locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID)).getAbstractLocation();
-        int target;
-        int counter;
-        switch ((BasicEvent) locationToPlaceIn){
-            case GREEN_PRODUCTION_EVENT:
-                target = 4;
-                counter = 0;
-                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                    if (card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
-                        counter++;
-                    }
-                }
-                if(target <= counter){
-
-                    return true;
-                }
-                return false;
-            case BLUE_GOVERNANCE_EVENT:
-                target = 3;
-                counter = 0;
-                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                    if (card.getCardType() == EverdellParameters.CardType.BLUE_GOVERNANCE){
-                        counter++;
-                    }
-                }
-                if(target <= counter){
-                    return true;
-                }
-                return false;
-            case RED_DESTINATION_EVENT:
-                target = 3;
-                counter = 0;
-                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                    if (card.getCardType() == EverdellParameters.CardType.RED_DESTINATION){
-                        counter++;
-                    }
-                }
-                if(target <= counter){
-                    return true;
-                }
-                return false;
-            case TAN_TRAVELER_EVENT:
-                target = 3;
-                counter = 0;
-                for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                    if (card.getCardType() == EverdellParameters.CardType.TAN_TRAVELER){
-                        counter++;
-                    }
-                }
-                if(target <= counter){
-                    return true;
-                }
-                return false;
-        }
-
-
-        return false;
-    }
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.
      * Make sure the return type is this class (e.g. GTAction) and NOT the super class AbstractAction.
@@ -162,23 +117,22 @@ public class PlaceWorker extends AbstractAction {
     @Override
     public PlaceWorker copy() {
         // TODO: copy non-final variables appropriately
-
-        PlaceWorker copy = new PlaceWorker(locationComponentID, cardSelection, resourceSelection);
-        return copy;
+        ArrayList<Integer> cardSelection = new ArrayList<>(this.cardSelectionIds);
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues = new HashMap<>(this.resourceSelectionValues);
+        return new PlaceWorker(locationComponentID, cardSelection, resourceSelectionValues);
     }
 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PlaceWorker that = (PlaceWorker) o;
-        return locationComponentID == that.locationComponentID && Objects.equals(cardSelection, that.cardSelection) && Objects.equals(resourceSelection, that.resourceSelection);
+        return locationComponentID == that.locationComponentID && Objects.equals(locationName, that.locationName) && Objects.equals(cardSelectionIds, that.cardSelectionIds) && Objects.equals(resourceSelectionValues, that.resourceSelectionValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(locationComponentID, cardSelection, resourceSelection);
+        return Objects.hash(locationComponentID, locationName, cardSelectionIds, resourceSelectionValues);
     }
 
     @Override
@@ -195,7 +149,8 @@ public class PlaceWorker extends AbstractAction {
      */
     @Override
     public String getString(AbstractGameState gameState) {
-        locationName = ((EverdellLocation) gameState.getComponentById(locationComponentID)).getAbstractLocation().toString();
+
+        locationName = ""+((EverdellLocation) gameState.getComponentById(locationComponentID)).getAbstractLocation();
         return toString();
     }
 

@@ -4,6 +4,7 @@ import core.components.Counter;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.actions.PlaceWorker;
+import org.apache.spark.sql.sources.In;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -30,7 +31,6 @@ public class RangerCard extends CritterCard{
 
         //Placing a worker on a location would work outside of here, because the location might require GUI for a human player
         //For AI, extra steps would have to be taken to ensure the effects are triggered properly
-
         System.out.println("Applying Ranger Card Effect");
         System.out.println("Ranger Location From: " + locationFrom);
         System.out.println("Ranger Location To: " + locationTo);
@@ -71,7 +71,6 @@ public class RangerCard extends CritterCard{
     @Override
     public RangerCard copy() {
         RangerCard card;
-
         if (locationFrom == null && locationTo == null) {
             card = new RangerCard(getName(), componentID, null, null);
         }
@@ -81,8 +80,6 @@ public class RangerCard extends CritterCard{
         else {
             card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
         }
-        //card = new RangerCard(getName(), componentID, locationFrom.copy(), locationTo.copy());
-
         //Calls CritterCard copy
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

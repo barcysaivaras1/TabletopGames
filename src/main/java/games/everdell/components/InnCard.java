@@ -13,7 +13,7 @@ public class InnCard extends ConstructionCard{
     int playerOwner;
     int occupyingPlayer;
 
-    public EverdellLocation location;
+    public int locationId;
 
     EverdellParameters.RedDestinationLocation rdl;
 
@@ -22,8 +22,12 @@ public class InnCard extends ConstructionCard{
         this.rdl = rdl;
     }
 
-    private InnCard(String name, int compID, int playerOwner, int occupyingPlayer, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+    private InnCard(String name, int compID, int playerOwner, int occupyingPlayer, int locationId, EverdellParameters.RedDestinationLocation rdl) {
         super(name, compID);
+        this.playerOwner = playerOwner;
+        this.occupyingPlayer = occupyingPlayer;
+        this.locationId = locationId;
+        this.rdl = rdl;
     }
 
 
@@ -31,8 +35,9 @@ public class InnCard extends ConstructionCard{
         //This means they are placing the card, we can assign the playerOwner
         playerOwner = state.getCurrentPlayer();
 
-        this.location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
-        state.Locations.put(rdl, this.location);
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
+        location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
+        state.Locations.put(rdl, location);
         System.out.println(location);
     }
 
@@ -78,7 +83,7 @@ public class InnCard extends ConstructionCard{
     @Override
     public InnCard copy() {
         InnCard card;
-        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer, location.copy(), rdl);
+        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer, locationId, rdl);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

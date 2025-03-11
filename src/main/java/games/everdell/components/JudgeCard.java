@@ -3,6 +3,8 @@ package games.everdell.components;
 import core.components.Counter;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
+import org.apache.spark.sql.sources.In;
+import scala.Int;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -10,8 +12,8 @@ import java.util.function.Function;
 
 public class JudgeCard extends CritterCard{
 
-    private HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose;
-    private HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain;
+    private HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToLose;
+    private HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToGain;
 
     public JudgeCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
@@ -19,14 +21,14 @@ public class JudgeCard extends CritterCard{
         resourcesToGain = new HashMap<>();
 
         for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
-            resourcesToGain.put(rt, new Counter());
+            resourcesToGain.put(rt, 0);
         }
         for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
-            resourcesToLose.put(rt, new Counter());
+            resourcesToLose.put(rt, 0);
         }
     }
 
-    private JudgeCard(String name, int compID, HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose, HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain) {
+    private JudgeCard(String name, int compID, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToLose, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToGain) {
         super(name, compID);
         this.resourcesToLose = resourcesToLose;
         this.resourcesToGain = resourcesToGain;
@@ -35,6 +37,9 @@ public class JudgeCard extends CritterCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
+        System.out.println("Peddler Card Effect Applied");
+        System.out.println("Resources to Lose: " + resourcesToLose);
+        System.out.println("Resources to Gain: " + resourcesToGain);
 
         int counter = 0;
         //Need to make the max limit change depending on whether they give 1 or 2 resources, NOT DONE
@@ -42,7 +47,7 @@ public class JudgeCard extends CritterCard{
 
         //First make them pay the resources
         for (EverdellParameters.ResourceTypes rt : resourcesToLose.keySet()) {
-            for(int i = 0; i < resourcesToLose.get(rt).getValue(); i++){
+            for(int i = 0; i < resourcesToLose.get(rt); i++){
                 if(counter == 2){
                     break;
                 }
@@ -54,7 +59,7 @@ public class JudgeCard extends CritterCard{
         counter = 0;
         //Then give them the resources
         for (EverdellParameters.ResourceTypes rt : resourcesToGain.keySet()) {
-            for(int i = 0; i < resourcesToGain.get(rt).getValue(); i++){
+            for(int i = 0; i < resourcesToGain.get(rt); i++){
                 if(counter == 1){
                     break;
                 }
@@ -67,39 +72,27 @@ public class JudgeCard extends CritterCard{
     }
 
     private void resetValues(){
-        for (EverdellParameters.ResourceTypes rt : resourcesToLose.keySet()) {
-            resourcesToLose.get(rt).setValue(0);
-        }
-        for (EverdellParameters.ResourceTypes rt : resourcesToGain.keySet()) {
-            resourcesToGain.get(rt).setValue(0);
-        }
+        resourcesToLose.replaceAll((r, v) -> 0);
+        resourcesToGain.replaceAll((r, v) -> 0);
     }
 
-    public void addResourcesToLose(HashMap<EverdellParameters.ResourceTypes, Counter> rtl) {
+    public void addResourcesToLose(HashMap<EverdellParameters.ResourceTypes, Integer> rtl) {
         for (EverdellParameters.ResourceTypes rt : rtl.keySet()) {
-            resourcesToLose.get(rt).increment(rtl.get(rt).getValue());
+            resourcesToLose.put(rt, rtl.get(rt));
         }
     }
 
-    public void addResourcesToGain(HashMap<EverdellParameters.ResourceTypes, Counter> rtg) {
+    public void addResourcesToGain(HashMap<EverdellParameters.ResourceTypes, Integer> rtg) {
         for (EverdellParameters.ResourceTypes rt : rtg.keySet()) {
-            resourcesToGain.get(rt).increment(rtg.get(rt).getValue());
+            resourcesToGain.put(rt, rtg.get(rt));
         }
     }
 
     @Override
     public JudgeCard copy() {
         JudgeCard card;
-
-        HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToLose = new HashMap<>();
-        HashMap<EverdellParameters.ResourceTypes, Counter> resourcesToGain = new HashMap<>();
-        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
-            resourcesToGain.put(rt, new Counter());
-        }
-        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
-            resourcesToLose.put(rt, new Counter());
-        }
-
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToLose = new HashMap<>(this.resourcesToLose);
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourcesToGain = new HashMap<>(this.resourcesToGain);
         card = new JudgeCard(getName(), componentID, resourcesToLose, resourcesToGain);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

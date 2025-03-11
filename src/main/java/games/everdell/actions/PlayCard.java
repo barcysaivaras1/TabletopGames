@@ -4,15 +4,14 @@ import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
 import core.components.Counter;
+import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.components.*;
 import games.everdell.EverdellParameters.CardDetails;
+import utilities.Hash;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 /**
  * <p>Actions are unit things players can do in the game (e.g. play a card, move a pawn, roll dice, attack etc.).</p>
@@ -30,7 +29,7 @@ import java.util.Random;
  * use the {@link AbstractGameState#getComponentById(int)} function to retrieve the actual reference to the component,
  * given your componentID.</p>
  */
-public class PlayCard extends AbstractAction {
+public class PlayCard extends AbstractAction{
 
     /**
      * Executes this action, applying its effect to the given game state. Can access any component IDs stored
@@ -41,21 +40,24 @@ public class PlayCard extends AbstractAction {
 
     //private EverdellCard currentCard;
 
+    private boolean executed;
+
     private int currentCardID;
 
     private ArrayList<Integer> cardSelectionID;
     private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
+    private int playerId;
 
 
 
-    public PlayCard(int cardID, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues){
-//        currentCard = card;
+
+    public PlayCard(int playerId, int cardID, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues){
         this.cardSelectionID = new ArrayList<>(cardSelectionID);
         this.resourceSelectionValues = resourceSelectionValues;
         currentCardID = cardID;
+        this.playerId = playerId;
     }
-
 
     @Override
     public boolean execute(AbstractGameState gs) {
@@ -63,6 +65,7 @@ public class PlayCard extends AbstractAction {
         EverdellGameState state = (EverdellGameState) gs;
 
         System.out.println("Executing Play Card Action");
+
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
@@ -74,23 +77,20 @@ public class PlayCard extends AbstractAction {
             resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
         }
 
+        //Fool Card has a special case where the player must select a player to give the card to
         if(currentCard instanceof FoolCard){
-            //Fool Card has a special case where the player must select a player to give the card to
             return foolSpecialTreatment(state);
         }
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
-        if(state.playerVillage.get(state.getCurrentPlayer()).getSize() < state.villageMaxSize[state.getCurrentPlayer()].getValue()){
+        if(checkIfVillageHasSpace(state, state.getCurrentPlayer())){
             state.currentCard = currentCard;
             state.cardSelection = cardSelection;
-//            if(state.playerVillage.get(state.getCurrentPlayer()).contains(currentCard)){
-//                System.out.println("You already have this card in your village");
-//                return false;
-//            }
+
 
             //Check if the card is Unique and if the player has this card in their village
             //Cannot have duplicate unique cards
-            if(!checkIfPlayerCanPlaceThisUniqueCard(state)){
+            if(!checkIfPlayerCanPlaceThisUniqueCard(state, state.getCurrentPlayer())){
                 System.out.println("You already have this Unique card in your village");
                 return false;
             }
@@ -98,7 +98,7 @@ public class PlayCard extends AbstractAction {
 
 
             //Check if the player can buy the card
-            if(!checkIfPlayerCanBuyCard(state)){
+            if(!checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
                 System.out.println("You don't have enough resources to buy this card");
                 return false;
             }
@@ -134,6 +134,10 @@ public class PlayCard extends AbstractAction {
         }
         System.out.println("Cannot place card, village is full");
         return false;
+    }
+
+    public boolean checkIfVillageHasSpace(EverdellGameState state, int playerId){
+        return state.playerVillage.get(playerId).getSize() < state.villageMaxSize[playerId].getValue();
     }
 
     public void triggerCardEffect(EverdellGameState state, EverdellCard currentCard){
@@ -243,11 +247,11 @@ public class PlayCard extends AbstractAction {
         return false;
     }
 
-    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state){
+    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state, int playerId){
         //Check if the player has this Unique card in their village
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         if(currentCard.isUnique()){
-            for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
+            for(EverdellCard card : state.playerVillage.get(playerId).getComponents()){
                 if(card.getCardEnumValue() == currentCard.getCardEnumValue()){
                     return false;
                 }
@@ -256,17 +260,16 @@ public class PlayCard extends AbstractAction {
         return true;
     }
 
-    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state){
+    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
         //Check if the player has enough resources to buy the card
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-        System.out.println("The current card is : "+currentCard.getName());
 
         //The card can be paid with occupation.
         if(currentCard.isCardPayedFor()){
             return true;
         }
         for(var resource : currentCard.getResourceCost().keySet()){
-            if(state.PlayerResources.get(resource)[state.getCurrentPlayer()].getValue() < currentCard.getResourceCost().get(resource)){
+            if(state.PlayerResources.get(resource)[playerId].getValue() < currentCard.getResourceCost().get(resource)){
                 return false;
             }
         }
@@ -295,7 +298,7 @@ public class PlayCard extends AbstractAction {
         }
 
         //Check if the player can buy the card
-        if(!checkIfPlayerCanBuyCard(state)){
+        if(!checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
             System.out.println("You don't have enough resources to buy this card");
             return false;
         }
@@ -314,6 +317,50 @@ public class PlayCard extends AbstractAction {
         return true;
     }
 
+//    @Override
+//    public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
+//        System.out.println("Computing Available Actions in Play Card");
+//
+//        List<AbstractAction> actions = new ArrayList<>();
+//
+//        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
+//
+//        if(currentCard.getCardEnumValue() == CardDetails.WOOD_CARVER){
+//            System.out.println("Wood Carver Special Case");
+//            HashMap<EverdellParameters.ResourceTypes, Integer> resources = new HashMap<>();
+//            resources.put(EverdellParameters.ResourceTypes.TWIG, 0);
+//            actions.add(new ResourceSelect(playerId, resources, 3));
+//        }
+//
+//        return actions;
+//    }
+//
+//    @Override
+//    public int getCurrentPlayer(AbstractGameState state) {
+//        return playerId;
+//    }
+//
+//    @Override
+//    public void _afterAction(AbstractGameState state, AbstractAction action) {
+//        System.out.println("After Action in Play Card");
+//        System.out.println("List of Actions : "+state.getActionsInProgress());
+//
+//
+//        if(action instanceof ResourceSelect rs){
+//            System.out.println("Resources Selected : " + rs.resourcesTypes);
+//            for(var resource : rs.resourcesTypes.keySet()){
+//                resourceSelectionValues.put(resource, rs.resourcesTypes.get(resource));
+//            }
+//        }
+//        executed = true;
+//        executePart2((EverdellGameState) state);
+//    }
+//
+//    @Override
+//    public boolean executionComplete(AbstractGameState state) {
+//        return executed;
+//    }
+
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.
      * Make sure the return type is this class (e.g. GTAction) and NOT the super class AbstractAction.
@@ -325,19 +372,22 @@ public class PlayCard extends AbstractAction {
         // TODO: copy non-final variables appropriately
         ArrayList<Integer> csID = new ArrayList<>(cardSelectionID);
         HashMap<EverdellParameters.ResourceTypes, Integer> rsID = new HashMap<>(resourceSelectionValues);
-        return new PlayCard(currentCardID, csID, rsID);
+        PlayCard retValue = new PlayCard(playerId, currentCardID, csID, rsID);
+        retValue.executed = executed;
+        return retValue;
     }
 
     @Override
     public boolean equals(Object o) {
+
         if (o == null || getClass() != o.getClass()) return false;
         PlayCard playCard = (PlayCard) o;
-        return currentCardID == playCard.currentCardID && Objects.equals(cardSelectionID, playCard.cardSelectionID) && Objects.equals(resourceSelectionValues, playCard.resourceSelectionValues);
+        return executed == playCard.executed && currentCardID == playCard.currentCardID && playerId == playCard.playerId && Objects.equals(cardSelectionID, playCard.cardSelectionID) && Objects.equals(resourceSelectionValues, playCard.resourceSelectionValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currentCardID, cardSelectionID, resourceSelectionValues);
+        return Objects.hash(executed, currentCardID, cardSelectionID, resourceSelectionValues, playerId);
     }
 
     @Override

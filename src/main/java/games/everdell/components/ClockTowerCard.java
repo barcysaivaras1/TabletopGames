@@ -10,20 +10,21 @@ import java.util.function.Function;
 
 public class ClockTowerCard extends ConstructionCard{
 
-    public EverdellParameters.AbstractLocations locationSelected;
+    private int locationSelectedId;
 
     public ClockTowerCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
+        locationSelectedId = -1;
     }
 
-    private ClockTowerCard(String name, int compID, EverdellParameters.AbstractLocations locationSelected) {
+    private ClockTowerCard(String name, int compID, int locationSelectedId) {
         super(name, compID);
-        this.locationSelected = locationSelected;
+        this.locationSelectedId = locationSelectedId;
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
-        if(locationSelected == null){
+        if(locationSelectedId == -1){
             return;
         }
 
@@ -32,20 +33,21 @@ public class ClockTowerCard extends ConstructionCard{
         }
 
         super.setCardPoints(super.getPoints()-1);
-        state.Locations.get(locationSelected).applyLocationEffect(state);
 
-        locationSelected = null;
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationSelectedId);
+        location.applyLocationEffect(state);
+        locationSelectedId = -1;
     }
 
 
-    public void selectLocation(EverdellParameters.AbstractLocations location) {
-        locationSelected = location;
+    public void selectLocation(int locationId) {
+        locationSelectedId = locationId;
     }
 
     @Override
     public ClockTowerCard copy() {
         ClockTowerCard card;
-        card = new ClockTowerCard(getName(), componentID, locationSelected);
+        card = new ClockTowerCard(getName(), componentID, locationSelectedId);
 
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
