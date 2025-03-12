@@ -1516,7 +1516,9 @@ public class EverdellParameters extends AbstractParameters {
 
                 if (state.cardSelection.get(0).getPoints() <= 3) {
                     state.cardSelection.get(0).payForCard();
-                    state.discardDeck.add(state.cardSelection.get(1));
+                    if(state.cardSelection.size() == 2) {
+                        state.discardDeck.add(state.cardSelection.get(1));
+                    }
                 }
                 return true;
             }, (everdellGameState -> {
@@ -1747,11 +1749,11 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 20);
+        put(CardDetails.FARM, 25);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 20);
+        put(CardDetails.WIFE, 0);
         put(CardDetails.HUSBAND, 0);
         put(CardDetails.FAIRGROUNDS, 0);
         put(CardDetails.MINE, 0);
@@ -1779,7 +1781,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.HISTORIAN, 0);
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.UNDERTAKER, 0);
-        put(CardDetails.POSTAL_PIGEON, 0);
+        put(CardDetails.POSTAL_PIGEON, 25);
         put(CardDetails.JUDGE, 0);
         put(CardDetails.CHIP_SWEEP, 0);
         put(CardDetails.CRANE, 0);

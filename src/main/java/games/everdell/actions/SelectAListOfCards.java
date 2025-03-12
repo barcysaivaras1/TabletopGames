@@ -10,6 +10,7 @@ import games.everdell.EverdellParameters.JourneyLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.ResourceTypes;
+import games.everdell.components.CopyCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.components.TeacherCard;
@@ -166,6 +167,9 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                     egs.cardSelection.add(sa.cardsToSelectFrom.get(1));
                 }
                 new SelectPlayer(playerId, cardId, -1).execute(egs);
+            }
+            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.POSTAL_PIGEON){
+                new PlayCard(playerId, cardId, cardIds, new HashMap<>()).execute(egs);
             }
             else if(card.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER && !loopAction){
                 //Remove Cards from meadow

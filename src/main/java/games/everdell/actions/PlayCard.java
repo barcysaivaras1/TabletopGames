@@ -29,7 +29,7 @@ import java.util.*;
  * use the {@link AbstractGameState#getComponentById(int)} function to retrieve the actual reference to the component,
  * given your componentID.</p>
  */
-public class PlayCard extends AbstractAction{
+public class PlayCard extends AbstractAction implements IExtendedSequence{
 
     /**
      * Executes this action, applying its effect to the given game state. Can access any component IDs stored
@@ -123,12 +123,21 @@ public class PlayCard extends AbstractAction{
 
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
 
+            for (var card : state.cardSelection){
+                state.temporaryDeck.add(card);
+            }
+
             state.cardSelection.clear();
             for(var resource : state.resourceSelection.keySet()){
                 state.resourceSelection.put(resource, new Counter());
             }
 
-            //System.out.println("This is the max village size "+state.villageMaxSize[state.getCurrentPlayer()].getValue());;
+
+            //AI PLAY
+            if(currentCard.getCardEnumValue() == CardDetails.POSTAL_PIGEON){
+                System.out.println("POSTAL PIGEON AI PLAY");
+                new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+            }
 
             return true;
         }
@@ -317,6 +326,26 @@ public class PlayCard extends AbstractAction{
         return true;
     }
 
+
+    @Override
+    public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
+        return List.of();
+    }
+
+    @Override
+    public int getCurrentPlayer(AbstractGameState state) {
+        return playerId;
+    }
+
+    @Override
+    public void _afterAction(AbstractGameState state, AbstractAction action) {
+
+    }
+
+    @Override
+    public boolean executionComplete(AbstractGameState state) {
+        return true;
+    }
 
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.

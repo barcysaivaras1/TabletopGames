@@ -65,6 +65,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.cardSelection = new ArrayList<>();
 
         state.discardDeck = new Deck<>("Discard Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
+        state.temporaryDeck = new Deck<>("Temporary Deck", CoreConstants.VisibilityMode.HIDDEN_TO_ALL);
 
         //Creating an EverdellLocation object for each basic location
         for(var location : BasicLocations.values()){
@@ -314,6 +315,10 @@ public class EverdellForwardModel extends StandardForwardModel {
             endGame(currentState);
             return;
         }
+
+        EverdellGameState state = (EverdellGameState) currentState;
+        state.temporaryDeck.clear();
+
         endPlayerTurn(currentState);
     }
 

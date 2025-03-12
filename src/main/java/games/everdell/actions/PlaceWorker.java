@@ -50,13 +50,13 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     private int playerId;
     private int locationComponentID;
     private String locationName;
-    private ArrayList<Integer> cardSelectionIds;
+    private ArrayList<Integer> cardSelectionID;
     private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
-    public PlaceWorker(int playerId, int location, ArrayList<Integer> cardSelectionIds, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
+    public PlaceWorker(int playerId, int location, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
         this.playerId = playerId;
         locationComponentID = location;
-        this.cardSelectionIds = cardSelectionIds;
+        this.cardSelectionID = cardSelectionID;
         this.resourceSelectionValues = resourceSelection;
     }
 
@@ -75,7 +75,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
 
             state.cardSelection = new ArrayList<>();
-            for(var cardId : cardSelectionIds){
+            for(var cardId : cardSelectionID){
                 state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
             }
 
@@ -113,7 +113,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             //AI PLAY
             EverdellLocation location = state.Locations.get(locationToPlaceIn);
             if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
-                new SelectCard(playerId, cardSelectionIds.get(0), new ArrayList<>()).execute(state);
+                new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
             }
 
             return true;
@@ -151,7 +151,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     @Override
     public PlaceWorker copy() {
         // TODO: copy non-final variables appropriately
-        ArrayList<Integer> cardSelection = new ArrayList<>(this.cardSelectionIds);
+        ArrayList<Integer> cardSelection = new ArrayList<>(this.cardSelectionID);
         HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues = new HashMap<>(this.resourceSelectionValues);
         return new PlaceWorker(playerId, locationComponentID, cardSelection, resourceSelectionValues);
     }
@@ -161,12 +161,12 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PlaceWorker that = (PlaceWorker) o;
-        return playerId == that.playerId && locationComponentID == that.locationComponentID && Objects.equals(locationName, that.locationName) && Objects.equals(cardSelectionIds, that.cardSelectionIds) && Objects.equals(resourceSelectionValues, that.resourceSelectionValues);
+        return playerId == that.playerId && locationComponentID == that.locationComponentID && Objects.equals(locationName, that.locationName) && Objects.equals(cardSelectionID, that.cardSelectionID) && Objects.equals(resourceSelectionValues, that.resourceSelectionValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerId, locationComponentID, locationName, cardSelectionIds, resourceSelectionValues);
+        return Objects.hash(playerId, locationComponentID, locationName, cardSelectionID, resourceSelectionValues);
     }
 
     @Override

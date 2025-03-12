@@ -33,9 +33,6 @@ public class CopyCard extends CritterCard{
             return;
         }
 
-
-
-
         if (cardToCopy.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION) {
             if (cardToCopy instanceof ConstructionCard constructionCard) {
                 constructionCard.applyCardEffect(state);
