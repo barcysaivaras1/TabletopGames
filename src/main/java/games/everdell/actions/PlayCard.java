@@ -317,49 +317,6 @@ public class PlayCard extends AbstractAction{
         return true;
     }
 
-//    @Override
-//    public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
-//        System.out.println("Computing Available Actions in Play Card");
-//
-//        List<AbstractAction> actions = new ArrayList<>();
-//
-//        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-//
-//        if(currentCard.getCardEnumValue() == CardDetails.WOOD_CARVER){
-//            System.out.println("Wood Carver Special Case");
-//            HashMap<EverdellParameters.ResourceTypes, Integer> resources = new HashMap<>();
-//            resources.put(EverdellParameters.ResourceTypes.TWIG, 0);
-//            actions.add(new ResourceSelect(playerId, resources, 3));
-//        }
-//
-//        return actions;
-//    }
-//
-//    @Override
-//    public int getCurrentPlayer(AbstractGameState state) {
-//        return playerId;
-//    }
-//
-//    @Override
-//    public void _afterAction(AbstractGameState state, AbstractAction action) {
-//        System.out.println("After Action in Play Card");
-//        System.out.println("List of Actions : "+state.getActionsInProgress());
-//
-//
-//        if(action instanceof ResourceSelect rs){
-//            System.out.println("Resources Selected : " + rs.resourcesTypes);
-//            for(var resource : rs.resourcesTypes.keySet()){
-//                resourceSelectionValues.put(resource, rs.resourcesTypes.get(resource));
-//            }
-//        }
-//        executed = true;
-//        executePart2((EverdellGameState) state);
-//    }
-//
-//    @Override
-//    public boolean executionComplete(AbstractGameState state) {
-//        return executed;
-//    }
 
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.

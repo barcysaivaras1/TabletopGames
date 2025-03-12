@@ -9,52 +9,53 @@ import java.util.function.Function;
 
 public class WifeCard extends CritterCard{
 
-    private HusbandCard husband;
+    private Integer husbandId;
     private boolean increasedMaxSize;
 
     public WifeCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
-        husband = null;
+        husbandId = null;
         increasedMaxSize = false;
     }
     
-    private WifeCard(String name, int compID, HusbandCard husband, boolean increasedMaxSize) {
+    private WifeCard(String name, int compID, Integer husbandId, boolean increasedMaxSize) {
         super(name, compID);
-        this.husband = husband;
+        this.husbandId = husbandId;
         this.increasedMaxSize = increasedMaxSize;
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
 
-        if(husband == null) {
+        if(husbandId == null) {
             for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
                 if (card instanceof HusbandCard) {
-                    if (((HusbandCard) card).getWife() == null) {
+                    if(((HusbandCard) card).getWife() == null) {
                         ((HusbandCard) card).setWife(this);
                         setHusband((HusbandCard) card);
                     }
                 }
-                if(husband != null){
+                if(husbandId != null){
                     break;
                 }
             }
         }
 
         //If the wife has a husband, she is worth 3 points
-        if(husband != null){
+        if(husbandId != null){
             if(!increasedMaxSize){
                 state.villageMaxSize[state.getCurrentPlayer()].increment();
                 increasedMaxSize = true;
+                HusbandCard husband = (HusbandCard) state.getComponentById(husbandId);
                 husband.setIncreasedMaxSize();
             }
-            super.setCardPoints(3);
         }
         //Otherwise nothing happens
     }
 
     public void removeCardEffect(EverdellGameState state){
-        if(husband != null){
+        if(husbandId != null){
+            EverdellCard husband = (EverdellCard) state.getComponentById(husbandId);
             ((HusbandCard) husband).setWife(null);
         }
         if(increasedMaxSize){
@@ -67,19 +68,22 @@ public class WifeCard extends CritterCard{
         increasedMaxSize = true;
     }
 
-    public EverdellCard getHusband(){
-        return husband;
+    public Integer getHusband(){
+        return husbandId;
     }
 
     public void setHusband(HusbandCard husband){
-        this.husband = husband;
+        if (husband != null) {
+            super.setCardPoints(3);
+        }
+        this.husbandId = husband.getComponentID();
     }
 
     @Override
     public WifeCard copy() {
         WifeCard card;
-        if(husband != null){
-            card = new WifeCard(getName(), componentID, husband.copy(), increasedMaxSize);
+        if(husbandId != null){
+            card = new WifeCard(getName(), componentID, husbandId, increasedMaxSize);
         }
         else {
             card = new WifeCard(getName(), componentID, null, increasedMaxSize);

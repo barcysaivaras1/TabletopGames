@@ -285,7 +285,9 @@ public class EverdellForwardModel extends StandardForwardModel {
         for (EverdellCard card : egs.playerHands.get(gameState.getCurrentPlayer()).getComponents()) {
             cardsToSelectFrom.add(card.getComponentID());
         }
+        System.out.println("*************CHECKING IF ACTION CAN BE PERFORMED*************");
         if(!new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+            System.out.println("*************PERFORMING ACTION*************");
             actions.add(new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom));
         }
 

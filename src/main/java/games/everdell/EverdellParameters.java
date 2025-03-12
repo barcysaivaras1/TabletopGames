@@ -904,8 +904,6 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
             QUEEN_DESTINATION.applyLocationEffect = (state) -> {
-                System.out.println("QUEEN DESTINATION");
-                System.out.println("CARD SELECTION : "+state.cardSelection.get(0).getComponentID());
                 state.cardSelection.get(0).payForCard();
             };
 
@@ -983,7 +981,7 @@ public class EverdellParameters extends AbstractParameters {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
                         put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 1); //1
+                        put(ResourceTypes.RESIN, 0); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1034,8 +1032,9 @@ public class EverdellParameters extends AbstractParameters {
                 everdellGameState.villageMaxSize[everdellGameState.getCurrentPlayer()].decrement();
             }));
 
-            WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, false, false, 1, new HashMap<>() {{
+            WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, false, false, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0); //2
+                put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
@@ -1305,6 +1304,7 @@ public class EverdellParameters extends AbstractParameters {
 
             WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how much wood was given
@@ -1747,11 +1747,11 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 25);
+        put(CardDetails.FARM, 20);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 0);
+        put(CardDetails.WIFE, 20);
         put(CardDetails.HUSBAND, 0);
         put(CardDetails.FAIRGROUNDS, 0);
         put(CardDetails.MINE, 0);
@@ -1769,7 +1769,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
-        put(CardDetails.QUEEN, 25);
+        put(CardDetails.QUEEN, 0);
         put(CardDetails.INN, 0);
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.MONK, 0);

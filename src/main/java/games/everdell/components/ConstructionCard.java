@@ -39,14 +39,15 @@ public class ConstructionCard extends EverdellCard{
     public ConstructionCard(String name, int compID) {
         super(name, compID);
     }
-    public ConstructionCard(ArrayList<CardDetails> cardsThatCanOccupy, String name, int compID) {
+    public ConstructionCard(ArrayList<CardDetails> cardsThatCanOccupy, String name, boolean isOccupied, int compID) {
         super(name, compID);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
+        this.isOccupied = isOccupied;
     }
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, boolean isOccupied, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
         super(name, compID);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
-        isOccupied = false;
+        this.isOccupied = isOccupied;
 
         //RED DESTINATION VARIABLE
         this.redDestinationLocation = rdl;
@@ -80,7 +81,6 @@ public class ConstructionCard extends EverdellCard{
         return false;
     }
     public boolean canCardOccupyThis(EverdellGameState state,EverdellCard card){
-
         for(EverdellParameters.CardDetails cardEnumValue : cardsThatCanOccupy){
             if(cardEnumValue == card.getCardEnumValue() && !isOccupied){
                 return true;
@@ -111,9 +111,9 @@ public class ConstructionCard extends EverdellCard{
         ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
         ConstructionCard card;
         if(redDestinationLocation != null){
-            card = new ConstructionCard(redDestinationLocation, getName(), cardsThatCanOccupy, componentID);
+            card = new ConstructionCard(redDestinationLocation, getName(), isOccupied, cardsThatCanOccupy, componentID);
         }else{
-            card = new ConstructionCard(cardsThatCanOccupy, getName(), componentID);
+            card = new ConstructionCard(cardsThatCanOccupy, getName(), isOccupied, componentID);
         }
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
