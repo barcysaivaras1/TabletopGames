@@ -8,6 +8,7 @@ import games.everdell.EverdellParameters;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.CardDetails;
 import games.everdell.components.FoolCard;
+import org.apache.spark.sql.sources.In;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
     int cardId;
 
     boolean executed;
+
+    ArrayList<Integer> cardsToSelectFromIds;
 
     boolean payWithResources;
     boolean payWithDiscount;
@@ -46,13 +49,15 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
      * */
 
 
-    public SelectCard(int playerId, int cardId) {
+    public SelectCard(int playerId, int cardId, ArrayList<Integer> cardsToSelectFromIds) {
         this.playerId = playerId;
         this.cardId = cardId;
+        this.cardsToSelectFromIds = cardsToSelectFromIds;
     }
-    private SelectCard(int playerId, int cardId, boolean payWithResources, boolean payWithDiscount, boolean payWithOccupation) {
+    private SelectCard(int playerId, int cardId, ArrayList<Integer> cardsToSelectFromIds, boolean payWithResources, boolean payWithDiscount, boolean payWithOccupation) {
         this.playerId = playerId;
         this.cardId = cardId;
+        this.cardsToSelectFromIds = cardsToSelectFromIds;
         this.payWithResources = payWithResources;
         this.payWithDiscount = payWithDiscount;
         this.payWithOccupation = payWithOccupation;
@@ -65,6 +70,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         if(cardId == -1 || (!payWithResources && !payWithDiscount && !payWithOccupation)){
             state.setActionInProgress(this);
         }
+
         return true;
     }
 
@@ -80,10 +86,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
         //This is currently only iterating over the player's hand, but it should be iterating over the meadow aswell
         if(cardId == -1) { // Select Card
-            System.out.println("Selecting Card");
-            for (EverdellCard card : egs.playerHands.get(playerId)) {
+            for (Integer cardId : cardsToSelectFromIds) {
+                EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
                 if (canCardBePlayed(card, egs)) {
-                    actions.add(new SelectCard(playerId, card.getComponentID()));
+                    actions.add(new SelectCard(playerId, card.getComponentID(), cardsToSelectFromIds));
                 }
 
             }
@@ -92,7 +98,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
             System.out.println("Selecting Payment Method");
             //Paying with resources
-            actions.add(new SelectCard(playerId, cardId, true, false, false));
+            actions.add(new SelectCard(playerId, cardId, cardsToSelectFromIds, true, false, false));
 
             //Paying with discount
 
@@ -186,7 +192,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     @Override
     public SelectCard copy() {
-        SelectCard retValue = new SelectCard(playerId, cardId);
+        SelectCard retValue = new SelectCard(playerId, cardId, new ArrayList<>(cardsToSelectFromIds));
         retValue.executed = executed;
         retValue.payWithResources = payWithResources;
         retValue.payWithDiscount = payWithDiscount;
@@ -198,12 +204,12 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         SelectCard that = (SelectCard) o;
-        return playerId == that.playerId && cardId == that.cardId && executed == that.executed && payWithResources == that.payWithResources && payWithDiscount == that.payWithDiscount && payWithOccupation == that.payWithOccupation;
+        return playerId == that.playerId && cardId == that.cardId && executed == that.executed && payWithResources == that.payWithResources && payWithDiscount == that.payWithDiscount && payWithOccupation == that.payWithOccupation && Objects.equals(cardsToSelectFromIds, that.cardsToSelectFromIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerId, cardId, executed, payWithResources, payWithDiscount, payWithOccupation);
+        return Objects.hash(playerId, cardId, executed, cardsToSelectFromIds, payWithResources, payWithDiscount, payWithOccupation);
     }
 
     @Override

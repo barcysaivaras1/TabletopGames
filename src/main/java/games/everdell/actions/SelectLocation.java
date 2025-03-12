@@ -231,7 +231,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
         if(isFirstAction){
             //Basic Location
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicLocations){
-                new PlaceWorker(selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
             }
 
             //Forest Location
@@ -257,12 +257,12 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                     //We would be looping back for another selection
                 }
                 else {
-                    new PlaceWorker(selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                 }
             }
             //Basic Event
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicEvent){
-                new PlaceWorker(selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
             }
 
             //Special Event
@@ -299,7 +299,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
             if(originalLocation.getAbstractLocation() == EverdellParameters.ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
                 EverdellParameters.ForestLocations.basicLocationChoice = (EverdellParameters.BasicLocations) selectedLocation.getAbstractLocation();
-                new PlaceWorker(locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
             }
         }
 

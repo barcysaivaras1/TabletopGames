@@ -1423,7 +1423,7 @@ public class BottomPanel extends JPanel {
         }
         HashMap<ResourceTypes, Integer> rsID = new HashMap<>(resourceSelection);
 
-        return new PlaceWorker(locationID, csID, rsID);
+        return new PlaceWorker(state.getCurrentPlayer(), locationID, csID, rsID);
     }
 
 

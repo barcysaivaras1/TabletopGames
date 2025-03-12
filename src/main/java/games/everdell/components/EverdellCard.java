@@ -43,7 +43,7 @@ public abstract class EverdellCard extends Card {
         this.applyCardEffect = applyCardEffect;
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
-        isCardPayedFor = false;
+        this.isCardPayedFor = false;
     }
 
     protected EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {
@@ -57,7 +57,7 @@ public abstract class EverdellCard extends Card {
         this.applyCardEffect = applyCardEffect;
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
-        isCardPayedFor = false;
+        this.isCardPayedFor = false;
     }
     public EverdellCard(String name, int compID) {
         super(name,compID);
@@ -104,7 +104,7 @@ public abstract class EverdellCard extends Card {
     public void setCardPoints(int points){
         this.points = points;
     }
-    public void payForCard() { isCardPayedFor = true; }
+    public void payForCard() { this.isCardPayedFor = true; }
 
 }
 

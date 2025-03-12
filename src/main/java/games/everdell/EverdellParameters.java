@@ -904,6 +904,8 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
             QUEEN_DESTINATION.applyLocationEffect = (state) -> {
+                System.out.println("QUEEN DESTINATION");
+                System.out.println("CARD SELECTION : "+state.cardSelection.get(0).getComponentID());
                 state.cardSelection.get(0).payForCard();
             };
 
@@ -981,7 +983,7 @@ public class EverdellParameters extends AbstractParameters {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
                         put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 0); //1
+                        put(ResourceTypes.RESIN, 1); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1745,7 +1747,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 0);
+        put(CardDetails.FARM, 25);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.WANDERER, 0);
@@ -1767,7 +1769,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.DOCTOR, 0);
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.LOOKOUT, 0);
-        put(CardDetails.QUEEN, 0);
+        put(CardDetails.QUEEN, 25);
         put(CardDetails.INN, 0);
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.MONK, 0);
@@ -1785,9 +1787,9 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.CHAPEL, 0);
         put(CardDetails.SHEPHERD, 0);
-        put(CardDetails.CLOCK_TOWER, 20);
+        put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
-        put(CardDetails.RANGER, 20);
+        put(CardDetails.RANGER, 0);
         put(CardDetails.DUNGEON, 0);
         put(CardDetails.MINER_MOLE, 0);
         put(CardDetails.EVER_TREE, 0);

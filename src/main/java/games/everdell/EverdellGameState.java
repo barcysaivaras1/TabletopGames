@@ -7,6 +7,7 @@ import core.components.Counter;
 import core.components.Deck;
 import core.components.FrenchCard;
 import games.GameType;
+import games.everdell.components.ConstructionCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.ResourceTypes;
@@ -118,7 +119,12 @@ public class EverdellGameState extends AbstractGameState {
         for(var hand : playerHands){
             components.add(hand.copy());
             for(var card : hand){
-                components.add(card.copy());
+                if(card instanceof ConstructionCard cc){
+                    components.add(cc.copy());
+                }
+                else {
+                    components.add(card.copy());
+                }
             }
         }
         for(var village : playerVillage){

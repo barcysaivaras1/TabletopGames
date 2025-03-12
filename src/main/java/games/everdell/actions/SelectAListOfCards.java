@@ -127,7 +127,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             //Forest Locations
             if (location.getAbstractLocation() == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED) {
                 ForestLocations.cardChoices = sa.selectedCards;
-                new PlaceWorker(locationId, cardIds, new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, new HashMap<>()).execute(egs);
             } else if (location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED) {
                 ForestLocations.cardChoices = sa.selectedCards;
                 new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size(), false, true, true).execute(egs);
@@ -144,13 +144,13 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
 
             //Journey
             if(location.getAbstractLocation() instanceof JourneyLocations){
-                new PlaceWorker(locationId, cardIds, new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, new HashMap<>()).execute(egs);
             }
 
             //Red Destination
             if(location.getAbstractLocation() instanceof RedDestinationLocation){
                 if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
-                    new PlaceWorker(locationId, cardIds, new HashMap<>()).execute(egs);
+                    new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, new HashMap<>()).execute(egs);
                 }
             }
         }

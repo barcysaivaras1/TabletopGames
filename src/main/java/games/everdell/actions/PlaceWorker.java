@@ -4,6 +4,7 @@ import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Counter;
 import core.components.Component;
+import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicEvent;
@@ -17,6 +18,7 @@ import scala.Int;
 import javax.xml.stream.Location;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -36,7 +38,7 @@ import java.util.function.Function;
  * use the {@link AbstractGameState#getComponentById(int)} function to retrieve the actual reference to the component,
  * given your componentID.</p>
  */
-public class PlaceWorker extends AbstractAction {
+public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
     /**
      * Executes this action, applying its effect to the given game state. Can access any component IDs stored
@@ -45,16 +47,19 @@ public class PlaceWorker extends AbstractAction {
      * @return - true if successfully executed, false otherwise.
      */
     //private EverdellParameters.AbstractLocations locationToPlaceIn;
+    private int playerId;
     private int locationComponentID;
     private String locationName;
     private ArrayList<Integer> cardSelectionIds;
     private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
-    public PlaceWorker(int location, ArrayList<Integer> cardSelectionIds, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
+    public PlaceWorker(int playerId, int location, ArrayList<Integer> cardSelectionIds, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
+        this.playerId = playerId;
         locationComponentID = location;
         this.cardSelectionIds = cardSelectionIds;
         this.resourceSelectionValues = resourceSelection;
     }
+
 
 
     @Override
@@ -68,10 +73,12 @@ public class PlaceWorker extends AbstractAction {
         if(state.workers[state.getCurrentPlayer()].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
             System.out.println("Placing Worker in : " + locationToPlaceIn);
 
+
             state.cardSelection = new ArrayList<>();
             for(var cardId : cardSelectionIds){
                 state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
             }
+
 
             HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
             for(var resource : resourceSelectionValues.keySet()){
@@ -102,10 +109,37 @@ public class PlaceWorker extends AbstractAction {
             state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
             //Reset Card Selection
             state.cardSelection = new ArrayList<>();
+
+            //AI PLAY
+            EverdellLocation location = state.Locations.get(locationToPlaceIn);
+            if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
+                new SelectCard(playerId, cardSelectionIds.get(0), new ArrayList<>()).execute(state);
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    @Override
+    public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
+        return List.of();
+    }
+
+    @Override
+    public int getCurrentPlayer(AbstractGameState state) {
+        return playerId;
+    }
+
+    @Override
+    public void _afterAction(AbstractGameState state, AbstractAction action) {
+        return;
+    }
+
+    @Override
+    public boolean executionComplete(AbstractGameState state) {
+        return true;
     }
 
     /**
@@ -119,7 +153,7 @@ public class PlaceWorker extends AbstractAction {
         // TODO: copy non-final variables appropriately
         ArrayList<Integer> cardSelection = new ArrayList<>(this.cardSelectionIds);
         HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues = new HashMap<>(this.resourceSelectionValues);
-        return new PlaceWorker(locationComponentID, cardSelection, resourceSelectionValues);
+        return new PlaceWorker(playerId, locationComponentID, cardSelection, resourceSelectionValues);
     }
 
 
@@ -127,12 +161,12 @@ public class PlaceWorker extends AbstractAction {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PlaceWorker that = (PlaceWorker) o;
-        return locationComponentID == that.locationComponentID && Objects.equals(locationName, that.locationName) && Objects.equals(cardSelectionIds, that.cardSelectionIds) && Objects.equals(resourceSelectionValues, that.resourceSelectionValues);
+        return playerId == that.playerId && locationComponentID == that.locationComponentID && Objects.equals(locationName, that.locationName) && Objects.equals(cardSelectionIds, that.cardSelectionIds) && Objects.equals(resourceSelectionValues, that.resourceSelectionValues);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(locationComponentID, locationName, cardSelectionIds, resourceSelectionValues);
+        return Objects.hash(playerId, locationComponentID, locationName, cardSelectionIds, resourceSelectionValues);
     }
 
     @Override

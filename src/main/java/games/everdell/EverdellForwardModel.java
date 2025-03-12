@@ -273,13 +273,20 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
         //Location Decisions
-//        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, true)._computeAvailableActions(egs).isEmpty()) {
-//            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, true));
-//        }
+        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, true)._computeAvailableActions(egs).isEmpty()) {
+            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, true));
+        }
 
         //Card Decisions
-        if(!new SelectCard(gameState.getCurrentPlayer(), -1)._computeAvailableActions(egs).isEmpty()) {
-            actions.add(new SelectCard(gameState.getCurrentPlayer(), -1));
+        ArrayList<Integer> cardsToSelectFrom = new ArrayList<>();
+//        for (EverdellCard card : egs.meadowDeck.getComponents()) {
+//            cardsToSelectFrom.add(card);
+//        }
+        for (EverdellCard card : egs.playerHands.get(gameState.getCurrentPlayer()).getComponents()) {
+            cardsToSelectFrom.add(card.getComponentID());
+        }
+        if(!new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+            actions.add(new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom));
         }
 
         //Season Decisions
