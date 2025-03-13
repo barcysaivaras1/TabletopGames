@@ -120,51 +120,51 @@ public class EverdellGameState extends AbstractGameState {
         // TODO: add all components to the list
         List<Component> components = new ArrayList<>();
 
-        components.add(cardDeck.copy());
-        components.add(meadowDeck.copy());
-        components.add(discardDeck.copy());
-        components.add(temporaryDeck.copy());
+        components.add(cardDeck);
+        components.add(meadowDeck);
+        components.add(discardDeck);
+        components.add(temporaryDeck);
 
         for(var hand : playerHands){
-            components.add(hand.copy());
+            components.add(hand);
             for(var card : hand){
                 if(card instanceof ConstructionCard cc){
-                    components.add(cc.copy());
+                    components.add(cc);
                 }
                 else {
-                    components.add(card.copy());
+                    components.add(card);
                 }
             }
         }
         for(var village : playerVillage){
-            components.add(village.copy());
+            components.add(village);
         }
         for(var resource : PlayerResources.keySet()){
             for(int i = 0; i< this.getNPlayers(); i++){
-                components.add(PlayerResources.get(resource)[i].copy());
+                components.add(PlayerResources.get(resource)[i]);
             }
         }
         for(int i = 0; i< cardCount.length; i++){
-            components.add(cardCount[i].copy());
-            components.add(workers[i].copy());
-            components.add(pointTokens[i].copy());
-            components.add(villageMaxSize[i].copy());
+            components.add(cardCount[i]);
+            components.add(workers[i]);
+            components.add(pointTokens[i]);
+            components.add(villageMaxSize[i]);
         }
 
         for(var location : everdellLocations){
-            components.add(location.copy());
+            components.add(location);
         }
 
         for(var resource : resourceSelection.keySet()){
-            components.add(resourceSelection.get(resource).copy());
+            components.add(resourceSelection.get(resource));
         }
 
         if(currentCard != null){
-            components.add(currentCard.copy());
+            components.add(currentCard);
         }
 
         for(var card : cardSelection){
-            components.add(card.copy());
+            components.add(card);
         }
 
         return components;

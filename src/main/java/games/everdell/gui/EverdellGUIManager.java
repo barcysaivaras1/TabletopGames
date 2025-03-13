@@ -1427,10 +1427,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
 
     public void redrawPanels(){
+        this.playerInfoPanel.revalidate();
         this.playerInfoPanel.drawPlayerInfoPanel();
+
+        this.playerCardPanel.revalidate();
         this.playerCardPanel.drawPlayerCards();
+        this.villagePanel.revalidate();
         this.villagePanel.drawVillagePanel();
+        this.meadowCardsPanel.revalidate();
         this.meadowCardsPanel.drawMeadowPanel();
+
+        parent.repaint();
+        parent.revalidate();
     }
 
     public void resetValues(){
@@ -1533,5 +1541,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
             redrawPanels();
         }
         playerInfoPanel.drawPlayerInfoPanel();
+        playerInfoPanel.revalidate();
+        playerInfoPanel.repaint();
     }
 }

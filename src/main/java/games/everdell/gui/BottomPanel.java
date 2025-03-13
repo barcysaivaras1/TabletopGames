@@ -417,7 +417,7 @@ public class BottomPanel extends JPanel {
                 button.addActionListener(k ->{
                     locationPanel.removeAll();
                     activateCopyMode(copyLocationID -> {
-                        EverdellLocation copyLocation = state.everdellLocations.get(copyLocationID);
+                        EverdellLocation copyLocation = (EverdellLocation) state.getComponentById(copyLocationID);
                         RedDestinationLocation.copyLocationChoice = copyLocation.getAbstractLocation();
                         placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         deactivateCopyMode();
@@ -825,7 +825,7 @@ public class BottomPanel extends JPanel {
                     this.remove(locationPanel);
 
                     drawBasicLocations(basicLocationID -> {
-                        EverdellLocation basicLocation = state.everdellLocations.get(basicLocationID);
+                        EverdellLocation basicLocation = (EverdellLocation) state.getComponentById(basicLocationID);
                         if(copyMode){
                             copyAction.accept(location.getComponentID());
                         }
