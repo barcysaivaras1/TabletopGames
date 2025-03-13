@@ -11,17 +11,17 @@ import java.util.function.Function;
 public class ShepherdCard extends CritterCard{
 
     private int selectedPlayer;
-    private Counter beforePR;
-    private Counter afterPR;
+    private int beforePR;
+    private int afterPR;
 
     public ShepherdCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
 
-        beforePR = new Counter();
-        afterPR = new Counter();
+        beforePR = 0;
+        afterPR = 0;
     }
 
-    private ShepherdCard(String name, int compID, int selectedPlayer, Counter beforePR, Counter afterPR) {
+    private ShepherdCard(String name, int compID, int selectedPlayer, int beforePR, int afterPR) {
         super(name, compID);
         this.selectedPlayer = selectedPlayer;
         this.beforePR = beforePR;
@@ -32,11 +32,11 @@ public class ShepherdCard extends CritterCard{
     public void applyCardEffect(EverdellGameState state) {
         //We need to know the difference between their berries before playing the card and RIGHT after playing the card
         //This is so we know how much they need to pay the other player
-        afterPR.increment(state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue());
+        afterPR += (state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].getValue());
 
         //The player will just select a player to gain 3 berries as they pay for the card by paying a player
         //If paid via occupation, selected player will gain nothing
-        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[selectedPlayer].increment(beforePR.getValue()-afterPR.getValue());
+        state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[selectedPlayer].increment(beforePR-afterPR);
 
         //The player will gain 3 berries due to the card effect
         state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(3);
@@ -59,13 +59,13 @@ public class ShepherdCard extends CritterCard{
 
     //Berries before
     public void setBeforePR(int berryCount){
-        beforePR.increment(berryCount);
+        beforePR += berryCount;
     }
 
     @Override
     public ShepherdCard copy() {
         ShepherdCard card;
-        card = new ShepherdCard(getName(), componentID, selectedPlayer, beforePR.copy(), afterPR.copy());
+        card = new ShepherdCard(getName(), componentID, selectedPlayer, beforePR, afterPR);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

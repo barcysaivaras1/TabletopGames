@@ -66,12 +66,14 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         EverdellGameState state = (EverdellGameState) gs;
-        EverdellParameters.AbstractLocations locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID)).getAbstractLocation();
+        EverdellLocation locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID));
 
 
+        System.out.println("****************PLACE WORKER CHECKING IF LOCATION IS FREE****************");
         //Check if this location is free
-        if(state.workers[state.getCurrentPlayer()].getValue() > 0 && state.Locations.get(locationToPlaceIn).isLocationFreeForPlayer(gs)){
-            System.out.println("Placing Worker in : " + locationToPlaceIn);
+        if(state.workers[state.getCurrentPlayer()].getValue() > 0 && locationToPlaceIn.isLocationFreeForPlayer(gs)){
+            System.out.println("**************************************************");
+            //System.out.println("Placing Worker in : " + locationToPlaceIn);
 
 
             state.cardSelection = new ArrayList<>();
@@ -86,7 +88,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             }
 
             //Check if we meet the requirements for the basic event
-            if(locationToPlaceIn instanceof EverdellParameters.BasicEvent be){
+            if(locationToPlaceIn.getAbstractLocation() instanceof BasicEvent be){
                 if(!BasicEvent.defaultCheckIfConditionMet(state, be)){
                     return false;
                 }
@@ -100,9 +102,14 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             }
 
             state.workers[state.getCurrentPlayer()].decrement();
-            EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
-            everdellLocation.applyLocationEffect(state);
-            everdellLocation.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
+            //EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
+            locationToPlaceIn.applyLocationEffect(state);
+            locationToPlaceIn.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
+
+            System.out.println("****************PLACE WORKER ACTION****************");
+            System.out.println("Player : " + state.getCurrentPlayer()+" Placed Worker in : " + locationToPlaceIn);
+            System.out.println("Players on Location : " + locationToPlaceIn.playersOnLocation);
+            System.out.println("**************************************************");
 
 
             //Reset the resource selection
@@ -111,8 +118,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             state.cardSelection = new ArrayList<>();
 
             //AI PLAY
-            EverdellLocation location = state.Locations.get(locationToPlaceIn);
-            if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
+            if(locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
                 new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
             }
 

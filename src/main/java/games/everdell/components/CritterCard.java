@@ -12,7 +12,9 @@ import java.util.function.Function;
 public class CritterCard extends EverdellCard{
 
     //RED DESTINATION VARIABLE
-    private EverdellParameters.RedDestinationLocation redDestinationLocation;
+    private EverdellParameters.RedDestinationLocation redDestinationAbstractLocation;
+    private Integer redDestinationLocationID;
+
 
     public CritterCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
@@ -21,23 +23,33 @@ public class CritterCard extends EverdellCard{
     //RED DESTINATION CONSTRUCTOR
     public CritterCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
-        redDestinationLocation = rdl;
+        redDestinationAbstractLocation = rdl;
+        redDestinationLocationID = -1;
     }
 
     //Copy Constructors
     public CritterCard(String name, int compID) {
         super(name, compID);
     }
-    public CritterCard(EverdellParameters.RedDestinationLocation rdl, String name,  int compID) {
+    public CritterCard(EverdellParameters.RedDestinationLocation rdl, Integer rdlID, String name,  int compID) {
         super(name, compID);
-        redDestinationLocation = rdl;
+        redDestinationAbstractLocation = rdl;
+        redDestinationLocationID = rdlID;
+    }
+
+    public EverdellLocation getLocation(EverdellGameState state){
+        if(redDestinationAbstractLocation != null){
+            return (EverdellLocation) state.getComponentById(redDestinationLocationID);
+        }
+        return null;
     }
 
     @Override
     public void applyCardEffect(EverdellGameState state){
-        if(redDestinationLocation != null){
-            EverdellLocation location = new EverdellLocation(redDestinationLocation,1, false, redDestinationLocation.getLocationEffect(state));
-            state.Locations.put(redDestinationLocation, location);
+        if(redDestinationAbstractLocation != null){
+            EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, false, redDestinationAbstractLocation.getLocationEffect(state));
+            state.everdellLocations.add(location);
+            redDestinationLocationID = location.getComponentID();
         }
         else {
             super.applyCardEffect(state);
@@ -45,14 +57,14 @@ public class CritterCard extends EverdellCard{
     }
 
     public void copyTo(CritterCard card){
-        if(redDestinationLocation != null){card.redDestinationLocation = this.redDestinationLocation;}
+        if(redDestinationAbstractLocation != null){card.redDestinationAbstractLocation = this.redDestinationAbstractLocation;}
         super.copyTo(card);
     }
 
     @Override
     public CritterCard copy() {
         CritterCard card;
-        if(redDestinationLocation != null){card = new CritterCard(redDestinationLocation, getName(),componentID);}
+        if(redDestinationAbstractLocation != null){card = new CritterCard(redDestinationAbstractLocation, redDestinationLocationID, getName(),componentID);}
         else {card = new CritterCard(getName(), componentID);}
 
         super.copyTo(card);

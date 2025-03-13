@@ -402,7 +402,7 @@ public class EverdellParameters extends AbstractParameters {
                     target = 4;
                     counter = 0;
                     for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                        if (card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
+                        if (card.getCardType() == CardType.GREEN_PRODUCTION){
                             counter++;
                         }
                     }
@@ -415,7 +415,7 @@ public class EverdellParameters extends AbstractParameters {
                     target = 3;
                     counter = 0;
                     for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                        if (card.getCardType() == EverdellParameters.CardType.BLUE_GOVERNANCE){
+                        if (card.getCardType() == CardType.BLUE_GOVERNANCE){
                             counter++;
                         }
                     }
@@ -427,7 +427,7 @@ public class EverdellParameters extends AbstractParameters {
                     target = 3;
                     counter = 0;
                     for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                        if (card.getCardType() == EverdellParameters.CardType.RED_DESTINATION){
+                        if (card.getCardType() == CardType.RED_DESTINATION){
                             counter++;
                         }
                     }
@@ -439,7 +439,7 @@ public class EverdellParameters extends AbstractParameters {
                     target = 3;
                     counter = 0;
                     for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-                        if (card.getCardType() == EverdellParameters.CardType.TAN_TRAVELER){
+                        if (card.getCardType() == CardType.TAN_TRAVELER){
                             counter++;
                         }
                     }
@@ -1141,13 +1141,13 @@ public class EverdellParameters extends AbstractParameters {
             }}, (state) -> {
                 int counter = 0;
 
-                for (var loc : state.Locations.keySet()) {
-                    if (loc instanceof BasicEvent && state.Locations.get(loc).playersOnLocation.contains(state.getCurrentPlayer())) {
+                for (var loc : state.everdellLocations) {
+                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }
-                for (var loc : state.Locations.keySet()) {
-                    if (loc instanceof SpecialEvent && state.Locations.get(loc).playersOnLocation.contains(state.getCurrentPlayer())) {
+                for (var loc : state.everdellLocations) {
+                    if (loc.getAbstractLocation() instanceof SpecialEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }
@@ -1266,6 +1266,8 @@ public class EverdellParameters extends AbstractParameters {
             //Look into this when you have revised the card system.
             RUINS.createEverdellCard = (gameState) -> new ConstructionCard("Ruins", RUINS, CardType.TAN_TRAVELER, true, false, 0, new HashMap<>() {{
             }}, (state) -> {
+                //A card must be selected to be removed from the village
+                //This uses CardSelection from the gameState to determine which card to remove
 
                 if (!state.cardSelection.isEmpty()) {
                     //Remove the selected card from the village
@@ -1285,16 +1287,14 @@ public class EverdellParameters extends AbstractParameters {
                     for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
                         state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(state.cardSelection.get(0).getResourceCost().get(resource));
                     }
-
-                    //Draw 2 Cards
-                    for (int i = 0; i < 2; i++) {
-                        if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
-                            break;
-                        }
-                        state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                        state.cardCount[state.getCurrentPlayer()].increment();
+                }
+                //Draw 2 Cards
+                for (int i = 0; i < 2; i++) {
+                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                        break;
                     }
-
+                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                    state.cardCount[state.getCurrentPlayer()].increment();
                 }
 
                 return true;
@@ -1309,7 +1309,7 @@ public class EverdellParameters extends AbstractParameters {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how much wood was given
                     //It can take a max of 3 wood
-                    System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(EverdellParameters.ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
+                    System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
                     int amount = Math.min(state.resourceSelection.get(ResourceTypes.TWIG).getValue(), 3);
                     amount = Math.min(amount, state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
                     state.pointTokens[state.getCurrentPlayer()].increment(amount);
@@ -1322,7 +1322,7 @@ public class EverdellParameters extends AbstractParameters {
                     state.resourceSelection.put(ResourceTypes.RESIN, new Counter());
                     state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
                 }
-                System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(EverdellParameters.ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
+                System.out.println("Wood Carver : Twig Count : "+state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].getValue());
 
                 return true;
             }, (everdellGameState -> {
@@ -1749,53 +1749,53 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.FARM, 25);
-        put(CardDetails.RESIN_REFINERY, 0);
-        put(CardDetails.GENERAL_STORE, 0);
-        put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 0);
-        put(CardDetails.HUSBAND, 0);
-        put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.MINE, 0);
-        put(CardDetails.TWIG_BARGE, 0);
-        put(CardDetails.SHOP_KEEPER, 0);
+        put(CardDetails.BARD, 0);
         put(CardDetails.BARGE_TOAD, 0);
         put(CardDetails.CASTLE, 0);
-        put(CardDetails.KING, 0);
-        put(CardDetails.PALACE, 0);
-        put(CardDetails.THEATRE, 0);
-        put(CardDetails.SCHOOL, 0);
-        put(CardDetails.BARD, 0);
-        put(CardDetails.RUINS, 0);
-        put(CardDetails.WOOD_CARVER, 0);
-        put(CardDetails.DOCTOR, 0);
-        put(CardDetails.PEDDLER, 0);
-        put(CardDetails.LOOKOUT, 0);
-        put(CardDetails.QUEEN, 0);
-        put(CardDetails.INN, 0);
-        put(CardDetails.POST_OFFICE, 0);
-        put(CardDetails.MONK, 0);
-        put(CardDetails.FOOL, 0);
-        put(CardDetails.TEACHER, 0);
-        put(CardDetails.MONASTERY, 0);
-        put(CardDetails.HISTORIAN, 0);
         put(CardDetails.CEMETERY, 0);
-        put(CardDetails.UNDERTAKER, 0);
-        put(CardDetails.POSTAL_PIGEON, 25);
-        put(CardDetails.JUDGE, 0);
+        put(CardDetails.CHAPEL, 25);
         put(CardDetails.CHIP_SWEEP, 0);
-        put(CardDetails.CRANE, 0);
-        put(CardDetails.INNKEEPER, 0);
-        put(CardDetails.UNIVERSITY, 0);
-        put(CardDetails.CHAPEL, 0);
-        put(CardDetails.SHEPHERD, 0);
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
-        put(CardDetails.RANGER, 0);
+        put(CardDetails.CRANE, 0);
+        put(CardDetails.DOCTOR, 0);
         put(CardDetails.DUNGEON, 0);
-        put(CardDetails.MINER_MOLE, 0);
         put(CardDetails.EVER_TREE, 0);
+        put(CardDetails.FAIRGROUNDS, 0);
+        put(CardDetails.FARM, 0);
+        put(CardDetails.FOOL, 0);
+        put(CardDetails.GENERAL_STORE, 0);
+        put(CardDetails.HISTORIAN, 0);
+        put(CardDetails.HUSBAND, 0);
+        put(CardDetails.INN, 0);
+        put(CardDetails.INNKEEPER, 0);
+        put(CardDetails.JUDGE, 0);
+        put(CardDetails.KING, 0);
+        put(CardDetails.LOOKOUT, 0);
+        put(CardDetails.MINE, 0);
+        put(CardDetails.MINER_MOLE, 0);
+        put(CardDetails.MONASTERY, 0);
+        put(CardDetails.MONK, 0);
+        put(CardDetails.PALACE, 0);
+        put(CardDetails.PEDDLER, 0);
+        put(CardDetails.POST_OFFICE, 0);
+        put(CardDetails.POSTAL_PIGEON, 0);
+        put(CardDetails.QUEEN, 0);
+        put(CardDetails.RANGER, 0);
+        put(CardDetails.RESIN_REFINERY, 0);
+        put(CardDetails.RUINS, 0);
+        put(CardDetails.SCHOOL, 0);
+        put(CardDetails.SHEPHERD, 25);
+        put(CardDetails.SHOP_KEEPER, 0);
         put(CardDetails.STORE_HOUSE, 0);
+        put(CardDetails.TEACHER, 0);
+        put(CardDetails.THEATRE, 0);
+        put(CardDetails.TWIG_BARGE, 0);
+        put(CardDetails.UNDERTAKER, 0);
+        put(CardDetails.UNIVERSITY, 0);
+        put(CardDetails.WANDERER, 0);
+        put(CardDetails.WIFE, 0);
+        put(CardDetails.WOOD_CARVER, 0);
     }};
 
     @Override

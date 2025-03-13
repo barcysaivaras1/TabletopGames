@@ -89,7 +89,9 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         List<AbstractAction> actions = new ArrayList<>();
 
         generateCardCombinations(new ArrayList<>(), 0, actions);
-
+        if(actions.isEmpty()){
+            actions.add(new SelectAListOfCards(playerId, locationId, cardId, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
+        }
         return actions;
     }
 
@@ -140,7 +142,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 for(EverdellCard card : sa.selectedCards){
                     egs.cardSelection.add(card.copy());
                 }
-                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), sa.selectedCards.size()/2, false, true, true).execute(egs);
+                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size()/2, false, true, true).execute(egs);
             }
 
             //Journey
@@ -167,9 +169,6 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                     egs.cardSelection.add(sa.cardsToSelectFrom.get(1));
                 }
                 new SelectPlayer(playerId, cardId, -1).execute(egs);
-            }
-            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.POSTAL_PIGEON){
-                new PlayCard(playerId, cardId, cardIds, new HashMap<>()).execute(egs);
             }
             else if(card.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER && !loopAction){
                 //Remove Cards from meadow

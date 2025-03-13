@@ -26,9 +26,9 @@ public class MonasteryCard extends ConstructionCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
-        location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
-        state.Locations.put(rdl, location);
+        EverdellLocation location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
+        state.everdellLocations.add(location);
+        locationId = location.getComponentID();
         //This means they are placing the card, we can assign the playerOwner
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
             unlockSecondLocation(state);

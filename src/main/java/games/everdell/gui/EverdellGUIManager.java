@@ -46,12 +46,12 @@ import java.util.stream.Collectors;
 
 /**
  * <p>This class allows the visualisation of the game. The game components (accessible through {@link Game#getGameState()}
- * should be added into {@link javax.swing.JComponent} subclasses (e.g. {@link javax.swing.JLabel},
- * {@link javax.swing.JPanel}, {@link javax.swing.JScrollPane}; or custom subclasses such as those in {@link gui} package).
+ * should be added into {@link JComponent} subclasses (e.g. {@link JLabel},
+ * {@link JPanel}, {@link JScrollPane}; or custom subclasses such as those in {@link gui} package).
  * These JComponents should then be added to the <code>`parent`</code> object received in the class constructor.</p>
  *
- * <p>An appropriate layout should be set for the parent GamePanel as well, e.g. {@link javax.swing.BoxLayout} or
- * {@link java.awt.BorderLayout} or {@link java.awt.GridBagLayout}.</p>
+ * <p>An appropriate layout should be set for the parent GamePanel as well, e.g. {@link BoxLayout} or
+ * {@link BorderLayout} or {@link GridBagLayout}.</p>
  *
  * <p>Check the super class for methods that can be overwritten for a more custom look, or
  * {@link games.terraformingmars.gui.TMGUI} for an advanced game visualisation example.</p>
@@ -68,7 +68,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
     private JPanel playerActionsPanel;
 
     public ArrayList<EverdellCard> cardSelection;
-    public HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection;
+    public HashMap<ResourceTypes, Integer> resourceSelection;
 
     ActionController aC;
 
@@ -643,8 +643,9 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                     //Iterate Over each Location and create a button for each one
                     playerCardPanel.removeAll();
-                    playerCardPanel.activateCopyMode(copyLocation -> {
-                        ct.selectLocation(state.Locations.get(copyLocation).getComponentID());
+                    playerCardPanel.activateCopyMode(copyLocationID -> {
+                        EverdellLocation copyLocation = (EverdellLocation) state.getComponentById(copyLocationID);
+                        ct.selectLocation(copyLocationID);
                         playCardActionWithComponentToIDConversion(state, card, cardSelection, resourceSelection).triggerCardEffect(state, ct);
                         playerCardPanel.deactivateCopyMode();
                         redrawPanels();
@@ -653,7 +654,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         //This is the only location that places a card
                         //Therefore we need to place the card first and then move to the next function
-                        if(copyLocation!= ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                        if(copyLocation.getAbstractLocation() != ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
                             FunctionWrapper.activateNextFunction();
                         }
                     });
@@ -1151,7 +1152,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                         EverdellLocation locationToMoveFrom = null;
 
                         //Find all location in which the player has a worker on
-                        for(var location : state.Locations.values()){
+                        for(var location : state.everdellLocations){
                             if(location.isPlayerOnLocation(state) && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
                                 locationsToDisplayRanger.add(location);
                             }
@@ -1177,17 +1178,18 @@ public class EverdellGUIManager extends AbstractGUIManager {
                                 rc.setLocationFrom(location);
                                 state.workers[state.getCurrentPlayer()].increment();
 
-                                playerCardPanel.activateCopyMode(copyLocation -> {
+                                playerCardPanel.activateCopyMode(copyLocationID -> {
                                     System.out.println("Copy Mode Activated");
+                                    EverdellLocation copyLocation = (EverdellLocation) state.getComponentById(copyLocationID);
                                     System.out.println("Copy Location : "+copyLocation);
 
-                                    rc.setLocationTo(state.Locations.get(copyLocation));
+                                    rc.setLocationTo(copyLocation);
                                     playerCardPanel.deactivateCopyMode();
                                     redrawPanels();
 
                                     //This is the only location that places a card
                                     //Therefore we need to place the card first and then move to the next function
-                                    if(copyLocation != ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT && copyLocation != EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
+                                    if(copyLocation.getAbstractLocation() != ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT && copyLocation.getAbstractLocation() != EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
                                         FunctionWrapper.activateNextFunction();
                                     }
 
@@ -1526,6 +1528,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
     @Override
     protected void _update(AbstractPlayer player, AbstractGameState gameState) {
         // TODO
+
         if(!(player instanceof HumanGUIPlayer)){
             redrawPanels();
         }

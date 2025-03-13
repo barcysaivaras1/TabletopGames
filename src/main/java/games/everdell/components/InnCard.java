@@ -35,9 +35,9 @@ public class InnCard extends ConstructionCard{
         //This means they are placing the card, we can assign the playerOwner
         playerOwner = state.getCurrentPlayer();
 
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
-        location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
-        state.Locations.put(rdl, location);
+        EverdellLocation location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
+        state.everdellLocations.add(location);
+        locationId = location.getComponentID();
         System.out.println(location);
     }
 

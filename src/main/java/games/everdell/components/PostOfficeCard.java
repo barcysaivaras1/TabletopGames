@@ -41,9 +41,9 @@ public class PostOfficeCard extends ConstructionCard{
         //This means they are placing the card, we can assign the playerOwner
         playerOwner = state.getCurrentPlayer();
 
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
-        location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
-        state.Locations.put(rdl, location);
+        EverdellLocation location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
+        state.everdellLocations.add(location);
+        locationId = location.getComponentID();
         System.out.println(location);
     }
 
@@ -77,6 +77,8 @@ public class PostOfficeCard extends ConstructionCard{
                 if (state.playerHands.get(selectedPlayer).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
                     break;
                 }
+                System.out.println("Adding card to player " + selectedPlayer);
+                System.out.println("Card: " + state.cardSelection.get(i).getName());
                 state.playerHands.get(selectedPlayer).add(state.cardSelection.get(i));
                 state.cardCount[selectedPlayer].increment();
             }

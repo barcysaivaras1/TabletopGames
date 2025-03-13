@@ -19,14 +19,14 @@ import java.util.function.Function;
 public class EverdellLocation extends Component {
 
     int numberOfSpaces;
-    //boolean occupied;
+
     boolean canTheSamePlayerBeOnLocationMultipleTimes;
 
     private final AbstractLocations location;
 
     private Consumer<EverdellGameState> locationEffect;
 
-    public List<Integer> playersOnLocation;
+    public ArrayList<Integer> playersOnLocation;
 
     public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect){
         super(CoreConstants.ComponentType.LOCATION);
@@ -36,14 +36,14 @@ public class EverdellLocation extends Component {
         this.playersOnLocation = new ArrayList<>();
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
     }
-    public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect, int compID){
+    public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect, ArrayList<Integer> playersOnLocation, int compID){
         super(CoreConstants.ComponentType.LOCATION, compID);
         this.location = location;
         //this.shared = shared;
-        this.playersOnLocation = new ArrayList<>();
         this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
+        this.playersOnLocation = new ArrayList<>(playersOnLocation);
     }
 
     public void applyLocationEffect(EverdellGameState state){
@@ -55,16 +55,35 @@ public class EverdellLocation extends Component {
 
     public boolean isLocationFreeForPlayer(AbstractGameState gs){
         EverdellGameState state = (EverdellGameState) gs;
-//        if(location instanceof EverdellParameters.RedDestinationLocation){
-//            if(location != EverdellParameters.RedDestinationLocation.INN_DESTINATION && location != EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
-//                //We need to check if the player owns this location, as this is not a public location
-//                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
-//
-//                }
-//            }
-//        }
-
         boolean isThereSpace = numberOfSpaces > playersOnLocation.size();
+
+
+        if(location instanceof EverdellParameters.RedDestinationLocation){
+            System.out.println("IS RED DESTINATION LOCATION");
+            if(location != EverdellParameters.RedDestinationLocation.INN_DESTINATION && location != EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
+                System.out.println("IS NOT INN OR POST OFFICE");
+                //We need to check if the player owns this location, as this is not a public location
+                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+                    if(card instanceof ConstructionCard cc){
+                        System.out.println("This ID : "+this.getComponentID());
+                        System.out.println("CC ID : "+cc.getLocation(state).getComponentID());
+                        if(this.getComponentID() == cc.getLocation(state).getComponentID()){
+                            System.out.println("IS LOCATION FREE : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
+                            System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
+                            System.out.println("Players on the Card Location : "+cc.getLocation(state).getComponentID() + " : " + cc.getLocation(state).playersOnLocation);
+                            return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
+                        }
+                    }
+                    else if(card instanceof  CritterCard cc){
+                        if(this.getComponentID() == cc.getLocation(state).getComponentID()){
+                            return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
         System.out.println("Is the location free for the player : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
         System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
         System.out.println("Component Id : " + componentID);
@@ -89,10 +108,9 @@ public class EverdellLocation extends Component {
         this.numberOfSpaces = numberOfSpaces;
     }
 
-
     public EverdellLocation copy(){
-        EverdellLocation copy = new EverdellLocation(location, numberOfSpaces, canTheSamePlayerBeOnLocationMultipleTimes, locationEffect, componentID);
-        copy.playersOnLocation = new ArrayList<>(playersOnLocation);
+        EverdellLocation copy = new EverdellLocation(location, numberOfSpaces, canTheSamePlayerBeOnLocationMultipleTimes, locationEffect, playersOnLocation, componentID);
+        copyComponentTo(copy);
         return copy;
     }
 }

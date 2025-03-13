@@ -2,6 +2,7 @@ package games.everdell.components;
 
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
+import org.apache.spark.sql.sources.In;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ public class StorehouseCard extends ConstructionCard{
 
     HashMap<EverdellParameters.ResourceTypes, Integer> resourceStorage;
 
-    public EverdellLocation location;
+    public Integer locationId;
     EverdellParameters.RedDestinationLocation rdl;
 
     public StorehouseCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
@@ -25,8 +26,9 @@ public class StorehouseCard extends ConstructionCard{
         }
     }
 
-    private StorehouseCard(String name, int compID, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+    private StorehouseCard(String name, int compID, Integer locationId, EverdellParameters.RedDestinationLocation rdl) {
         super(name, compID);
+        this.locationId = locationId;
     }
 
 
@@ -60,9 +62,10 @@ public class StorehouseCard extends ConstructionCard{
         }
 
 
-        if(this.location == null) {
-            this.location = new EverdellLocation(rdl, 1, false, setLocationEffect(state));
-            state.Locations.put(rdl, this.location);
+        if(this.locationId == null) {
+            EverdellLocation location = new EverdellLocation(rdl, 1, false, setLocationEffect(state));
+            state.everdellLocations.add(location);
+            locationId = location.getComponentID();
         }
     }
 
@@ -81,11 +84,11 @@ public class StorehouseCard extends ConstructionCard{
     @Override
     public StorehouseCard copy() {
         StorehouseCard card;
-        if (location == null) {
+        if (locationId == null) {
             card = new StorehouseCard(getName(), componentID, null, rdl);
         }
         else {
-            card = new StorehouseCard(getName(), componentID, location.copy(), rdl);
+            card = new StorehouseCard(getName(), componentID, locationId, rdl);
         }
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

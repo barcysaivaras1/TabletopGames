@@ -93,24 +93,24 @@ public class MoveSeason extends AbstractAction {
             }
 
                 //Bring back all workers
-                for (var location : state.Locations.keySet()) {
+                for (EverdellLocation location : state.everdellLocations) {
                     //Monastery and Cemetery Card has a special case where the worker is not returned
-                    if(location == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION || location == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
+                    if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION || location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
                         continue;
                     }
 
                     //If no players are on the location, skip
-                    if (state.Locations.get(location).playersOnLocation.isEmpty()) continue;
+                    if (location.playersOnLocation.isEmpty()) continue;
 
-                    if(location instanceof EverdellParameters.BasicEvent){
+                    if(location.getAbstractLocation() instanceof EverdellParameters.BasicEvent){
                         state.workers[state.getCurrentPlayer()].increment();
                         continue;
                     }
 
-                    System.out.println("Players on Location : "+state.Locations.get(location).playersOnLocation);
+                    System.out.println("Players on Location : "+ location.playersOnLocation);
                     //If player is on the location, remove them and increment their workers
-                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer())){
-                        state.Locations.get(location).playersOnLocation.remove((Integer)state.getCurrentPlayer());
+                    if(location.playersOnLocation.contains(state.getCurrentPlayer())){
+                        location.playersOnLocation.remove((Integer)state.getCurrentPlayer());
                         state.workers[state.getCurrentPlayer()].increment();
                     }
                 }

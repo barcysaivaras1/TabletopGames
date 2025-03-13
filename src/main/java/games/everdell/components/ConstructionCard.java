@@ -15,24 +15,26 @@ public class ConstructionCard extends EverdellCard{
     ArrayList<CardDetails> cardsThatCanOccupy;
 
     //RED DESTINATION VARIABLE
-    private EverdellParameters.RedDestinationLocation redDestinationLocation;
+    private EverdellParameters.RedDestinationLocation redDestinationAbstractLocation;
+    private Integer redDestinationLocationID;
 
 
     //STANDARD CONSTRUCTOR
-    public ConstructionCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+    public ConstructionCard(String name, CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
     }
 
     //RED DESTINATION CONSTRUCTOR
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
 
         //RED DESTINATION VARIABLE
-        this.redDestinationLocation = rdl;
+        this.redDestinationAbstractLocation = rdl;
+        redDestinationLocationID = -1;
     }
 
     //Copy constructors
@@ -44,23 +46,25 @@ public class ConstructionCard extends EverdellCard{
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         this.isOccupied = isOccupied;
     }
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, boolean isOccupied, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, Integer rdlID, String name, boolean isOccupied, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
         super(name, compID);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         this.isOccupied = isOccupied;
 
         //RED DESTINATION VARIABLE
-        this.redDestinationLocation = rdl;
+        this.redDestinationAbstractLocation = rdl;
+        redDestinationLocationID = rdlID;
     }
 
 
     @Override
     public void applyCardEffect(EverdellGameState state) {
         System.out.println("CONSTRUCTION CARD");
-        if(redDestinationLocation != null){
+        if(redDestinationAbstractLocation != null){
             System.out.println("RED DESTINATION CARD");
-            EverdellLocation location = new EverdellLocation(redDestinationLocation,1, false, redDestinationLocation.getLocationEffect(state));
-            state.Locations.put(redDestinationLocation, location);
+            EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, false, redDestinationAbstractLocation.getLocationEffect(state));
+            state.everdellLocations.add(location);
+            redDestinationLocationID = location.getComponentID();
         }
         else {
             super.applyCardEffect(state);
@@ -71,7 +75,7 @@ public class ConstructionCard extends EverdellCard{
         if(isOccupied){
             return false;
         }
-        for(EverdellParameters.CardDetails cardEnumValue : cardsThatCanOccupy){
+        for(CardDetails cardEnumValue : cardsThatCanOccupy){
             if(cardEnumValue == card.getCardEnumValue()){
                 isOccupied = true;
                 card.payForCard();
@@ -81,12 +85,19 @@ public class ConstructionCard extends EverdellCard{
         return false;
     }
     public boolean canCardOccupyThis(EverdellGameState state,EverdellCard card){
-        for(EverdellParameters.CardDetails cardEnumValue : cardsThatCanOccupy){
+        for(CardDetails cardEnumValue : cardsThatCanOccupy){
             if(cardEnumValue == card.getCardEnumValue() && !isOccupied){
                 return true;
             }
         }
         return false;
+    }
+
+    public EverdellLocation getLocation(EverdellGameState state){
+        if(redDestinationAbstractLocation != null){
+            return (EverdellLocation) state.getComponentById(redDestinationLocationID);
+        }
+        return null;
     }
 
     public boolean isOccupied(){
@@ -99,8 +110,8 @@ public class ConstructionCard extends EverdellCard{
 
     public void copyTo(ConstructionCard card){
         ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
-        if(redDestinationLocation != null){
-            card.redDestinationLocation = this.redDestinationLocation;
+        if(redDestinationAbstractLocation != null){
+            card.redDestinationAbstractLocation = this.redDestinationAbstractLocation;
         }
         card.cardsThatCanOccupy = cardsThatCanOccupy;
         super.copyTo(card);
@@ -110,8 +121,8 @@ public class ConstructionCard extends EverdellCard{
     public ConstructionCard copy() {
         ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
         ConstructionCard card;
-        if(redDestinationLocation != null){
-            card = new ConstructionCard(redDestinationLocation, getName(), isOccupied, cardsThatCanOccupy, componentID);
+        if(redDestinationAbstractLocation != null){
+            card = new ConstructionCard(redDestinationAbstractLocation, redDestinationLocationID, getName(), isOccupied, cardsThatCanOccupy, componentID);
         }else{
             card = new ConstructionCard(cardsThatCanOccupy, getName(), isOccupied, componentID);
         }

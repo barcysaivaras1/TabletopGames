@@ -23,7 +23,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
     boolean isStrict;
     boolean loopAction;
 
-    public HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected;
+    private HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected;
     private final ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor;
 
     private final int maxAmount;

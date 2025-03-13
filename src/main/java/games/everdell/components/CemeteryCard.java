@@ -29,7 +29,7 @@ public class CemeteryCard extends ConstructionCard{
 
     public void applyCardEffect(EverdellGameState state) {
         this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
-        state.Locations.put(rdl, location);
+        state.everdellLocations.add(location);
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER ).forEach(c -> {
             unlockSecondLocation();
         });

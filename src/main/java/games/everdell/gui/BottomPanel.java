@@ -64,7 +64,7 @@ public class BottomPanel extends JPanel {
 
     //Modes
     private Boolean copyMode;
-    private Consumer<EverdellParameters.AbstractLocations> copyAction;
+    private Consumer<Integer> copyAction;
 
     BottomPanel(EverdellGUIManager EverdellGUIManager, EverdellGameState state){
         super();
@@ -197,8 +197,8 @@ public class BottomPanel extends JPanel {
 
 
         if(displayBasicLocations){
-            drawBasicLocations(location -> {
-                EverdellLocation everdellLocation = state.Locations.get(location);
+            drawBasicLocations(locationID -> {
+                EverdellLocation everdellLocation = (EverdellLocation) state.getComponentById(locationID);
                 placeWorkerActionWithComponentToIDConversion(everdellLocation, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                 everdellGUIManager.redrawPanels();
             });
@@ -254,7 +254,7 @@ public class BottomPanel extends JPanel {
 
 
 
-    private void drawBasicLocations(Consumer<EverdellParameters.AbstractLocations> buttonAction){
+    private void drawBasicLocations(Consumer<Integer> buttonAction){
         JButton back = new JButton("Back");
         back.addActionListener(k -> {
             displayBasicLocations = false;
@@ -263,27 +263,27 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
+        for(EverdellLocation location : state.everdellLocations){
             //Select only Basic Locations
-            if(!(location instanceof BasicLocations)){
+            if(!(location.getAbstractLocation() instanceof BasicLocations)){
                 continue;
             }
-            JButton button = new JButton(location.name());
+            JButton button = new JButton(location.getAbstractLocation().name());
 
             //If the location is not free for the player, change the background color
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+            if(!location.isLocationFreeForPlayer(state)) {
                 button.setBackground(Color.LIGHT_GRAY);
             }
 
             button.addActionListener(k -> {
                 if(copyMode){
-                    copyAction.accept(location);
+                    copyAction.accept(location.getComponentID());
                     return;
                 }
-                buttonAction.accept(location);
+                buttonAction.accept(location.getComponentID());
             });
             locationPanel.add(button);
         }
@@ -299,24 +299,24 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
+        for(var location : state.everdellLocations){
             //Select only Haven Locations
-            if(!(location instanceof EverdellParameters.JourneyLocations)){
+            if(!(location.getAbstractLocation() instanceof EverdellParameters.JourneyLocations)){
                 continue;
             }
-            JButton button = new JButton(location.name());
+            JButton button = new JButton(location.getAbstractLocation().name());
 
             //If the location is not free for the player, change the background color
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+            if(!location.isLocationFreeForPlayer(state)) {
                 button.setBackground(Color.LIGHT_GRAY);
             }
 
             button.addActionListener(k -> {
                 if(copyMode){
-                    copyAction.accept(location);
+                    copyAction.accept(location.getComponentID());
                     return;
                 }
                 //Discard cards from hand
@@ -328,7 +328,7 @@ public class BottomPanel extends JPanel {
                 JButton doneButton = new JButton("Done");
                 doneButton.addActionListener(k2 -> {
 
-                    placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                    placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                     everdellGUIManager.redrawPanels();
                 });
 
@@ -349,20 +349,20 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
+        for(var location : state.everdellLocations){
             //Select only Haven Locations
 
-            if(!(location instanceof HavenLocation)){
+            if(!(location.getAbstractLocation() instanceof HavenLocation)){
                 continue;
             }
-            JButton button = new JButton(location.name());
+            JButton button = new JButton(location.getAbstractLocation().name());
 
             button.addActionListener(k -> {
                 if(copyMode){
-                    copyAction.accept(location);
+                    copyAction.accept(location.getComponentID());
                     return;
                 }
                 //Discard cards from hand
@@ -375,7 +375,7 @@ public class BottomPanel extends JPanel {
                 doneButton.addActionListener(k2 -> {
                     //The player must select resources
                     drawResourceSelection(everdellGUIManager.cardSelection.size()/2,"Choose "+everdellGUIManager.cardSelection.size()/2+" Resources to gain", new ArrayList<>(List.of(ResourceTypes.values())), gameState -> {
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
                         everdellGUIManager.redrawPanels();
                         return true;
                     });
@@ -397,28 +397,29 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
+        for(var location : state.everdellLocations){
             //Select only Basic Locations
-            if(!(location instanceof RedDestinationLocation)){
+            if(!(location.getAbstractLocation() instanceof RedDestinationLocation)){
                 continue;
             }
-            JButton button = new JButton(location.name());
+            JButton button = new JButton(location.getAbstractLocation().name());
 
             //If the location is not free for the player, change the background color
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+            if(!location.isLocationFreeForPlayer(state)) {
                 button.setBackground(Color.LIGHT_GRAY);
             }
 
-            if(location == RedDestinationLocation.LOOKOUT_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.LOOKOUT_DESTINATION){
                 //Copy Basic or Forest Location
                 button.addActionListener(k ->{
                     locationPanel.removeAll();
-                    activateCopyMode(copyLocation -> {
-                        RedDestinationLocation.copyLocationChoice = copyLocation;
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                    activateCopyMode(copyLocationID -> {
+                        EverdellLocation copyLocation = state.everdellLocations.get(copyLocationID);
+                        RedDestinationLocation.copyLocationChoice = copyLocation.getAbstractLocation();
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         deactivateCopyMode();
                         everdellGUIManager.redrawPanels();
                         FunctionWrapper.activateNextFunction();
@@ -427,7 +428,7 @@ public class BottomPanel extends JPanel {
                     drawForestLocationsButton(locationPanel);
                 });
             }
-            if(location == RedDestinationLocation.QUEEN_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
                 //Place a card with 3 or less points
                 button.addActionListener(k ->{
                    ArrayList<EverdellCard> cards = state.playerHands.get(state.getCurrentPlayer()).stream().filter(card -> card.getPoints() <= 3).collect(Collectors.toCollection(ArrayList::new));
@@ -435,7 +436,7 @@ public class BottomPanel extends JPanel {
                    drawPlayerCardsButtons(1,cards, "Play a card worth 3 points or less for free", card -> {
                        everdellGUIManager.cardSelection.add(card);
                        if(copyMode){
-                           copyAction.accept(location);
+                           copyAction.accept(location.getComponentID());
                            everdellGUIManager.redrawPanels();
                            FunctionWrapper.addAFunction(() -> {
                                everdellGUIManager.placeACard(state, card);
@@ -445,7 +446,7 @@ public class BottomPanel extends JPanel {
                        }
                        else {
 
-                           placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                           placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                            everdellGUIManager.redrawPanels();
                            everdellGUIManager.placeACard(state, card);
                        }
@@ -454,7 +455,7 @@ public class BottomPanel extends JPanel {
                 });
             }
 
-            if(location == RedDestinationLocation.INN_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.INN_DESTINATION){
                 //Play a meadow card for 3 less resources
                 button.addActionListener(k ->{
                     ArrayList<EverdellCard> cards = state.meadowDeck.stream().collect(Collectors.toCollection(ArrayList::new));
@@ -470,7 +471,7 @@ public class BottomPanel extends JPanel {
                                 for(var c : playerDeck.getComponents()){
                                     if(c instanceof InnCard ic){
                                         EverdellLocation icLocation = (EverdellLocation) gameState.getComponentById(ic.locationId);
-                                        if(icLocation.getAbstractLocation() == location){
+                                        if(icLocation.getAbstractLocation() == location.getAbstractLocation()){
                                             ic.setPlayers(gameState.getCurrentPlayer());
                                             break;
                                         }
@@ -479,7 +480,7 @@ public class BottomPanel extends JPanel {
                             }
 
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                                 everdellGUIManager.redrawPanels();
                                 FunctionWrapper.addAFunction(() -> {
                                     everdellGUIManager.placeACard(gameState, card);
@@ -489,7 +490,7 @@ public class BottomPanel extends JPanel {
                             }
                             else {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
                                 everdellGUIManager.redrawPanels();
                                 everdellGUIManager.placeACard(gameState, card);
                             }
@@ -500,7 +501,7 @@ public class BottomPanel extends JPanel {
                 });
             }
 
-            if(location == RedDestinationLocation.POST_OFFICE_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
                 //Give 2 cards, discard any and draw to the limit
                 button.addActionListener(k -> {
 
@@ -512,13 +513,16 @@ public class BottomPanel extends JPanel {
                     JButton doneButton = new JButton("Done");
                     doneButton.addActionListener(k2 -> {
                         drawPlayerSelection(player -> {
-                            EverdellLocation loc = state.Locations.get(location);
                             //Find the card that aligns with the location
                             for(var playerDeck : state.playerVillage){
                                 for(var card : playerDeck.getComponents()){
                                     if(card instanceof PostOfficeCard poc){
                                         EverdellLocation pocLocation = (EverdellLocation) state.getComponentById(poc.locationId);
-                                        if(pocLocation == loc){
+                                        System.out.println("Poc Location ID : "+pocLocation.getComponentID());
+                                        System.out.println("Location ID : "+location.getComponentID());
+                                        if(pocLocation.getComponentID() == location.getComponentID()){
+                                            System.out.println("Setting Players");
+                                            System.out.println("Player : "+player);
                                             poc.setPlayers(player,state.getCurrentPlayer());
                                             break;
                                         }
@@ -527,10 +531,10 @@ public class BottomPanel extends JPanel {
                             }
 
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                             }
                             else {
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             }
                         });
@@ -539,18 +543,17 @@ public class BottomPanel extends JPanel {
                     this.add(doneButton, BorderLayout.SOUTH);
                     });
                 }
-            if(location == RedDestinationLocation.MONASTERY_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.MONASTERY_DESTINATION){
                 //Give 2 resources, gain 4 points
                 button.addActionListener(k -> {
                     drawResourceSelection(2,"Give 2 Resources, Gain 4 points", new ArrayList<>(List.of(ResourceTypes.values())), gameState -> {
                         drawPlayerSelection(player -> {
-                            EverdellLocation loc = state.Locations.get(location);
                             //Find the card that aligns with the location
                             for(var playerDeck : gameState.playerVillage){
                                 for(var card : playerDeck.getComponents()){
                                     if(card instanceof MonasteryCard mc){
                                         EverdellLocation mcLocation = (EverdellLocation) gameState.getComponentById(mc.locationId);
-                                        if(mcLocation == loc){
+                                        if(mcLocation == location){
                                             mc.setPlayers(player);
                                             break;
                                         }
@@ -559,11 +562,11 @@ public class BottomPanel extends JPanel {
                             }
 
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                             }
                             else {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             }
                         });
@@ -572,19 +575,19 @@ public class BottomPanel extends JPanel {
 
                 });
             }
-            if(location == RedDestinationLocation.STORE_HOUSE_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.STORE_HOUSE_DESTINATION){
                 //Claim all resources that are stored on the card
                 button.addActionListener(k -> {
                     if(copyMode){
-                        copyAction.accept(location);
+                        copyAction.accept(location.getComponentID());
                     }
                     else {
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                     }
                 });
             }
-            if(location == RedDestinationLocation.CEMETERY_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.CEMETERY_DESTINATION){
                 //Reveal 4 Cards from the deck or the discard pile. Play 1 of them 1 free
                 button.addActionListener(k -> {
                     ArrayList<EverdellCard> drawnCards = new ArrayList<>();
@@ -607,7 +610,7 @@ public class BottomPanel extends JPanel {
                             }
 
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                                 everdellGUIManager.redrawPanels();
                                 FunctionWrapper.addAFunction(() -> {
                                     everdellGUIManager.placeACard(gameState, card);
@@ -617,7 +620,7 @@ public class BottomPanel extends JPanel {
                             }
                             else {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                                 everdellGUIManager.placeACard(state, card);
                             }
@@ -657,7 +660,7 @@ public class BottomPanel extends JPanel {
                 });
             }
 
-            if(location == RedDestinationLocation.UNIVERSITY_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
                 //Discard a village card, refund it, gain a resource and 1 point
                 button.addActionListener(k -> {
                     //They must select a card that they want to discard
@@ -674,11 +677,11 @@ public class BottomPanel extends JPanel {
                                 if(cardInDeck.getCardEnumValue() == EverdellParameters.CardDetails.UNIVERSITY){
                                     found = true;
                                     if(copyMode){
-                                        copyAction.accept(location);
+                                        copyAction.accept(location.getComponentID());
                                     }
                                     else {
 
-                                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                         everdellGUIManager.redrawPanels();
                                     }
                                     break;
@@ -701,13 +704,13 @@ public class BottomPanel extends JPanel {
                 });
             }
 
-            if(location == RedDestinationLocation.CHAPEL_DESTINATION){
+            if(location.getAbstractLocation() == RedDestinationLocation.CHAPEL_DESTINATION){
                 button.addActionListener(k -> {
                     if(copyMode){
-                        copyAction.accept(location);
+                        copyAction.accept(location.getComponentID());
                     }
                     else {
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                     }
                 });
@@ -728,67 +731,67 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
+        for(var location : state.everdellLocations){
             //Only Taking in Forest Locations
-            if(!(location instanceof ForestLocations)){
+            if(!(location.getAbstractLocation() instanceof ForestLocations)){
                 continue;
             }
 
 
-            JButton button = new JButton(location.name());
+            JButton button = new JButton(location.getAbstractLocation().name());
             //Is the location free
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
+            if(!location.isLocationFreeForPlayer(state)) {
                 button.setBackground(Color.LIGHT_GRAY);
             }
 
-            ArrayList<EverdellParameters.ResourceTypes> rt = new ArrayList<>();
+            ArrayList<ResourceTypes> rt = new ArrayList<>();
             rt.add(ResourceTypes.BERRY);
             rt.add(ResourceTypes.PEBBLE);
             rt.add(ResourceTypes.RESIN);
             rt.add(ResourceTypes.TWIG);
 
-            if(location == ForestLocations.TWO_ANY || location == ForestLocations.TWO_CARDS_ONE_ANY){
+            if(location.getAbstractLocation() == ForestLocations.TWO_ANY || location.getAbstractLocation() == ForestLocations.TWO_CARDS_ONE_ANY){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
+                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
 
-                    int numOfResource = (location == ForestLocations.TWO_ANY) ? 2 : 1;
+                    int numOfResource = (location.getAbstractLocation() == ForestLocations.TWO_ANY) ? 2 : 1;
 
                     this.drawResourceSelection(numOfResource, "Select "+numOfResource+" Resources", rt, gameState -> {
                         if(copyMode){
-                            copyAction.accept(location);
+                            copyAction.accept(location.getComponentID());
                             return true;
                         }
 
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                         return true;
                     });
                 });
             }
-            else if (location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
+            else if (location.getAbstractLocation() == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
+                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
 
                     ForestLocations.cardChoices = new ArrayList<>();
 
                     JButton doneButton = new JButton("Discard Selected Cards");
 
-                    if(location == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
+                    if(location.getAbstractLocation() == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED){
                         this.drawPlayerCardsButtons(state.playerHands.get(state.getCurrentPlayer()).getSize(), "Discard Cards, Draw two for each one discarded", card -> {
                             ForestLocations.cardChoices.add(card);
                         });
                         doneButton.addActionListener(k2 -> {
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                             }
                             else{
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             }
                         });
@@ -802,10 +805,10 @@ public class BottomPanel extends JPanel {
                             drawResourceSelection(ForestLocations.cardChoices.size(),"Select "+ForestLocations.cardChoices.size()+" Resources", rt,
                                     game -> {
                                         if(copyMode){
-                                            copyAction.accept(location);
+                                            copyAction.accept(location.getComponentID());
                                             return true;
                                         }
-                                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                         everdellGUIManager.redrawPanels();
                                         return true;
                             });
@@ -814,30 +817,31 @@ public class BottomPanel extends JPanel {
                     this.add(doneButton, BorderLayout.SOUTH);
                 });
             }
-            else if (location == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
+            else if (location.getAbstractLocation() == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
+                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
 
                     this.remove(locationPanel);
 
-                    drawBasicLocations(basicLocation -> {
+                    drawBasicLocations(basicLocationID -> {
+                        EverdellLocation basicLocation = state.everdellLocations.get(basicLocationID);
                         if(copyMode){
-                            copyAction.accept(location);
+                            copyAction.accept(location.getComponentID());
                         }
                         else{
-                            ForestLocations.basicLocationChoice = (BasicLocations) basicLocation;
+                            ForestLocations.basicLocationChoice = (BasicLocations) basicLocation.getAbstractLocation();
 
-                            placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                            placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                             everdellGUIManager.redrawPanels();
                         }
                     });
                 });
             }
-            else if (location == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+            else if (location.getAbstractLocation() == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(state.Locations.get(location).playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
+                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
 
                     this.remove(locationPanel);
 
@@ -864,7 +868,7 @@ public class BottomPanel extends JPanel {
                                 everdellGUIManager.cardSelection.clear();
                                 everdellGUIManager.cardSelection.add(0, card);
                                 if(copyMode){
-                                    copyAction.accept(location);
+                                    copyAction.accept(location.getComponentID());
                                     everdellGUIManager.redrawPanels();
                                     FunctionWrapper.addAFunction(() -> {
                                         everdellGUIManager.placeACard(gameState, card);
@@ -874,7 +878,7 @@ public class BottomPanel extends JPanel {
                                 }
                                 else {
 
-                                    placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                    placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                     everdellGUIManager.redrawPanels();
                                     everdellGUIManager.placeACard(state, card);
                                 }
@@ -891,11 +895,11 @@ public class BottomPanel extends JPanel {
             else {
                 button.addActionListener(k -> {
                     if(copyMode){
-                        copyAction.accept(location);
+                        copyAction.accept(location.getComponentID());
                     }
                     else {
 
-                        placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                        placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                         everdellGUIManager.redrawPanels();
                     }
                 });
@@ -915,21 +919,21 @@ public class BottomPanel extends JPanel {
         this.add(back,BorderLayout.SOUTH);
 
         JPanel locationPanel = new JPanel();
-        locationPanel.setLayout(new GridLayout(2,state.Locations.size()));
+        locationPanel.setLayout(new GridLayout(2,state.everdellLocations.size()));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
-            if(!(location instanceof BasicEvent)){
+        for(var location : state.everdellLocations){
+            if(!(location.getAbstractLocation() instanceof BasicEvent)){
                 continue;
             }
-            JButton button = new JButton(location.name());
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
-                button.setBackground(EverdellParameters.playerColour.get(state.Locations.get(location).playersOnLocation.get(0)));
+            JButton button = new JButton(location.getAbstractLocation().name());
+            if(!location.isLocationFreeForPlayer(state)) {
+                button.setBackground(EverdellParameters.playerColour.get(location.playersOnLocation.get(0)));
             }
 
             button.addActionListener(k -> {
 
-                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                 everdellGUIManager.redrawPanels();
             });
             locationPanel.add(button);
@@ -949,18 +953,18 @@ public class BottomPanel extends JPanel {
         locationPanel.setLayout(new GridLayout(2,2));
 
         //Adds a listener to each button that will run the function assigned to it
-        for(var location : state.Locations.keySet()){
-            if(!(location instanceof SpecialEvent)){
+        for(var location : state.everdellLocations){
+            if(!(location.getAbstractLocation() instanceof SpecialEvent)){
                 continue;
             }
 
-            JButton button = new JButton(location.name());
-            if(!state.Locations.get(location).isLocationFreeForPlayer(state)) {
-                button.setBackground(EverdellParameters.playerColour.get(state.Locations.get(location).playersOnLocation.get(0)));
+            JButton button = new JButton(location.getAbstractLocation().name());
+            if(!location.isLocationFreeForPlayer(state)) {
+                button.setBackground(EverdellParameters.playerColour.get(location.playersOnLocation.get(0)));
             }
             //Button should not have any effect if the player is on the location
-            if(!state.Locations.get(location).isPlayerOnLocation(state)) {
-                if (location == SpecialEvent.CROAK_WARE_CURE) {
+            if(!location.isPlayerOnLocation(state)) {
+                if (location.getAbstractLocation() == SpecialEvent.CROAK_WARE_CURE) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.CROAK_WARE_CURE.checkIfConditionMet.apply(state)) {
                             //Allow the player to select 2 cards to discard
@@ -969,7 +973,7 @@ public class BottomPanel extends JPanel {
                             });
                             JButton doneButton = new JButton("Done");
                             doneButton.addActionListener(k2 -> {
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             });
                             this.add(doneButton, BorderLayout.SOUTH);
@@ -977,14 +981,14 @@ public class BottomPanel extends JPanel {
 
                     });
                 }
-                else if (location == SpecialEvent.TAX_RELIEF) {
+                else if (location.getAbstractLocation() == SpecialEvent.TAX_RELIEF) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.TAX_RELIEF.checkIfConditionMet.apply(state)) {
                             //This will trigger the green production event for all cards that require NO GUI interaction
                             new MoveSeason(new ArrayList<>()).productionEvent(state);
                             FunctionWrapper.addAFunction(() -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                                 return false;
                             }, "Tax Relief Action...", 0);
@@ -997,7 +1001,7 @@ public class BottomPanel extends JPanel {
                     });
                 }
 
-                else if (location == SpecialEvent.CAPTURE_OF_THE_ACORN_THIEVES) {
+                else if (location.getAbstractLocation() == SpecialEvent.CAPTURE_OF_THE_ACORN_THIEVES) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.CAPTURE_OF_THE_ACORN_THIEVES.checkIfConditionMet.apply(state)) {
                             //Let the player select 2 critters from their city to remove
@@ -1009,7 +1013,7 @@ public class BottomPanel extends JPanel {
                             JButton doneButton = new JButton("Done");
                             doneButton.addActionListener(k2 -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             });
                             this.add(doneButton, BorderLayout.SOUTH);
@@ -1018,7 +1022,7 @@ public class BottomPanel extends JPanel {
                     });
                 }
 
-                else if (location == SpecialEvent.GRADUATION_OF_SCHOLARS) {
+                else if (location.getAbstractLocation() == SpecialEvent.GRADUATION_OF_SCHOLARS) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.GRADUATION_OF_SCHOLARS.checkIfConditionMet.apply(state)) {
                             //Let the player select 3 critters from their city to remove
@@ -1030,7 +1034,7 @@ public class BottomPanel extends JPanel {
                             JButton doneButton = new JButton("Done");
                             doneButton.addActionListener(k2 -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             });
                             this.add(doneButton, BorderLayout.SOUTH);
@@ -1039,33 +1043,33 @@ public class BottomPanel extends JPanel {
                     });
                 }
 
-                else if (location == SpecialEvent.AN_EVENING_OF_FIREWORKS) {
+                else if (location.getAbstractLocation() == SpecialEvent.AN_EVENING_OF_FIREWORKS) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.AN_EVENING_OF_FIREWORKS.checkIfConditionMet.apply(state)) {
                             //The player must select how many resources they want to give up
                             drawResourceSelection(3, "Give up 3 Twigs, Gain 2 points for each twig", new ArrayList<>(List.of(ResourceTypes.TWIG)), gameState -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(gameState);
                                 everdellGUIManager.redrawPanels();
                                 return true;
                             });
                         }
                     });
                 }
-                else if (location == SpecialEvent.PERFORMER_IN_RESIDENCE) {
+                else if (location.getAbstractLocation() == SpecialEvent.PERFORMER_IN_RESIDENCE) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.PERFORMER_IN_RESIDENCE.checkIfConditionMet.apply(state)) {
                             //The player must select how many resources they want to give up
                             drawResourceSelection(3, "Give up 3 Berry, Gain 2 points for each Berry", new ArrayList<>(List.of(ResourceTypes.BERRY)), state -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                                 return true;
                             });
                         }
                     });
                 }
-                else if (location == SpecialEvent.ANCIENT_SCROLLS_DISCOVERED) {
+                else if (location.getAbstractLocation() == SpecialEvent.ANCIENT_SCROLLS_DISCOVERED) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.ANCIENT_SCROLLS_DISCOVERED.checkIfConditionMet.apply(state)) {
                             int nCards = 5;
@@ -1079,26 +1083,26 @@ public class BottomPanel extends JPanel {
                             });
                             JButton doneButton = new JButton("Done");
                             doneButton.addActionListener(k2 -> {
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             });
                             this.add(doneButton, BorderLayout.SOUTH);
                         }
                     });
                 }
-                else if (location == SpecialEvent.UNDER_NEW_MANAGEMENT) {
+                else if (location.getAbstractLocation() == SpecialEvent.UNDER_NEW_MANAGEMENT) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.UNDER_NEW_MANAGEMENT.checkIfConditionMet.apply(state)) {
                             drawResourceSelection(3, "Give up 3 of any resource, Gain 1 points for each Twig/Berry, Gain 2 Points for each Pebble/Resin", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
 
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                                 return true;
                             });
                         }
                     });
                 }
-                else if (location == SpecialEvent.PRISTINE_CHAPEL_CEILING) {
+                else if (location.getAbstractLocation() == SpecialEvent.PRISTINE_CHAPEL_CEILING) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.PRISTINE_CHAPEL_CEILING.checkIfConditionMet.apply(state)) {
                             //Find Chapel Card
@@ -1111,22 +1115,22 @@ public class BottomPanel extends JPanel {
                                 }
                             }
                             drawResourceSelection(numberOfPointsPlaced, "Gain "+numberOfPointsPlaced+" due to the number of points placed on the Chapel card", new ArrayList<>(List.of(ResourceTypes.values())), state -> {
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                                 return true;
                             });
                         }
                     });
                 }
-                else if (location == SpecialEvent.A_WELL_RUN_CITY) {
+                else if (location.getAbstractLocation() == SpecialEvent.A_WELL_RUN_CITY) {
                     button.addActionListener(k -> {
-                        SpecialEvent event = (SpecialEvent) location;
+                        SpecialEvent event = (SpecialEvent) location.getAbstractLocation();
                         if (event.checkIfConditionMet.apply(state)) {
                             //Display all Locations that the player has occupied so that they can select 1 worker to bring back
                             ArrayList<EverdellLocation> locations = new ArrayList<>();
-                            for (var loc : state.Locations.keySet()) {
-                                if (state.Locations.get(loc).isPlayerOnLocation(state) && loc != RedDestinationLocation.CEMETERY_DESTINATION && loc != RedDestinationLocation.MONASTERY_DESTINATION) {
-                                    locations.add(state.Locations.get(loc));
+                            for (var loc : state.everdellLocations) {
+                                if (loc.isPlayerOnLocation(state) && loc.getAbstractLocation() != RedDestinationLocation.CEMETERY_DESTINATION && loc.getAbstractLocation() != RedDestinationLocation.MONASTERY_DESTINATION) {
+                                    locations.add(loc);
                                 }
                             }
                             this.removeAll();
@@ -1140,7 +1144,7 @@ public class BottomPanel extends JPanel {
                                 JButton workerButton = new JButton(loc.getAbstractLocation().name());
                                 workerButton.addActionListener(k2 -> {
                                     event.selectedLocation = loc;
-                                    placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                    placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                     everdellGUIManager.redrawPanels();
                                 });
                                 workerSelectionPanel.add(workerButton);
@@ -1151,26 +1155,26 @@ public class BottomPanel extends JPanel {
                         }
                     });
                 }
-                else if (location == SpecialEvent.A_BRILLIANT_MARKETING_PLAN) {
+                else if (location.getAbstractLocation() == SpecialEvent.A_BRILLIANT_MARKETING_PLAN) {
                     button.addActionListener(k -> {
-                        SpecialEvent event = (SpecialEvent) location;
+                        SpecialEvent event = (SpecialEvent) location.getAbstractLocation();
                         if (event.checkIfConditionMet.apply(state)) {
                             event.playersToGiveResources = new HashMap<>();
-                            drawSelectingMultiplePlayersToGiveResourcesTo(state.Locations.get(location));
+                            drawSelectingMultiplePlayersToGiveResourcesTo(location);
                         }
                     });
                 }
 
-                else if (location == SpecialEvent.PATH_OF_THE_PILGRIMS || location == SpecialEvent.MINISTERING_TO_MISCREANTS || location == SpecialEvent.REMEMBERING_THE_FALLEN || location == SpecialEvent.FLYING_DOCTOR_SERVICE || location == SpecialEvent.THE_EVERDELL_GAMES) {
+                else if (location.getAbstractLocation() == SpecialEvent.PATH_OF_THE_PILGRIMS || location.getAbstractLocation() == SpecialEvent.MINISTERING_TO_MISCREANTS || location.getAbstractLocation() == SpecialEvent.REMEMBERING_THE_FALLEN || location.getAbstractLocation() == SpecialEvent.FLYING_DOCTOR_SERVICE || location.getAbstractLocation() == SpecialEvent.THE_EVERDELL_GAMES) {
                     button.addActionListener(k -> {
-                        SpecialEvent event = (SpecialEvent) location;
+                        SpecialEvent event = (SpecialEvent) location.getAbstractLocation();
                         if (event.checkIfConditionMet.apply(state)) {
                             if(copyMode){
-                                copyAction.accept(location);
+                                copyAction.accept(location.getComponentID());
                                 everdellGUIManager.redrawPanels();
                             }
                             else {
-                                placeWorkerActionWithComponentToIDConversion(state.Locations.get(location), everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
+                                placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);
                                 everdellGUIManager.redrawPanels();
                             }
                         }
@@ -1403,7 +1407,7 @@ public class BottomPanel extends JPanel {
         draw();
     }
 
-    public void activateCopyMode(Consumer<EverdellParameters.AbstractLocations> copyAction){
+    public void activateCopyMode(Consumer<Integer> copyAction){
         copyMode = true;
         this.copyAction = copyAction;
     }

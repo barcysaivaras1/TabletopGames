@@ -131,6 +131,12 @@ public class SelectPlayer extends AbstractAction implements IExtendedSequence {
                 mc.setSelectedPlayer(sp.playerSelectedId);
                 new PlayCard(playerId, cardId, cardIds, resourcesForAction).execute(state);
             }
+            else if(card.getCardEnumValue() == CardDetails.SHEPHERD){
+                ShepherdCard sc = (ShepherdCard) card;
+                sc.setBeforePR(egs.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[playerId].getValue());
+                sc.setSelectedPlayer(sp.playerSelectedId);
+                new PlayCard(playerId, cardId, cardIds, resourcesForAction).execute(state);
+            }
         }
 
         if(locationId != -1){
