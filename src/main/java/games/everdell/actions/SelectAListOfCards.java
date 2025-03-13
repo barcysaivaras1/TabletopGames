@@ -16,6 +16,7 @@ import games.everdell.components.EverdellLocation;
 import games.everdell.components.TeacherCard;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SelectAListOfCards extends AbstractAction implements IExtendedSequence {
 
@@ -133,7 +134,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, new HashMap<>()).execute(egs);
             } else if (location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED) {
                 ForestLocations.cardChoices = sa.selectedCards;
-                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size(), false, true, true).execute(egs);
+                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size(), true, false).execute(egs);
             }
 
             //Haven
@@ -142,7 +143,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 for(EverdellCard card : sa.selectedCards){
                     egs.cardSelection.add(card.copy());
                 }
-                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size()/2, false, true, true).execute(egs);
+                new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size()/2, true, false).execute(egs);
             }
 
             //Journey
@@ -154,6 +155,17 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             if(location.getAbstractLocation() instanceof RedDestinationLocation){
                 if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
                     new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, new HashMap<>()).execute(egs);
+                }
+                else if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
+                    if(egs.cardSelection.isEmpty()){
+                        //Cards To Give Away
+                        egs.cardSelection.addAll(sa.selectedCards);
+                        ArrayList<EverdellCard> cardsToSelectFrom = egs.playerHands.get(playerId).getComponents().stream().filter(cardToCheck -> !sa.selectedCards.contains(cardToCheck)).collect(Collectors.toCollection(ArrayList::new));
+                        new SelectAListOfCards(playerId, locationId, -1, cardsToSelectFrom, cardsToSelectFrom.size(), false).execute(egs);
+                    }
+                    else{
+                        new SelectPlayer(playerId, -1, locationId).execute(egs);
+                    }
                 }
             }
         }

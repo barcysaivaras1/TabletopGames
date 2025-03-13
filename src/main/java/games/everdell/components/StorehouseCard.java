@@ -13,12 +13,8 @@ public class StorehouseCard extends ConstructionCard{
 
     HashMap<EverdellParameters.ResourceTypes, Integer> resourceStorage;
 
-    public Integer locationId;
-    EverdellParameters.RedDestinationLocation rdl;
-
     public StorehouseCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
-        this.rdl = rdl;
         resourceStorage = new HashMap<>();
 
         for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
@@ -26,9 +22,8 @@ public class StorehouseCard extends ConstructionCard{
         }
     }
 
-    private StorehouseCard(String name, int compID, Integer locationId, EverdellParameters.RedDestinationLocation rdl) {
+    private StorehouseCard(String name, int compID) {
         super(name, compID);
-        this.locationId = locationId;
     }
 
 
@@ -62,10 +57,9 @@ public class StorehouseCard extends ConstructionCard{
         }
 
 
-        if(this.locationId == null) {
-            EverdellLocation location = new EverdellLocation(rdl, 1, false, setLocationEffect(state));
-            state.everdellLocations.add(location);
-            locationId = location.getComponentID();
+        //Set the location of the card if it is not already set
+        if(super.getLocation(state) == null) {
+            super.applyCardEffect(state, setLocationEffect(state));
         }
     }
 
@@ -83,13 +77,7 @@ public class StorehouseCard extends ConstructionCard{
 
     @Override
     public StorehouseCard copy() {
-        StorehouseCard card;
-        if (locationId == null) {
-            card = new StorehouseCard(getName(), componentID, null, rdl);
-        }
-        else {
-            card = new StorehouseCard(getName(), componentID, locationId, rdl);
-        }
+        StorehouseCard card = new StorehouseCard(getName(), componentID);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

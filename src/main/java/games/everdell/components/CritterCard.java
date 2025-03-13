@@ -48,6 +48,7 @@ public class CritterCard extends EverdellCard{
     public void applyCardEffect(EverdellGameState state){
         if(redDestinationAbstractLocation != null){
             EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, false, redDestinationAbstractLocation.getLocationEffect(state));
+            location.setOwnerId(state.getCurrentPlayer());
             state.everdellLocations.add(location);
             redDestinationLocationID = location.getComponentID();
         }

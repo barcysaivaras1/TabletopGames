@@ -278,9 +278,9 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
         //Location Decisions
-//        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, true)._computeAvailableActions(egs).isEmpty()) {
-//            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, true));
-//        }
+        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, true)._computeAvailableActions(egs).isEmpty()) {
+            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, true));
+        }
 
         //Card Decisions
         ArrayList<Integer> cardsToSelectFrom = new ArrayList<>();

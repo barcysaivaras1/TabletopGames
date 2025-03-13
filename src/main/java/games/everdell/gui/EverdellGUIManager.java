@@ -487,7 +487,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
         System.out.println("Placing a card");
         //We check if the player can afford the card
-        if(playCardActionWithComponentToIDConversion(state, card, cardSelection, resourceSelection).checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
+        if(card.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
             FunctionWrapper.addAFunction(() -> checkForAdditionalStepsForCard(state, new ArrayList<>(List.of(card)), false),"Checking For Additional Steps...");
             FunctionWrapper.addAFunction(() -> {
                         playCardActionWithComponentToIDConversion(state, card, cardSelection, resourceSelection).execute(state);

@@ -140,7 +140,20 @@ public class SelectPlayer extends AbstractAction implements IExtendedSequence {
         }
 
         if(locationId != -1){
-
+            EverdellLocation location = (EverdellLocation) egs.getComponentById(locationId);
+            if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
+                int locationCardID = EverdellLocation.findCardLinkedToLocation(egs, location);
+                PostOfficeCard locationCard = (PostOfficeCard) egs.getComponentById(locationCardID);
+                locationCard.setPlayers(sp.playerSelectedId, playerId);
+                new PlaceWorker(playerId, locationId, cardIds, new HashMap<>()).execute(state);
+            }
+            else if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
+                int locationCardID = EverdellLocation.findCardLinkedToLocation(egs, location);
+                MonasteryCard locationCard = (MonasteryCard) egs.getComponentById(locationCardID);
+                System.out.println("Selected Player: " + sp.playerSelectedId);
+                locationCard.setPlayers(sp.playerSelectedId);
+                new PlaceWorker(playerId, locationId, cardIds, resourcesForAction).execute(state);
+            }
         }
 
         executed = true;

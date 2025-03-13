@@ -785,7 +785,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == CardDetails.MONASTERY){
                         MonasteryCard mc = (MonasteryCard) card;
-                        EverdellLocation location = (EverdellLocation) state.getComponentById(mc.locationId);
+                        EverdellLocation location = mc.getLocation(state);
                         state.pointTokens[state.getCurrentPlayer()].increment( 3*location.playersOnLocation.size());
                     }
                 }
@@ -802,7 +802,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == CardDetails.CEMETERY){
                         CemeteryCard cc = (CemeteryCard) card;
-                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.location.playersOnLocation.size());
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.getLocation(state).playersOnLocation.size());
                     }
                 }
 
@@ -981,7 +981,7 @@ public class EverdellParameters extends AbstractParameters {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
                         put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 0); //1
+                        put(ResourceTypes.RESIN, 1); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1403,7 +1403,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(WANDERER)));
 
-            QUEEN.createEverdellCard = (gameState) -> new CritterCard(RedDestinationLocation.QUEEN_DESTINATION, "Queen", QUEEN, CardType.RED_DESTINATION, false, true, 4, new HashMap<>() {{
+            QUEEN.createEverdellCard = (gameState) -> new CritterCard(RedDestinationLocation.QUEEN_DESTINATION, "Queen", QUEEN, CardType.RED_DESTINATION, false, true, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
             }}, (state) -> {
                 return true;
@@ -1489,7 +1489,7 @@ public class EverdellParameters extends AbstractParameters {
                 //Unlock the second Location of the cemetary card (if it exists within the village)
                 state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof CemeteryCard).forEach(c -> {
                     CemeteryCard cc = (CemeteryCard) c;
-                    cc.unlockSecondLocation();
+                    cc.unlockSecondLocation(state);
                 });
 
                 if (state.playerHands.get(state.getCurrentPlayer()).getSize() < 8) {
@@ -1500,7 +1500,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
                 everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer()).stream().filter(c -> c instanceof CemeteryCard).forEach(c -> {
                     CemeteryCard cc = (CemeteryCard) c;
-                    cc.lockSecondLocation();
+                    cc.lockSecondLocation(everdellGameState);
                 });
             }));
 
@@ -1753,7 +1753,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.BARGE_TOAD, 0);
         put(CardDetails.CASTLE, 0);
         put(CardDetails.CEMETERY, 0);
-        put(CardDetails.CHAPEL, 25);
+        put(CardDetails.CHAPEL, 0);
         put(CardDetails.CHIP_SWEEP, 0);
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
@@ -1762,7 +1762,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.DUNGEON, 0);
         put(CardDetails.EVER_TREE, 0);
         put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.FARM, 0);
+        put(CardDetails.FARM, 25);
         put(CardDetails.FOOL, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.HISTORIAN, 0);
@@ -1780,12 +1780,12 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.POSTAL_PIGEON, 0);
-        put(CardDetails.QUEEN, 0);
+        put(CardDetails.QUEEN, 25);
         put(CardDetails.RANGER, 0);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.RUINS, 0);
         put(CardDetails.SCHOOL, 0);
-        put(CardDetails.SHEPHERD, 25);
+        put(CardDetails.SHEPHERD, 0);
         put(CardDetails.SHOP_KEEPER, 0);
         put(CardDetails.STORE_HOUSE, 0);
         put(CardDetails.TEACHER, 0);

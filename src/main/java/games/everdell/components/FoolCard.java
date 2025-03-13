@@ -51,11 +51,12 @@ public class FoolCard extends CritterCard{
 
         //If village is full, we cannot place the card
         PlayCard pc = new PlayCard(playerToPlaceIn, this.componentID, new ArrayList<>(), new HashMap<>());
-        if(!pc.checkIfPlayerCanPlaceThisUniqueCard(state, playerToPlaceIn)){
+
+        if(!pc.checkIfVillageHasSpace(state, playerToPlaceIn)){
             canPlace = false;
         }
         //If the player has a fool card, we cannot place the card
-        if(!pc.checkIfPlayerCanPlaceThisUniqueCard(state, playerToPlaceIn)){
+        if(!checkIfPlayerCanPlaceThisUniqueCard(state, playerToPlaceIn)){
             canPlace = false;
         }
         return canPlace;

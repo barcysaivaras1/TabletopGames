@@ -90,7 +90,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
             //Check if the card is Unique and if the player has this card in their village
             //Cannot have duplicate unique cards
-            if(!checkIfPlayerCanPlaceThisUniqueCard(state, state.getCurrentPlayer())){
+            if(!currentCard.checkIfPlayerCanPlaceThisUniqueCard(state, state.getCurrentPlayer())){
                 System.out.println("You already have this Unique card in your village");
                 return false;
             }
@@ -98,7 +98,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
 
             //Check if the player can buy the card
-            if(!checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
+            if(!currentCard.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
                 System.out.println("You don't have enough resources to buy this card");
                 return false;
             }
@@ -256,36 +256,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         return false;
     }
 
-    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state, int playerId){
-        //Check if the player has this Unique card in their village
-        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-        if(currentCard.isUnique()){
-            for(EverdellCard card : state.playerVillage.get(playerId).getComponents()){
-                if(card.getCardEnumValue() == currentCard.getCardEnumValue()){
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
-        //Check if the player has enough resources to buy the card
-        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-
-        //The card can be paid with occupation.
-        if(currentCard.isCardPayedFor()){
-            return true;
-        }
-        for(var resource : currentCard.getResourceCost().keySet()){
-            if(state.PlayerResources.get(resource)[playerId].getValue() < currentCard.getResourceCost().get(resource)){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private void makePlayerPayForCard(EverdellGameState state){
         //Make the player pay for the resources
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
@@ -307,7 +277,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         }
 
         //Check if the player can buy the card
-        if(!checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
+        if(!currentCard.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
             System.out.println("You don't have enough resources to buy this card");
             return false;
         }

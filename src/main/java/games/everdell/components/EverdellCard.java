@@ -99,6 +99,35 @@ public abstract class EverdellCard extends Card {
     public boolean isCardPayedFor() { return isCardPayedFor; }
     public boolean isUnique() { return isUnique; }
 
+    //Helper Functions
+    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state, int playerId){
+        //Check if the player has this Unique card in their village
+        if(this.isUnique()){
+            for(EverdellCard card : state.playerVillage.get(playerId).getComponents()){
+                if(card.getCardEnumValue() == getCardEnumValue()){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
+        //Check if the player has enough resources to buy the card
+
+        //The card can be paid with occupation.
+        if(isCardPayedFor()){
+            return true;
+        }
+        for(var resource : getResourceCost().keySet()){
+            if(state.PlayerResources.get(resource)[playerId].getValue() < getResourceCost().get(resource)){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     //Setter
     public void setCardPoints(int points){

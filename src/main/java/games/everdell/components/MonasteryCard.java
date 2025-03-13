@@ -11,25 +11,20 @@ import java.util.function.Function;
 public class MonasteryCard extends ConstructionCard{
     int selectedPlayer;
 
-    public int locationId;
-
-    EverdellParameters.RedDestinationLocation rdl;
 
     public MonasteryCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
-        this.rdl = rdl;
+        selectedPlayer = -1;
     }
 
-    private MonasteryCard(String name, int compID, int selectedPlayer, int location, EverdellParameters.RedDestinationLocation rdl) {
+    private MonasteryCard(String name, int compID, int selectedPlayer) {
         super(name, compID);
+        this.selectedPlayer = selectedPlayer;
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
-        EverdellLocation location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
-        state.everdellLocations.add(location);
-        locationId = location.getComponentID();
-        //This means they are placing the card, we can assign the playerOwner
+        super.applyCardEffect(state, setLocationEffect(state));
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
             unlockSecondLocation(state);
         });
@@ -43,6 +38,8 @@ public class MonasteryCard extends ConstructionCard{
         return k -> {
 
             int counter = 0;
+
+            System.out.println("Player selected to donate to is : " + selectedPlayer);
 
             //Transfer 2 resources from the current player to the selected player
             for(var resource : state.resourceSelection.keySet()){
@@ -70,13 +67,13 @@ public class MonasteryCard extends ConstructionCard{
     }
 
     public void unlockSecondLocation(EverdellGameState state){
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
-        location.setNumberOfSpaces(2);
+        System.out.println("Unlocking Second Location");
+        super.getLocation(state).setNumberOfSpaces(2);
+        System.out.println(super.getLocation(state).getNumberOfSpaces());
     }
 
     public void lockSecondLocation(EverdellGameState state){
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
-        location.setNumberOfSpaces(1);
+        super.getLocation(state).setNumberOfSpaces(1);
     }
 
     //Players NEED to be set before the location EFFECT is called
@@ -88,7 +85,7 @@ public class MonasteryCard extends ConstructionCard{
     @Override
     public MonasteryCard copy() {
         MonasteryCard card;
-        card = new MonasteryCard(getName(), componentID, selectedPlayer, locationId, rdl);
+        card = new MonasteryCard(getName(), componentID, selectedPlayer);
 
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

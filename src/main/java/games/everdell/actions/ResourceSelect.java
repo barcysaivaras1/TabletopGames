@@ -1,6 +1,5 @@
 package games.everdell.actions;
 
-import com.ibm.icu.text.ArabicShaping;
 import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.interfaces.IExtendedSequence;
@@ -9,19 +8,17 @@ import games.everdell.EverdellParameters;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
 import games.everdell.components.PeddlerCard;
-import org.apache.spark.sql.sources.In;
+import games.everdell.EverdellParameters.RedDestinationLocation;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ResourceSelect extends AbstractAction implements IExtendedSequence {
 
     private boolean executed;
 
-    boolean isForCard;
-    boolean isForLocation;
     boolean isStrict;
     boolean loopAction;
+    boolean isCostBased;
 
     private HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected;
     private final ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor;
@@ -32,27 +29,25 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
     private final int cardId;
     private final int locationId;
 
-    public ResourceSelect(int playerId, int cardId, int locationId, ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor, int maxAmount, boolean isForCard, boolean isForLocation, boolean isStrict){
+    public ResourceSelect(int playerId, int cardId, int locationId, ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor, int maxAmount, boolean isStrict, boolean isCostBased){
         this.playerId = playerId;
         this.resourcesToSelectFor = resourcesToSelectFor;
         this.maxAmount = maxAmount;
-        this.isForCard = isForCard;
-        this.isForLocation = isForLocation;
         this.cardId = cardId;
         this.locationId = locationId;
         this.isStrict = isStrict;
+        this.isCostBased = isCostBased;
         loopAction = false;
     }
-    private ResourceSelect(int playerId, int cardId, int locationId, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected,  ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor, int maxAmount, boolean isForCard, boolean isForLocation, boolean isStrict, boolean loopAction){
+    private ResourceSelect(int playerId, int cardId, int locationId, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected,  ArrayList<EverdellParameters.ResourceTypes> resourcesToSelectFor, int maxAmount, boolean isStrict, boolean isCostBased, boolean loopAction){
         this.playerId = playerId;
         this.resourcesToSelectFor = resourcesToSelectFor;
         this.resourcesSelected = resourcesSelected;
         this.maxAmount = maxAmount;
-        this.isForCard = isForCard;
-        this.isForLocation = isForLocation;
         this.cardId = cardId;
         this.locationId = locationId;
         this.isStrict = isStrict;
+        this.isCostBased = isCostBased;
         this.loopAction = loopAction;
     }
 
@@ -81,28 +76,36 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
             amountOwned.put(resource, egs.PlayerResources.get(resource)[playerId].getValue());
         }
 
-        if(isForCard){
-            EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
-            if(card.getCardEnumValue() == EverdellParameters.CardDetails.PEDDLER && !loopAction){
-                generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
-            }
-            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.MONK){
-                generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
-            }
-            else{
-                generateResourceCombinations(new HashMap<>(), maxAmount, amountActions);
-            }
+//        if(isForCard){
+//            EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
+//            if(card.getCardEnumValue() == EverdellParameters.CardDetails.PEDDLER && !loopAction){
+//                generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
+//            }
+//            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.MONK){
+//                generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
+//            }
+//            else{
+//                generateResourceCombinations(new HashMap<>(), maxAmount, amountActions);
+//            }
+//        }
+        if(isCostBased){
+            generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
         }
         else {
             generateResourceCombinations(new HashMap<>(), maxAmount, amountActions);
         }
+//        System.out.println("*****************RESOURCE SELECT ACTIONS*****************");
+//        for(var actions : amountActions){
+//            ResourceSelect rs = (ResourceSelect) actions;
+//            System.out.println("Resources Selection List : " + rs.resourcesSelected);
+//        }
         return amountActions;
     }
 
     private void generateResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions) {
         if (remaining < 0) return;
         if (remaining == 0 || !isStrict) {
-            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), maxAmount, isForCard, isForLocation, isStrict, false));
+            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), maxAmount, isStrict, isCostBased, false));
             if (remaining == 0) return;
         }
         for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
@@ -115,7 +118,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
     private void generateCostBasedResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions, HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned) {
         if (remaining < 0) return;
         if (remaining == 0 || (!isStrict && remaining <= maxAmount)) {
-            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), currentCombination.values().stream().mapToInt(Integer::intValue).sum(), isForCard, isForLocation, true, false));
+            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), currentCombination.values().stream().mapToInt(Integer::intValue).sum(), isCostBased, true, false));
             if (remaining == 0) return;
         }
         for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
@@ -148,15 +151,14 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
             cardIds.add(c.getComponentID());
         }
 
-        if(isForCard){
+        if(cardId != -1){
             EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
-            //Peddler Special Need
             if(card.getCardEnumValue() == EverdellParameters.CardDetails.PEDDLER){
                 PeddlerCard pc = (PeddlerCard) card;
                 pc.resourcesToLoseSelected = true;
                 if(!loopAction) {
                     pc.addResourcesToLose(resourceSelect.resourcesSelected);
-                    new ResourceSelect(playerId, cardId, -1, null, new ArrayList<>(resourcesToSelectFor), pc.getResourcesToLose().values().stream().mapToInt(Integer::intValue).sum(), true, false, true, true).execute(state);
+                    new ResourceSelect(playerId, cardId, -1, null, new ArrayList<>(resourcesToSelectFor), pc.getResourcesToLose().values().stream().mapToInt(Integer::intValue).sum(), true, false, true).execute(state);
                 }
                 else{
                     pc.addResourcesToGain(resourceSelect.resourcesSelected);
@@ -175,9 +177,17 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
                 new PlayCard(playerId, cardId, new ArrayList<>(), resourceSelect.resourcesSelected).execute(state);
             }
         }
-        else if(isForLocation){
+        else if(locationId != -1){
             EverdellLocation location = (EverdellLocation) egs.getComponentById(locationId);
-            new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);
+            if(location.getAbstractLocation() == RedDestinationLocation.MONASTERY_DESTINATION){
+                for(var resource : EverdellParameters.ResourceTypes.values()){
+                    egs.resourceSelection.get(resource).increment(resourceSelect.resourcesSelected.getOrDefault(resource, 0));
+                }
+                new SelectPlayer(playerId, -1, locationId).execute(state);
+            }
+            else {
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);
+            }
         }
         executed = true;
     }
@@ -196,22 +206,21 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
             resources = new HashMap<>(this.resourcesSelected);
         }
 
-        ResourceSelect retValue = new ResourceSelect(playerId, cardId, locationId, resources,new ArrayList<>(resourcesToSelectFor), maxAmount, isForCard, isForLocation, isStrict, loopAction);
+        ResourceSelect retValue = new ResourceSelect(playerId, cardId, locationId, resources,new ArrayList<>(resourcesToSelectFor), maxAmount, isStrict, isCostBased, loopAction);
         retValue.executed = executed;
         return retValue;
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ResourceSelect that = (ResourceSelect) o;
-        return executed == that.executed && isForCard == that.isForCard && isForLocation == that.isForLocation && isStrict == that.isStrict && loopAction == that.loopAction && maxAmount == that.maxAmount && playerId == that.playerId && cardId == that.cardId && locationId == that.locationId && Objects.equals(resourcesSelected, that.resourcesSelected) && Objects.equals(resourcesToSelectFor, that.resourcesToSelectFor);
+        return executed == that.executed && isStrict == that.isStrict && loopAction == that.loopAction && isCostBased == that.isCostBased && maxAmount == that.maxAmount && playerId == that.playerId && cardId == that.cardId && locationId == that.locationId && Objects.equals(resourcesSelected, that.resourcesSelected) && Objects.equals(resourcesToSelectFor, that.resourcesToSelectFor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(executed, isForCard, isForLocation, isStrict, loopAction, resourcesSelected, resourcesToSelectFor, maxAmount, playerId, cardId, locationId);
+        return Objects.hash(executed, isStrict, loopAction, isCostBased, resourcesSelected, resourcesToSelectFor, maxAmount, playerId, cardId, locationId);
     }
 
     @Override

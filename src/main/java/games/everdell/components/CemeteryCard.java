@@ -9,29 +9,24 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CemeteryCard extends ConstructionCard{
-    public EverdellLocation location;
-    EverdellParameters.RedDestinationLocation rdl;
 
     public CemeteryCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
-        this.rdl = rdl;
     }
 
     //Copy Constructor
-    private CemeteryCard(String name, int compID, EverdellLocation location, EverdellParameters.RedDestinationLocation rdl) {
+    private CemeteryCard(String name, int compID) {
         super(name, compID);
-        this.location = location;
-        this.rdl = rdl;
+
     }
 
 
 
 
     public void applyCardEffect(EverdellGameState state) {
-        this.location = new EverdellLocation(rdl,1, true, setLocationEffect(state));
-        state.everdellLocations.add(location);
+        super.applyCardEffect(state, setLocationEffect(state));
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER ).forEach(c -> {
-            unlockSecondLocation();
+            unlockSecondLocation(state);
         });
     }
 
@@ -58,18 +53,18 @@ public class CemeteryCard extends ConstructionCard{
         };
     }
 
-    public void unlockSecondLocation(){
-        location.setNumberOfSpaces(2);
+    public void unlockSecondLocation(EverdellGameState state){
+        super.getLocation(state).setNumberOfSpaces(2);
     }
 
-    public void lockSecondLocation(){
-        location.setNumberOfSpaces(1);
+    public void lockSecondLocation(EverdellGameState state){
+        super.getLocation(state).setNumberOfSpaces(1);
     }
 
     @Override
     public CemeteryCard copy() {
         CemeteryCard card;
-        card = new CemeteryCard(getName(), componentID, location.copy(), rdl);
+        card = new CemeteryCard(getName(), componentID);
 
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

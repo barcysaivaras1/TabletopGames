@@ -63,6 +63,7 @@ public class ConstructionCard extends EverdellCard{
         if(redDestinationAbstractLocation != null){
             System.out.println("RED DESTINATION CARD");
             EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, false, redDestinationAbstractLocation.getLocationEffect(state));
+            location.setOwnerId(state.getCurrentPlayer());
             state.everdellLocations.add(location);
             redDestinationLocationID = location.getComponentID();
         }
@@ -70,6 +71,16 @@ public class ConstructionCard extends EverdellCard{
             super.applyCardEffect(state);
         }
     }
+
+    //To be called by Card with Red Destination Locations
+    public void applyCardEffect(EverdellGameState state, Consumer<EverdellGameState> specialLocationEffect) {
+        EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, true, specialLocationEffect);
+        location.setOwnerId(state.getCurrentPlayer());
+        state.everdellLocations.add(location);
+        redDestinationLocationID = location.getComponentID();
+    }
+
+
 
     public boolean occupyConstruction(CritterCard card){
         if(isOccupied){

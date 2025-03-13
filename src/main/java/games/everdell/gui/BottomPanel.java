@@ -465,19 +465,10 @@ public class BottomPanel extends JPanel {
 
                         drawResourceSelection(discountAmount,"Select 3 Resources to Discount from the card", new ArrayList<>(List.of(ResourceTypes.values())), gameState -> {
                             everdellGUIManager.cardSelection.add(0, card);
-//                            EverdellLocation loc = state.Locations.get(location);
                             //Find the card that aligns with the location
-                            for(var playerDeck : gameState.playerVillage){
-                                for(var c : playerDeck.getComponents()){
-                                    if(c instanceof InnCard ic){
-                                        EverdellLocation icLocation = (EverdellLocation) gameState.getComponentById(ic.locationId);
-                                        if(icLocation.getAbstractLocation() == location.getAbstractLocation()){
-                                            ic.setPlayers(gameState.getCurrentPlayer());
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
+                            int icID = EverdellLocation.findCardLinkedToLocation(gameState, location);
+                            InnCard ic = (InnCard) gameState.getComponentById(icID);
+                            ic.setPlayers(gameState.getCurrentPlayer());
 
                             if(copyMode){
                                 copyAction.accept(location.getComponentID());
@@ -514,22 +505,9 @@ public class BottomPanel extends JPanel {
                     doneButton.addActionListener(k2 -> {
                         drawPlayerSelection(player -> {
                             //Find the card that aligns with the location
-                            for(var playerDeck : state.playerVillage){
-                                for(var card : playerDeck.getComponents()){
-                                    if(card instanceof PostOfficeCard poc){
-                                        EverdellLocation pocLocation = (EverdellLocation) state.getComponentById(poc.locationId);
-                                        System.out.println("Poc Location ID : "+pocLocation.getComponentID());
-                                        System.out.println("Location ID : "+location.getComponentID());
-                                        if(pocLocation.getComponentID() == location.getComponentID()){
-                                            System.out.println("Setting Players");
-                                            System.out.println("Player : "+player);
-                                            poc.setPlayers(player,state.getCurrentPlayer());
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
+                            int pocID = EverdellLocation.findCardLinkedToLocation(state, location);
+                            PostOfficeCard poc = (PostOfficeCard) state.getComponentById(pocID);
+                            poc.setPlayers(player, state.getCurrentPlayer());
                             if(copyMode){
                                 copyAction.accept(location.getComponentID());
                             }
@@ -549,18 +527,9 @@ public class BottomPanel extends JPanel {
                     drawResourceSelection(2,"Give 2 Resources, Gain 4 points", new ArrayList<>(List.of(ResourceTypes.values())), gameState -> {
                         drawPlayerSelection(player -> {
                             //Find the card that aligns with the location
-                            for(var playerDeck : gameState.playerVillage){
-                                for(var card : playerDeck.getComponents()){
-                                    if(card instanceof MonasteryCard mc){
-                                        EverdellLocation mcLocation = (EverdellLocation) gameState.getComponentById(mc.locationId);
-                                        if(mcLocation == location){
-                                            mc.setPlayers(player);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
+                            int mcID = EverdellLocation.findCardLinkedToLocation(gameState, location);
+                            MonasteryCard mc = (MonasteryCard) gameState.getComponentById(mcID);
+                            mc.setPlayers(player);
                             if(copyMode){
                                 copyAction.accept(location.getComponentID());
                             }
@@ -591,9 +560,7 @@ public class BottomPanel extends JPanel {
                 //Reveal 4 Cards from the deck or the discard pile. Play 1 of them 1 free
                 button.addActionListener(k -> {
                     ArrayList<EverdellCard> drawnCards = new ArrayList<>();
-
                     this.removeAll();
-
                     JPanel drawSelectionPanel = new JPanel();
                     drawSelectionPanel.setLayout(new GridLayout(1,2));
                     JButton drawFromDiscard = new JButton("Reveal from Discard");

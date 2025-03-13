@@ -7,6 +7,7 @@ import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.CardDetails;
+import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.BasicEvent;
 import games.everdell.EverdellParameters.HavenLocation;
 import games.everdell.EverdellParameters.JourneyLocations;
@@ -52,8 +53,11 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
     /* All Journey Locations -> SelectAListOfCards -> PlaceWorker */
 
     //Red Destination
-    /*Queen -> SelectAListOfCards -> PlaceWorker -> SelectCard.AfterAction -> ...(Card Specific Actions)... -> PlayCard
-    * CHAPEL -> PlaceWorker*/
+    /*QUEEN_DESTINATION -> SelectAListOfCards -> PlaceWorker -> SelectCard -> ...(Card Specific Actions)... -> PlayCard
+     * CEMETERY_DESTINATION -> SelectAListOfCards -> PlaceWorker -> SelectCard -> ...(Card Specific Actions)... -> PlayCard
+    * CHAPEL_DESTINATION -> PlaceWorker
+    * POST_OFFICE_DESTINATION -> SelectAListOfCard -> SelectAListOfCards -> SelectPlayer -> PlaceWorker
+    * MONASTERY_DESTINATION -> ResourceSelect -> SelectPlayer -> PlaceWorker */
 
 
     public SelectLocation(int playerId, int locationId, boolean isFirstAction) {
@@ -241,11 +245,11 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
                 if (location.getAbstractLocation() == EverdellParameters.ForestLocations.TWO_ANY) {
                     ArrayList<EverdellParameters.ResourceTypes> resourcesToSelect = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values()));
-                    new ResourceSelect(playerId, -1, selectLocation.locationId, resourcesToSelect, 2, false, true, true).execute(egs);
+                    new ResourceSelect(playerId, -1, selectLocation.locationId, resourcesToSelect, 2, true, false).execute(egs);
 
                 } else if (location.getAbstractLocation() == EverdellParameters.ForestLocations.TWO_CARDS_ONE_ANY) {
                     ArrayList<EverdellParameters.ResourceTypes> resourcesToSelect = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values()));
-                    new ResourceSelect(playerId, -1, selectLocation.locationId, resourcesToSelect, 1, false, true, true).execute(egs);
+                    new ResourceSelect(playerId, -1, selectLocation.locationId, resourcesToSelect, 1, true, false).execute(egs);
 
                 } else if (location.getAbstractLocation() == EverdellParameters.ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED) {
                     ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
@@ -283,13 +287,30 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             }
 
             //Red Destination
-            if(location.getAbstractLocation() instanceof EverdellParameters.RedDestinationLocation){
-                if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
-
+            if(location.getAbstractLocation() instanceof RedDestinationLocation){
+                if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
                     ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>();
                     cardsToSelectFrom.addAll(egs.playerHands.get(egs.getCurrentPlayer()).getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
                     cardsToSelectFrom.addAll(egs.meadowDeck.getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
+                    cardsToSelectFrom = cardsToSelectFrom.stream().filter(card -> card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)).collect(Collectors.toCollection(ArrayList::new));
+                    System.out.println("Cards to Select From: " + cardsToSelectFrom);
+                    System.out.println("Cards to Select Size : " + cardsToSelectFrom.size());
                     new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
+                }
+                else if(location.getAbstractLocation() == RedDestinationLocation.CEMETERY_DESTINATION){
+                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>();
+                    for(int i=0; i<4; i++){
+                        cardsToSelectFrom.add(egs.cardDeck.draw());
+                    }
+                    cardsToSelectFrom = cardsToSelectFrom.stream().filter(EverdellCard::isUnique).collect(Collectors.toCollection(ArrayList::new));
+                    new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
+                }
+                else if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
+                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(egs.getCurrentPlayer()).getComponents());
+                    new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 2, true).execute(egs);
+                }
+                else if(location.getAbstractLocation() == RedDestinationLocation.MONASTERY_DESTINATION){
+                    new ResourceSelect(playerId, -1, selectLocation.locationId, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 2, false, true).execute(egs);
                 }
                 else{
                     new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);

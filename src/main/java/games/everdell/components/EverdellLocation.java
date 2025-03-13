@@ -28,6 +28,8 @@ public class EverdellLocation extends Component {
 
     public ArrayList<Integer> playersOnLocation;
 
+
+    //STANDARD CONSTRUCTOR
     public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect){
         super(CoreConstants.ComponentType.LOCATION);
         this.location = location;
@@ -36,10 +38,11 @@ public class EverdellLocation extends Component {
         this.playersOnLocation = new ArrayList<>();
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
     }
+
+    //COPY CONSTRUCTOR
     public EverdellLocation(AbstractLocations location, int numberOfSpaces, boolean canTheSamePlayerBeOnLocationMultipleTimes, Consumer<EverdellGameState> locationEffect, ArrayList<Integer> playersOnLocation, int compID){
         super(CoreConstants.ComponentType.LOCATION, compID);
         this.location = location;
-        //this.shared = shared;
         this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
@@ -63,23 +66,11 @@ public class EverdellLocation extends Component {
             if(location != EverdellParameters.RedDestinationLocation.INN_DESTINATION && location != EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
                 System.out.println("IS NOT INN OR POST OFFICE");
                 //We need to check if the player owns this location, as this is not a public location
-                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
-                    if(card instanceof ConstructionCard cc){
-                        System.out.println("This ID : "+this.getComponentID());
-                        System.out.println("CC ID : "+cc.getLocation(state).getComponentID());
-                        if(this.getComponentID() == cc.getLocation(state).getComponentID()){
-                            System.out.println("IS LOCATION FREE : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
-                            System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
-                            System.out.println("Players on the Card Location : "+cc.getLocation(state).getComponentID() + " : " + cc.getLocation(state).playersOnLocation);
-                            return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
-                        }
+                    if(ownerId == state.getCurrentPlayer()){
+                        System.out.println("IS LOCATION FREE : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
+                        System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
+                        return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
                     }
-                    else if(card instanceof  CritterCard cc){
-                        if(this.getComponentID() == cc.getLocation(state).getComponentID()){
-                            return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
-                        }
-                    }
-                }
                 return false;
             }
         }
@@ -102,6 +93,33 @@ public class EverdellLocation extends Component {
     }
     public boolean canTheSamePlayerBeOnLocationMultipleTimes(){
         return canTheSamePlayerBeOnLocationMultipleTimes;
+    }
+
+    //Red Destination Helper Function
+    public static Integer findCardLinkedToLocation(EverdellGameState state, EverdellLocation locationToLookFor){
+        if(!(locationToLookFor.getAbstractLocation() instanceof EverdellParameters.RedDestinationLocation)){
+            throw new RuntimeException("Location provided is not a Red Destination Location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
+        }
+        for(var playerDeck : state.playerVillage) {
+            for (var card : playerDeck) {
+                if (card instanceof ConstructionCard cc) {
+                    if (cc.getLocation(state) != null) {
+                        if (cc.getLocation(state).getComponentID() == locationToLookFor.getComponentID()) {
+                            return cc.getComponentID();
+                        }
+                    }
+                } else if (card instanceof CritterCard cc) {
+                    if(cc.getLocation(state) != null) {
+                        if (cc.getLocation(state) == locationToLookFor) {
+                            if (cc.getLocation(state).getComponentID() == locationToLookFor.getComponentID()) {
+                                return cc.getComponentID();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        throw new RuntimeException("There is no card placed that matches this location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
     }
 
     public void setNumberOfSpaces(int numberOfSpaces){

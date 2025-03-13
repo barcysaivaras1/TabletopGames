@@ -13,32 +13,21 @@ public class InnCard extends ConstructionCard{
     int playerOwner;
     int occupyingPlayer;
 
-    public int locationId;
-
-    EverdellParameters.RedDestinationLocation rdl;
-
     public InnCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
-        this.rdl = rdl;
     }
 
-    private InnCard(String name, int compID, int playerOwner, int occupyingPlayer, int locationId, EverdellParameters.RedDestinationLocation rdl) {
+    private InnCard(String name, int compID, int playerOwner, int occupyingPlayer) {
         super(name, compID);
         this.playerOwner = playerOwner;
         this.occupyingPlayer = occupyingPlayer;
-        this.locationId = locationId;
-        this.rdl = rdl;
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
         //This means they are placing the card, we can assign the playerOwner
         playerOwner = state.getCurrentPlayer();
-
-        EverdellLocation location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
-        state.everdellLocations.add(location);
-        locationId = location.getComponentID();
-        System.out.println(location);
+        super.applyCardEffect(state, setLocationEffect(state));
     }
 
     public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
@@ -83,7 +72,7 @@ public class InnCard extends ConstructionCard{
     @Override
     public InnCard copy() {
         InnCard card;
-        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer, locationId, rdl);
+        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

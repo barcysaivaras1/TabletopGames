@@ -210,8 +210,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     private boolean thisCardCanBePaidByResources(Integer cardId, EverdellGameState state){
         EverdellCard card = (EverdellCard) state.getComponentById(cardId);
-        PlayCard pc = new PlayCard(playerId, card.getComponentID(), new ArrayList<>(), new HashMap<>());
-        return pc.checkIfPlayerCanBuyCard(state, playerId);
+        return card.checkIfPlayerCanBuyCard(state, playerId);
     }
 
     private boolean canCardBePlayed(EverdellCard card, EverdellGameState state){
@@ -220,10 +219,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
         //Fool is a special case, as it can be placed anywhere
         if(card.getCardEnumValue() == CardDetails.FOOL){
-            return ((FoolCard) card).canFoolBePlaced(state, playerId) && pc.checkIfPlayerCanBuyCard(state, playerId);
+            return ((FoolCard) card).canFoolBePlaced(state, playerId) && card.checkIfPlayerCanBuyCard(state, playerId);
         }
         //If the Village Has Space, AND (Can be bought by an occupation OR by resources) AND the player can place this unique card
-        return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(card.getComponentID(), state) || thisCardCanBePaidByResources(card.getComponentID(), state)) && pc.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
+        return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(card.getComponentID(), state) || thisCardCanBePaidByResources(card.getComponentID(), state)) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
     }
 
     @Override
@@ -253,34 +252,18 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     ConstructionCard occupation = (ConstructionCard) egs.getComponentById(selectCard.occupationId);
                     occupation.occupyConstruction((CritterCard) card);
                 }
-//                if(card.getCardEnumValue() == CardDetails.CHIP_SWEEP){
-//                    if(chipSweepCardId == -1) {
-//                        ArrayList<Integer> cardsToSelectFrom = new ArrayList<>();
-//                        for (var cardForSelection : egs.playerVillage.get(playerId).stream().filter(isNotChipSweep -> isNotChipSweep.getCardEnumValue() != CardDetails.CHIP_SWEEP).filter(isGreen -> isGreen.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).collect(Collectors.toCollection(ArrayList::new))) {
-//                            cardsToSelectFrom.add(cardForSelection.getComponentID());
-//                        }
-//                        new SelectCard(playerId, -1, -1, card.getComponentID(), cardsToSelectFrom, true, false, false).execute(state);
-//                        executed = true;
-//                        return;
-//                    }
-//                    else{
-//                        CopyCard chipSweepCard = (CopyCard) egs.getComponentById(selectCard.chipSweepCardId);
-//                        chipSweepCard.setCardToCopy((EverdellCard) egs.getComponentById(selectCard.cardId));
-//                        card = chipSweepCard;
-//                    }
-//                }
                 //Check if the card would require additional steps
                 if(card.getCardEnumValue() == CardDetails.WOOD_CARVER){
                     ArrayList<EverdellParameters.ResourceTypes> resources = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.TWIG));
-                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 3, true, false, false).execute(state);
+                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 3, false, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.DOCTOR){
                     ArrayList<EverdellParameters.ResourceTypes> resources = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.BERRY));
-                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 3, true, false, false).execute(state);
+                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 3, false, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.PEDDLER){
                     ArrayList<EverdellParameters.ResourceTypes> resources = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values()));
-                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 2, true, false, false).execute(state);
+                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 2, false, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.BARD){
                     EverdellCard finalCard = card;
@@ -299,7 +282,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 }
                 else if(card.getCardEnumValue() == CardDetails.MONK){
                     ArrayList<EverdellParameters.ResourceTypes> resources = new ArrayList<>(List.of(EverdellParameters.ResourceTypes.BERRY));
-                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 2, true, false, false).execute(state);
+                    new ResourceSelect(playerId, card.getComponentID(), -1, resources, 2, false, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.UNDERTAKER){
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>(egs.meadowDeck.getComponents());
@@ -335,7 +318,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     //Need to check if conditions are met
                     HusbandCard hc = (HusbandCard) card;
                     if(hc.isThereAFarm(egs) && hc.findWife(egs)) {
-                        new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false, true).execute(state);
+                        new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, true).execute(state);
                     }
                     else{
                         new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
