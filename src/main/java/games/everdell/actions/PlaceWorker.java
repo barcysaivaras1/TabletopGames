@@ -68,6 +68,16 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         EverdellGameState state = (EverdellGameState) gs;
         EverdellLocation locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID));
 
+        //AI COPYMODE PLAY
+        if(state.copyMode){
+            Component comp = state.getComponentById(state.copyID);
+            if(comp instanceof EverdellLocation location){
+                if( location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.LOOKOUT_DESTINATION){
+                    EverdellParameters.RedDestinationLocation.copyLocationChoice = locationToPlaceIn.getAbstractLocation();
+                }
+                locationToPlaceIn = (EverdellLocation) comp;
+            }
+        }
 
         System.out.println("****************PLACE WORKER CHECKING IF LOCATION IS FREE****************");
         //Check if this location is free
@@ -115,11 +125,17 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             //Reset the resource selection
             state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
             //Reset Card Selection
-            state.cardSelection = new ArrayList<>();
+            for (var card : state.cardSelection){
+                state.temporaryDeck.add(card);
+            }
+            state.cardSelection.clear();
+
 
             //AI PLAY
-            if(locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
-                new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+            if(locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION || locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
+                if(!cardSelectionID.isEmpty()) {
+                    new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+                }
             }
 
             return true;

@@ -112,6 +112,10 @@ public abstract class EverdellCard extends Card {
         return true;
     }
 
+    public void discardCard(EverdellGameState state){
+        state.discardDeck.add(this);
+    }
+
     public Boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
         //Check if the player has enough resources to buy the card
 

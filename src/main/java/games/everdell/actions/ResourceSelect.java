@@ -2,12 +2,11 @@ package games.everdell.actions;
 
 import core.AbstractGameState;
 import core.actions.AbstractAction;
+import core.components.Counter;
 import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
-import games.everdell.components.EverdellCard;
-import games.everdell.components.EverdellLocation;
-import games.everdell.components.PeddlerCard;
+import games.everdell.components.*;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 
 import java.util.*;
@@ -165,11 +164,29 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
                     new PlayCard(playerId, cardId, new ArrayList<>(), resourceSelect.resourcesSelected).execute(state);
                 }
             }
-            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.MONK){
-                egs.resourceSelection.get(EverdellParameters.ResourceTypes.BERRY).increment(resourceSelect.resourcesSelected.getOrDefault(EverdellParameters.ResourceTypes.BERRY, 0));
-                new SelectPlayer(playerId, cardId, -1).execute(state);
+            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.JUDGE){
+                JudgeCard jc = (JudgeCard) card;
+                if(!loopAction) {
+                    jc.addResourcesToLose(resourceSelect.resourcesSelected);
+                    new ResourceSelect(playerId, cardId, -1, null, new ArrayList<>(resourcesToSelectFor), jc.getResourcesToLose().values().stream().mapToInt(Integer::intValue).sum(), true, false, true).execute(state);
+                }
+                else{
+                    jc.addResourcesToGain(resourceSelect.resourcesSelected);
+                    jc.applyCardEffect(egs);
+                }
             }
-            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.UNDERTAKER){
+            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.COURTHOUSE){
+                ConstructionCard cc = (ConstructionCard) card;
+                HashMap<EverdellParameters.ResourceTypes, Counter> resources = new HashMap<>();
+                for(var resource : resourceSelect.resourcesSelected.keySet()){
+                    resources.put(resource, new Counter());
+                    resources.get(resource).increment(resourceSelect.resourcesSelected.get(resource));
+                }
+                System.out.println("Courthouse Resources Selected : "+resources);
+                egs.resourceSelection = resources;
+                cc.applyCardEffect(egs);
+            }
+            else if(card.getCardEnumValue() == EverdellParameters.CardDetails.MONK){
                 egs.resourceSelection.get(EverdellParameters.ResourceTypes.BERRY).increment(resourceSelect.resourcesSelected.getOrDefault(EverdellParameters.ResourceTypes.BERRY, 0));
                 new SelectPlayer(playerId, cardId, -1).execute(state);
             }
@@ -184,6 +201,12 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
                     egs.resourceSelection.get(resource).increment(resourceSelect.resourcesSelected.getOrDefault(resource, 0));
                 }
                 new SelectPlayer(playerId, -1, locationId).execute(state);
+            }
+            else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
+                for(var resource : EverdellParameters.ResourceTypes.values()){
+                    egs.resourceSelection.get(resource).increment(resourceSelect.resourcesSelected.getOrDefault(resource, 0));
+                }
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);
             }
             else {
                 new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);

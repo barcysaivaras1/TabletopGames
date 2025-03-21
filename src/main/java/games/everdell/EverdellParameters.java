@@ -339,12 +339,17 @@ public class EverdellParameters extends AbstractParameters {
 
             COPY_BASIC_LOCATION_DRAW_CARD.applyLocationEffect = (state) ->{
                 //Copy a basic location
-                basicLocationChoice.getLocationEffect(state).accept(state);
+                if(basicLocationChoice != null) {
+                    basicLocationChoice.getLocationEffect(state).accept(state);
+                }
+                System.out.println("IN COPY BASIC LOCATION DRAW CARD");
                 //Draw a card
                 if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
                     state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
                     state.cardCount[state.getCurrentPlayer()].increment();
                 }
+
+                basicLocationChoice = null;
             };
 
 
@@ -900,6 +905,7 @@ public class EverdellParameters extends AbstractParameters {
         static{
             LOOKOUT_DESTINATION.applyLocationEffect = (state) -> {
                 if(copyLocationChoice != null){
+                    System.out.println("LOOKOUT DESTINATION ACTION BEING PERFORMED");
                     copyLocationChoice.getLocationEffect(state).accept(state);
                 }
             };
@@ -914,25 +920,27 @@ public class EverdellParameters extends AbstractParameters {
                 //CardSelection[0] will represent the card that they want to discard
                 //ResourceSelection will hold the resource that they want to gain
 
-                //Discard the card
-                state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
-                state.discardDeck.add(state.cardSelection.get(0));
+                if(!state.cardSelection.isEmpty()) {
+                    //Discard the card
+                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+                    state.discardDeck.add(state.cardSelection.get(0));
 
-                //Refund the cost of the card
-                for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
-                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(state.cardSelection.get(0).getResourceCost().get(resource));
-                }
-
-                //Gain the resource
-                for(var resource : state.resourceSelection.keySet()){
-                    if(state.resourceSelection.get(resource).getValue() > 0){
-                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
-                        break;
+                    //Refund the cost of the card
+                    for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(state.cardSelection.get(0).getResourceCost().get(resource));
                     }
-                }
 
-                //Gain a point
-                state.pointTokens[state.getCurrentPlayer()].increment();
+                    //Gain the resource
+                    for (var resource : state.resourceSelection.keySet()) {
+                        if (state.resourceSelection.get(resource).getValue() > 0) {
+                            state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                            break;
+                        }
+                    }
+
+                    //Gain a point
+                    state.pointTokens[state.getCurrentPlayer()].increment();
+                }
             };
             CHAPEL_DESTINATION.applyLocationEffect = (state) -> {
                 //Places 1 point on the Chapel card
@@ -981,7 +989,7 @@ public class EverdellParameters extends AbstractParameters {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
                         put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 1); //1
+                        put(ResourceTypes.RESIN, 0); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1661,6 +1669,8 @@ public class EverdellParameters extends AbstractParameters {
                         break;
                     }
                 }
+                state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+
                 return true;
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(JUDGE)));
@@ -1762,7 +1772,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.DUNGEON, 0);
         put(CardDetails.EVER_TREE, 0);
         put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.FARM, 25);
+        put(CardDetails.FARM, 0);
         put(CardDetails.FOOL, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.HISTORIAN, 0);
@@ -1771,7 +1781,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.INNKEEPER, 0);
         put(CardDetails.JUDGE, 0);
         put(CardDetails.KING, 0);
-        put(CardDetails.LOOKOUT, 0);
+        put(CardDetails.LOOKOUT, 100);
         put(CardDetails.MINE, 0);
         put(CardDetails.MINER_MOLE, 0);
         put(CardDetails.MONASTERY, 0);
@@ -1780,7 +1790,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.PEDDLER, 0);
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.POSTAL_PIGEON, 0);
-        put(CardDetails.QUEEN, 25);
+        put(CardDetails.QUEEN, 0);
         put(CardDetails.RANGER, 0);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.RUINS, 0);

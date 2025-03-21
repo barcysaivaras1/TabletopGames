@@ -57,6 +57,8 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.pointTokens = new Counter[state.getNPlayers()];
         state.villageMaxSize = new Counter[state.getNPlayers()];
         state.currentSeason = new EverdellParameters.Seasons[state.getNPlayers()];
+        state.copyMode = false;
+        state.copyID = -1;
 
         state.playerHands = new ArrayList<>();
         state.playerVillage = new ArrayList<>(state.getNPlayers());
@@ -278,8 +280,8 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
         //Location Decisions
-        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, true)._computeAvailableActions(egs).isEmpty()) {
-            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, true));
+        if(!new SelectLocation(gameState.getCurrentPlayer(), -1)._computeAvailableActions(egs).isEmpty()) {
+            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1));
         }
 
         //Card Decisions
@@ -302,6 +304,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 //        }
         if(actions.isEmpty()){
             actions.add(new EndGame());
+
         }
 
         return actions;
@@ -311,9 +314,12 @@ public class EverdellForwardModel extends StandardForwardModel {
     protected void _afterAction(AbstractGameState currentState, AbstractAction action) {
         if (currentState.isActionInProgress()) return;
 
+        EverdellGameState egs = (EverdellGameState) currentState;
+
         System.out.println("Forward Model : After Action");
         if(checkEndForPlayer((EverdellGameState) currentState, action)){
             System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
+            System.out.println("Player "+currentState.getCurrentPlayer()+" with card : "+egs.playerHands.get(currentState.getCurrentPlayer()));
             currentState.setPlayerResult(GAME_END, currentState.getCurrentPlayer());
         }
         if(checkEnd((EverdellGameState) currentState)){

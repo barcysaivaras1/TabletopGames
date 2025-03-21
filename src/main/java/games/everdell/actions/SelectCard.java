@@ -54,7 +54,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
      * Postal Pigeon -> SelectAListOfCards -> SelectAListOfCards -> PlayCard -> *** Card Specific Actions ***
      * Ruins -> SelectAListOfCards -> PlayCard
      * Shepherd -> SelectAPlayer -> PlayCard
-     * */
+     * Storehouse -> ResourceSelection -> PlayCard
+     * Judge -> PlayCard (When conditions are met this card effect will be triggered)
+     * Courthouse -> PlayCard (When conditions are met this card effect will be triggered)*/
 
 
     public SelectCard(int playerId, int cardId, ArrayList<Integer> cardsToSelectFromIds) {
@@ -270,6 +272,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     ArrayList<EverdellCard> cardsToPickFrom = egs.playerHands.get(playerId).getComponents().stream().filter(bardCard -> bardCard != finalCard).collect(Collectors.toCollection(ArrayList::new));
                     new SelectAListOfCards(playerId, -1, card.getComponentID(), cardsToPickFrom, cardsToPickFrom.size(), false).execute(state);
                 }
+                else if(card.getCardEnumValue() == CardDetails.STORE_HOUSE){
+                    new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false).execute(state);
+                }
                 else if(card.getCardEnumValue() == CardDetails.TEACHER){
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();
                     //Draw 2 Cards
@@ -303,7 +308,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                             cardsToPickFrom.add(ppCard);
                         }
                         else{
-                            egs.discardDeck.add(ppCard);
+                            ppCard.discardCard(egs);
                         }
                     }
                     //If the revealed cards are not valid the effect is not triggered

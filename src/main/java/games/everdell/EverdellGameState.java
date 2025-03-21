@@ -58,6 +58,8 @@ public class EverdellGameState extends AbstractGameState {
     public Counter[] villageMaxSize;
 
     public boolean copyMode;
+    //This is the ID of the component performing the action
+    public int copyID;
 
     //These values are used to indicate what the player has selected in their turn
     //I think this keeps things more organised
@@ -193,6 +195,7 @@ public class EverdellGameState extends AbstractGameState {
         // TODO: deep copy all variables to the new game state.
 
         copy.copyMode = copyMode;
+        copy.copyID = copyID;
         copy.cardDeck = cardDeck.copy();
         copy.meadowDeck = meadowDeck.copy();
         copy.discardDeck = discardDeck.copy();
@@ -284,12 +287,12 @@ public class EverdellGameState extends AbstractGameState {
     public boolean _equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState state = (EverdellGameState) o;
-        return copyMode == state.copyMode && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
+        return copyMode == state.copyMode && copyID == state.copyID && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), copyMode, currentCard, resourceSelection, cardSelection);
+        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), copyMode, copyID, currentCard, resourceSelection, cardSelection);
     }
 
     //    @Override

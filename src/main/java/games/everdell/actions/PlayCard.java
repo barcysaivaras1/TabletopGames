@@ -121,16 +121,12 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             triggerCardEffect(state, currentCard);
 
 
-            checkForCardsThatNeedToActivateAfterPlayingACard(state);
-
             for (var card : state.cardSelection){
                 state.temporaryDeck.add(card);
             }
 
             state.cardSelection.clear();
-            for(var resource : state.resourceSelection.keySet()){
-                state.resourceSelection.put(resource, new Counter());
-            }
+            state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
 
 
             //AI PLAY
@@ -139,6 +135,8 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
             }
 
+
+            checkForCardsThatNeedToActivateAfterPlayingACard(state);
             return true;
         }
         System.out.println("Cannot place card, village is full");
@@ -219,6 +217,11 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         //Check if the card we played has any cards that need to be activated after playing a card
         //This is for cards that do NOT need GUI elements to be function
         //There is a separate function for cards that need GUI elements to function in the GUIManager
+        EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
+
+
+        EverdellCard judge = null;
+        EverdellCard courthouse = null;
 
         for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
 
@@ -232,26 +235,41 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 triggerCardEffect(state, card);
                 return true;
             }
-            if(card.getCardEnumValue() == CardDetails.CASTLE){
-                //Trigger Castle effect
-                triggerCardEffect(state, card);
-                return true;
+//            if(card.getCardEnumValue() == CardDetails.CASTLE){
+//                //Trigger Castle effect
+//                triggerCardEffect(state, card);
+//                return true;
+//            }
+//            if(card.getCardEnumValue() == CardDetails.PALACE){
+//                //Trigger Palace effect
+//                triggerCardEffect(state, card);
+//                return true;
+//            }
+//            if(card.getCardEnumValue() == CardDetails.THEATRE){
+//                //Trigger Theatre effect
+//                triggerCardEffect(state, card);
+//                return true;
+//            }
+//            if(card.getCardEnumValue() == CardDetails.SCHOOL){
+//                //Trigger School effect
+//                triggerCardEffect(state, card);
+//                return true;
+//            }
+            if(card.getCardEnumValue() == CardDetails.JUDGE && currentCard.getCardEnumValue() != CardDetails.JUDGE){
+                judge = card;
             }
-            if(card.getCardEnumValue() == CardDetails.PALACE){
-                //Trigger Palace effect
-                triggerCardEffect(state, card);
-                return true;
+            if(card.getCardEnumValue() == CardDetails.COURTHOUSE && currentCard.getCardEnumValue() != CardDetails.COURTHOUSE && currentCard.isConstruction()){
+                courthouse = card;
             }
-            if(card.getCardEnumValue() == CardDetails.THEATRE){
-                //Trigger Theatre effect
-                triggerCardEffect(state, card);
-                return true;
-            }
-            if(card.getCardEnumValue() == CardDetails.SCHOOL){
-                //Trigger School effect
-                triggerCardEffect(state, card);
-                return true;
-            }
+        }
+
+        //Need to allow the AI to select which to trigger first
+        if (judge != null){
+            new ResourceSelect(state.getCurrentPlayer(), judge.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, false, true).execute(state);
+
+        }
+        else if(courthouse != null){
+            new ResourceSelect(state.getCurrentPlayer(), courthouse.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false).execute(state);
         }
         return false;
     }

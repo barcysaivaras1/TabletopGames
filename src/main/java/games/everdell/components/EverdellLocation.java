@@ -62,22 +62,14 @@ public class EverdellLocation extends Component {
 
 
         if(location instanceof EverdellParameters.RedDestinationLocation){
-            System.out.println("IS RED DESTINATION LOCATION");
             if(location != EverdellParameters.RedDestinationLocation.INN_DESTINATION && location != EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
-                System.out.println("IS NOT INN OR POST OFFICE");
                 //We need to check if the player owns this location, as this is not a public location
                     if(ownerId == state.getCurrentPlayer()){
-                        System.out.println("IS LOCATION FREE : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
-                        System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
                         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
                     }
                 return false;
             }
         }
-
-        System.out.println("Is the location free for the player : "+((isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace)));
-        System.out.println("Players on the Location : "+ location + " : " + playersOnLocation);
-        System.out.println("Component Id : " + componentID);
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 

@@ -43,14 +43,22 @@ public class CemeteryCard extends ConstructionCard{
         //Anything after that will be discarded
 
         return k -> {
-            state.cardSelection.get(0).payForCard();
-
-            for (int i = 1; i < state.cardSelection.size(); i++){
-                state.discardDeck.add(state.cardSelection.get(i));
+            if(!state.cardSelection.isEmpty()) {
+                state.cardSelection.get(0).payForCard();
+                state.temporaryDeck.add(state.cardSelection.get(0));
+                state.cardSelection.remove(0);
+                discardCards(state, state.cardSelection);
             }
-
-            state.cardSelection.clear();
         };
+    }
+
+    public void discardCards(EverdellGameState state, ArrayList<EverdellCard> cardsToDiscard){
+        System.out.println("Card Selection in Cemetery is : " + state.cardSelection);
+        System.out.println("Card to Place is : " + state.cardSelection.get(0));
+        for (int i = 1; i < cardsToDiscard.size(); i++){
+            cardsToDiscard.get(i).discardCard(state);
+            cardsToDiscard.remove(0);
+        }
     }
 
     public void unlockSecondLocation(EverdellGameState state){

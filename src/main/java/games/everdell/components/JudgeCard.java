@@ -37,7 +37,7 @@ public class JudgeCard extends CritterCard{
 
 
     public void applyCardEffect(EverdellGameState state) {
-        System.out.println("Peddler Card Effect Applied");
+        System.out.println("Judge Card Effect Applied");
         System.out.println("Resources to Lose: " + resourcesToLose);
         System.out.println("Resources to Gain: " + resourcesToGain);
 
@@ -86,6 +86,10 @@ public class JudgeCard extends CritterCard{
         for (EverdellParameters.ResourceTypes rt : rtg.keySet()) {
             resourcesToGain.put(rt, rtg.get(rt));
         }
+    }
+
+    public HashMap<EverdellParameters.ResourceTypes, Integer> getResourcesToLose() {
+        return resourcesToLose;
     }
 
     @Override
