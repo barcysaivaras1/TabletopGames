@@ -824,10 +824,10 @@ public class EverdellParameters extends AbstractParameters {
                     if(card.getCardEnumValue() == CardDetails.DUNGEON){
                         DungeonCard dc = (DungeonCard) card;
                         int crittersJailed = 0;
-                        if(dc.cell1 != null){
+                        if(dc.cell1ID != -1){
                             crittersJailed++;
                         }
-                        if(dc.cell2 != null){
+                        if(dc.cell2ID != -1){
                             crittersJailed++;
                         }
                         state.pointTokens[state.getCurrentPlayer()].increment( 3*crittersJailed);
@@ -1312,7 +1312,7 @@ public class EverdellParameters extends AbstractParameters {
 
             WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
-                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.RESIN, 0);
             }}, (state) -> {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how much wood was given
@@ -1764,7 +1764,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.CASTLE, 0);
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.CHAPEL, 0);
-        put(CardDetails.CHIP_SWEEP, 0);
+        put(CardDetails.CHIP_SWEEP, 25);
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.CRANE, 0);
@@ -1781,7 +1781,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.INNKEEPER, 0);
         put(CardDetails.JUDGE, 0);
         put(CardDetails.KING, 0);
-        put(CardDetails.LOOKOUT, 100);
+        put(CardDetails.LOOKOUT, 0);
         put(CardDetails.MINE, 0);
         put(CardDetails.MINER_MOLE, 0);
         put(CardDetails.MONASTERY, 0);
@@ -1805,7 +1805,8 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.WANDERER, 0);
         put(CardDetails.WIFE, 0);
-        put(CardDetails.WOOD_CARVER, 0);
+        put(CardDetails.WOOD_CARVER, 50);
+
     }};
 
     @Override

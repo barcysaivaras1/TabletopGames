@@ -56,7 +56,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
      * Shepherd -> SelectAPlayer -> PlayCard
      * Storehouse -> ResourceSelection -> PlayCard
      * Judge -> PlayCard (When conditions are met this card effect will be triggered)
-     * Courthouse -> PlayCard (When conditions are met this card effect will be triggered)*/
+     * Courthouse -> PlayCard (When conditions are met this card effect will be triggered)
+     * Chip_Sweep -> SelectCard -> ...Card Specific Actions... -> PlayCard*/
 
 
     public SelectCard(int playerId, int cardId, ArrayList<Integer> cardsToSelectFromIds) {
@@ -274,6 +275,17 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 }
                 else if(card.getCardEnumValue() == CardDetails.STORE_HOUSE){
                     new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false).execute(state);
+                }
+                else if(card.getCardEnumValue() == CardDetails.CHIP_SWEEP){
+                    ArrayList<Integer> cardIds = egs.playerVillage.get(playerId).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new));
+                    if(cardIds.isEmpty()){
+                        new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
+                    }
+                    else {
+                        egs.copyMode = true;
+                        egs.copyID = card.getComponentID();
+                        new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                    }
                 }
                 else if(card.getCardEnumValue() == CardDetails.TEACHER){
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();

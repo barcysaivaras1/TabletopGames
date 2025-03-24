@@ -66,7 +66,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
         System.out.println("Executing Play Card Action");
 
-
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
         for(var cardID : cardSelectionID){
@@ -80,6 +79,18 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         //Fool Card has a special case where the player must select a player to give the card to
         if(currentCard instanceof FoolCard){
             return foolSpecialTreatment(state);
+        }
+
+        //AI COPYMODE PLAY
+        if(state.copyMode){
+            Component comp = state.getComponentById(state.copyID);
+            if(comp instanceof CopyCard cc){
+                if(cc.getCardEnumValue() == EverdellParameters.CardDetails.CHIP_SWEEP){
+                    cc.setCardToCopy(currentCard);
+                }
+                 currentCard = cc;
+                currentCardID = cc.getComponentID();
+            }
         }
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
@@ -127,6 +138,8 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
             state.cardSelection.clear();
             state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+            state.copyID = -1;
+            state.copyMode = false;
 
 
             //AI PLAY

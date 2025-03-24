@@ -11,16 +11,17 @@ public class CopyCard extends CritterCard{
     //This class is specifically meant for the Miner Mole and Chip Sweep
     //They perform the same tasks but the context in which the card is selected is different
 
-    private EverdellCard cardToCopy;
+    private int cardToCopyID;
 
 
     public CopyCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
+        cardToCopyID = -1;
     }
 
-    private CopyCard(String name, int compID, EverdellCard cardToCopy) {
+    private CopyCard(String name, int compID, int cardToCopy) {
         super(name, compID);
-        this.cardToCopy = cardToCopy;
+        this.cardToCopyID = cardToCopy;
     }
 
 
@@ -29,9 +30,10 @@ public class CopyCard extends CritterCard{
         //Chip Sweep takes in a production card and copies its effect.
         //The player can select which production card to copy
 
-        if (cardToCopy == null) {
+        if (cardToCopyID == -1) {
             return;
         }
+        EverdellCard cardToCopy = (EverdellCard) state.getComponentById(cardToCopyID);
 
         if (cardToCopy.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION) {
             if (cardToCopy instanceof ConstructionCard constructionCard) {
@@ -41,14 +43,14 @@ public class CopyCard extends CritterCard{
                 critterCard.applyCardEffect(state);
             }
         }
-
-        cardToCopy = null;
+        cardToCopyID = -1;
     }
 
     public void setCardToCopy(EverdellCard card){
-        cardToCopy = card;
+        cardToCopyID = card.getComponentID();
     }
-    public EverdellCard getCardToCopy(){
+    public EverdellCard getCardToCopy(EverdellGameState state){
+        EverdellCard cardToCopy = (EverdellCard) state.getComponentById(cardToCopyID);
         return cardToCopy;
     }
 
@@ -56,7 +58,7 @@ public class CopyCard extends CritterCard{
     @Override
     public CopyCard copy() {
         CopyCard card;
-        card = new CopyCard(getName(), componentID, cardToCopy.copy());
+        card = new CopyCard(getName(), componentID, cardToCopyID);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
