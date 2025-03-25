@@ -2,6 +2,7 @@ package games.everdell.actions;
 
 import core.AbstractGameState;
 import core.actions.AbstractAction;
+import core.components.Counter;
 import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
@@ -29,6 +30,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     boolean payWithResources;
     boolean payWithDiscount;
+
+    int discountMethodID;
     boolean payWithOccupation;
 
 
@@ -66,9 +69,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         this.cardId = cardId;
         this.cardsToSelectFromIds = cardsToSelectFromIds;
         this.occupationId = -1;
-
+        this.resourcesSelected = null;
+        this.discountMethodID = -1;
     }
-    private SelectCard(int playerId, int cardId, int occupationId, ArrayList<Integer> cardsToSelectFromIds, boolean payWithResources, boolean payWithDiscount, boolean payWithOccupation) {
+    private SelectCard(int playerId, int cardId, int occupationId, ArrayList<Integer> cardsToSelectFromIds, boolean payWithResources, boolean payWithDiscount, boolean payWithOccupation, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected) {
         this.playerId = playerId;
         this.cardId = cardId;
         this.occupationId = occupationId;
@@ -76,6 +80,18 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         this.payWithResources = payWithResources;
         this.payWithDiscount = payWithDiscount;
         this.payWithOccupation = payWithOccupation;
+        this.resourcesSelected = resourcesSelected;
+    }
+    private SelectCard(int playerId, int cardId, int occupationId, ArrayList<Integer> cardsToSelectFromIds, boolean payWithResources, boolean payWithDiscount, boolean payWithOccupation, HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected, int discountMethodID) {
+        this.playerId = playerId;
+        this.cardId = cardId;
+        this.occupationId = occupationId;
+        this.cardsToSelectFromIds = cardsToSelectFromIds;
+        this.payWithResources = payWithResources;
+        this.payWithDiscount = payWithDiscount;
+        this.payWithOccupation = payWithOccupation;
+        this.resourcesSelected = resourcesSelected;
+        this.discountMethodID = discountMethodID;
     }
 
     @Override
@@ -119,7 +135,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 if(card instanceof ConstructionCard cc){
                     EverdellCard cardTryingToOccupy = (EverdellCard) egs.getComponentById(cardId);
                     if(cc.canCardOccupyThis(egs, cardTryingToOccupy)){
-                        actions.add(new SelectCard(playerId, cardId, card.getComponentID(), cardsToSelectFromIds, false, false, true));
+                        actions.add(new SelectCard(playerId, cardId, card.getComponentID(), cardsToSelectFromIds, false, false, true, null));
                     }
                 }
             }
@@ -128,7 +144,11 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         else if (payWithDiscount){
             //Select exact discount you want to apply
             System.out.println("Selecting Discount");
-
+            HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned = new HashMap<>();
+            for(var resource : egs.PlayerResources.keySet()){
+                amountOwned.put(resource, egs.PlayerResources.get(resource)[playerId].getValue());
+            }
+            computeAllValidDiscounts(actions, cardId,3, ((EverdellCard) egs.getComponentById(cardId)).getResourceCost(), amountOwned);
         }
         else{ // Select Payment Method
 
@@ -136,20 +156,80 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
             //Paying with resources
             if(thisCardCanBePaidByResources(cardId, egs)){
-                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, true, false, false));
+                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, true, false, false, null));
             }
 
             //Paying with discount
             if(thisCardCanBePaidByDiscount(cardId, egs)){
-                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, false, true, false));
+                generateDiscountOptions(actions, cardId, egs);
             }
 
             //Paying with occupation
             if(thisCardCanOccupy(cardId, egs)){
-                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, false, false, true));
+                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, false, false, true, null));
             }
         }
         return actions;
+    }
+
+    public void computeAllValidDiscounts(List<AbstractAction> actions, int cardID, int discount, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned) {
+        //Generate all possible selections of resources
+        ArrayList<ArrayList<Integer>> allPossibleSelections = new ArrayList<>();
+        int totalCost = resourceCost.values().stream().mapToInt(Integer::intValue).sum();
+        generateDiscountSelections(Math.min(totalCost, discount), resourceCost.size(), new ArrayList<>(), allPossibleSelections, resourceCost);
+
+        ArrayList<ArrayList<Integer>> validDiscounts = new ArrayList<>();
+
+        for(ArrayList<Integer> selection : allPossibleSelections){
+            int counter = 0;
+            boolean valid = true;
+            HashMap<EverdellParameters.ResourceTypes, Integer> possibleDiscount = new HashMap<>();
+            for(var resource : resourceCost.keySet()){
+
+                System.out.println("Resource: " + resource);
+                System.out.println("Resource Cost: " + resourceCost.get(resource));
+                System.out.println("Amount Owned: " + amountOwned.get(resource));
+                System.out.println("Discount : " + selection.get(counter));
+                possibleDiscount.put(resource, selection.get(counter));
+                if(Math.max(resourceCost.get(resource) - selection.get(counter), 0) > amountOwned.get(resource)){
+                    valid = false;
+                    System.out.println("INVALID");
+                }
+                counter++;
+            }
+            if(valid){
+                actions.add(new SelectCard(0, cardID, -1, new ArrayList<>(), false, true, false, possibleDiscount, discountMethodID));
+                validDiscounts.add(selection);
+            }
+        }
+
+        System.out.println("ALL DISCOUNTS");
+        System.out.println(allPossibleSelections);
+
+        System.out.println("**********************");
+
+        System.out.println("Valid DISCOUNTS");
+        System.out.println(validDiscounts);
+    }
+
+
+    private static void generateDiscountSelections(int discount, int size, ArrayList<Integer> current, ArrayList<ArrayList<Integer>> allPossibleSelections, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost) {
+        if (current.size() == size) {
+            int sum = current.stream().mapToInt(Integer::intValue).sum();
+            if (sum == discount) {
+                allPossibleSelections.add(new ArrayList<>(current));
+            }
+            return;
+        }
+
+        int position = current.size();
+        int maxValue = (int) resourceCost.values().toArray()[position];
+
+        for (int i = 0; i <= Math.min(discount, maxValue); i++) {
+            current.add(i);
+            generateDiscountSelections(discount, size, current, allPossibleSelections, resourceCost);
+            current.remove(current.size() - 1);
+        }
     }
 
     private boolean thisCardCanOccupy(Integer cardId, EverdellGameState state){
@@ -191,25 +271,81 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
             //Crane Discount
             if(craneDiscount){
                 int totalCost = cc.getResourceCost().values().stream().mapToInt(Integer::intValue).sum();
-                int totalResources = 0;
-                for(var resource : state.PlayerResources.keySet()){
-                    if(resource == EverdellParameters.ResourceTypes.BERRY){continue;}
+                int totalResources = 3;
+                for(var resource : card.getResourceCost().keySet()){
+                    if(card.getResourceCost().get(resource) == 0){continue;}
                     totalResources += state.PlayerResources.get(resource)[playerId].getValue();
                 }
-                return totalResources >= totalCost;
+                if(totalResources >= totalCost){
+                    return true;
+                }
             }
         }
         else if(card instanceof CritterCard cc){
             //Innkeeper Discount
             if(innKeeperDiscount){
                 int totalCost = cc.getResourceCost().values().stream().mapToInt(Integer::intValue).sum();
-                int totalResources = 0;
-                totalResources += state.PlayerResources.get(EverdellParameters.ResourceTypes.BERRY)[playerId].getValue();
-                return totalResources >= totalCost;
+                int totalResources = 3;
+                for(var resource : card.getResourceCost().keySet()){
+                    if(card.getResourceCost().get(resource) == 0){continue;}
+                    totalResources += state.PlayerResources.get(resource)[playerId].getValue();
+                }
+                if(totalResources >= totalCost){
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+
+
+    private void generateDiscountOptions(List<AbstractAction> actions, int cardId, EverdellGameState state){
+        EverdellCard card = (EverdellCard) state.getComponentById(cardId);
+        boolean craneDiscount = false;
+        EverdellCard craneCard = null;
+        boolean innKeeperDiscount = false;
+        EverdellCard innKeeperCard = null;
+
+        for(var discountCard : state.playerVillage.get(playerId)){
+            if(discountCard.getCardEnumValue() == CardDetails.CRANE){
+                craneDiscount = true;
+                craneCard = discountCard;
+            }
+            if(discountCard.getCardEnumValue() == CardDetails.INNKEEPER){
+                innKeeperDiscount = true;
+                innKeeperCard = discountCard;
+            }
+        }
+
+        if(card instanceof ConstructionCard cc){
+            //Crane Discount
+            if(craneDiscount){
+                int totalCost = cc.getResourceCost().values().stream().mapToInt(Integer::intValue).sum();
+                int totalResources = 3;
+                for(var resource : card.getResourceCost().keySet()){
+                    if(card.getResourceCost().get(resource) == 0){continue;}
+                    totalResources += state.PlayerResources.get(resource)[playerId].getValue();
+                }
+                if(totalResources >= totalCost){
+                    actions.add(new SelectCard(playerId, cardId, -1, new ArrayList<>(), false, true, false, null, craneCard.getComponentID()));
+                }
+            }
+        }
+        else if(card instanceof CritterCard cc){
+            //Innkeeper Discount
+            if(innKeeperDiscount){
+                int totalCost = cc.getResourceCost().values().stream().mapToInt(Integer::intValue).sum();
+                int totalResources = 3;
+                for(var resource : card.getResourceCost().keySet()){
+                    if(card.getResourceCost().get(resource) == 0){continue;}
+                    totalResources += state.PlayerResources.get(resource)[playerId].getValue();
+                }
+                if(totalResources >= totalCost){
+                    actions.add(new SelectCard(playerId, cardId, -1, new ArrayList<>(), false, true, false, null, innKeeperCard.getComponentID()));
+                }
+            }
+        }
     }
 
     private boolean thisCardCanBePaidByResources(Integer cardId, EverdellGameState state){
@@ -225,8 +361,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         if(card.getCardEnumValue() == CardDetails.FOOL){
             return ((FoolCard) card).canFoolBePlaced(state, playerId) && card.checkIfPlayerCanBuyCard(state, playerId);
         }
-        //If the Village Has Space, AND (Can be bought by an occupation OR by resources) AND the player can place this unique card
-        return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(card.getComponentID(), state) || thisCardCanBePaidByResources(card.getComponentID(), state)) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
+        //If the Village Has Space, AND (Can be bought by an occupation OR by resources OR by discount) AND the player can place this unique card
+        return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(card.getComponentID(), state) || thisCardCanBePaidByResources(card.getComponentID(), state) || thisCardCanBePaidByDiscount(card.getComponentID(), state)) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
     }
 
     @Override
@@ -239,7 +375,44 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         System.out.println("SelectCard: _afterAction");
         SelectCard selectCard = (SelectCard) action;
         EverdellCard c = (EverdellCard) state.getComponentById(selectCard.cardId);
+        EverdellGameState egs = (EverdellGameState) state;
         System.out.println("Card Selected For Play : " + c.getCardEnumValue());
+
+        //If discount option was chosen, we must apply the discount
+        if(selectCard.payWithDiscount && selectCard.resourcesSelected != null){
+            System.out.println("PAYING WITH DISCOUNT");
+            EverdellCard cardApplyingDiscount = (EverdellCard) state.getComponentById(selectCard.discountMethodID);
+            HashMap<EverdellParameters.ResourceTypes, Counter> resourcesSelection = new HashMap<>();
+
+            for(var resource : selectCard.resourcesSelected.keySet()){
+                resourcesSelection.put(resource, new Counter());
+                resourcesSelection.get(resource).setValue(selectCard.resourcesSelected.get(resource));
+            }
+
+            //Applying discount
+            //Removing Crane from the village
+            //Resetting values
+
+
+            if(cardApplyingDiscount.getCardEnumValue() == CardDetails.CRANE ){
+                ConstructionCard cc = (ConstructionCard) cardApplyingDiscount;
+                egs.resourceSelection = resourcesSelection;
+                cc.applyCardEffect(egs);
+                egs.playerVillage.get(playerId).remove(cc);
+                egs.discardDeck.add(cc);
+                egs.resourceSelection.keySet().forEach(resource -> egs.resourceSelection.get(resource).setValue(0));
+            }
+            else if (cardApplyingDiscount.getCardEnumValue() == CardDetails.INNKEEPER){
+                CritterCard cc = (CritterCard) cardApplyingDiscount;
+                egs.resourceSelection = resourcesSelection;
+                cc.applyCardEffect(egs);
+                egs.playerVillage.get(playerId).remove(cc);
+                egs.discardDeck.add(cc);
+                egs.resourceSelection.keySet().forEach(resource -> egs.resourceSelection.get(resource).setValue(0));
+            }
+        }
+
+
         //If payment has not been selected, Select the payment method
         if((!selectCard.payWithDiscount && !selectCard.payWithOccupation && !selectCard.payWithResources)){
             //new SelectCard(playerId, selectCard.cardId).execute(state);
@@ -247,10 +420,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         else if (selectCard.payWithOccupation && selectCard.occupationId == -1){
         }
         else{ // Payment has been selected, Choose the next step
-            EverdellGameState egs = (EverdellGameState) state;
+            System.out.println("Card is going to be placed!");
             EverdellCard card = (EverdellCard) egs.getComponentById(selectCard.cardId);
             //If card requires no additional actions, play the card
-            if(selectCard.payWithResources || selectCard.payWithOccupation) {
+            if(selectCard.payWithResources || selectCard.payWithOccupation || selectCard.payWithDiscount) {
                 if(selectCard.payWithOccupation){
                     //Need to pay for the card
                     ConstructionCard occupation = (ConstructionCard) egs.getComponentById(selectCard.occupationId);
@@ -290,7 +463,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                                 new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
                             }
                             else{
-                                new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                                new SelectCard(playerId, -1, -1, cardIds, true, false, false, null).execute(state);
                             }
                         }
                     }
@@ -298,7 +471,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                         egs.copyMode = true;
                         egs.copyID = card.getComponentID();
 
-                        new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                        new SelectCard(playerId, -1, -1, cardIds, true, false, false, null).execute(state);
                     }
                 }
                 else if(card.getCardEnumValue() == CardDetails.MINER_MOLE){
@@ -322,14 +495,14 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                                 new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
                             }
                             else{
-                                new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                                new SelectCard(playerId, -1, -1, cardIds, true, false, false, null).execute(state);
                             }
                         }
                     }
                     else {
                         egs.copyMode = true;
                         egs.copyID = card.getComponentID();
-                        new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                        new SelectCard(playerId, -1, -1, cardIds, true, false, false, null).execute(state);
                     }
                 }
                 else if(card.getCardEnumValue() == CardDetails.TEACHER){
@@ -402,22 +575,24 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     @Override
     public SelectCard copy() {
-        SelectCard sc = new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, payWithResources, payWithDiscount, payWithOccupation);
+        SelectCard sc = new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, payWithResources, payWithDiscount, payWithOccupation, resourcesSelected);
         sc.executed = executed;
+        sc.discountMethodID = discountMethodID;
 
         return sc;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SelectCard that = (SelectCard) o;
-        return playerId == that.playerId && cardId == that.cardId && occupationId == that.occupationId && executed == that.executed && payWithResources == that.payWithResources && payWithDiscount == that.payWithDiscount && payWithOccupation == that.payWithOccupation && Objects.equals(cardsToSelectFromIds, that.cardsToSelectFromIds);
+        return playerId == that.playerId && cardId == that.cardId && occupationId == that.occupationId && executed == that.executed && payWithResources == that.payWithResources && payWithDiscount == that.payWithDiscount && discountMethodID == that.discountMethodID && payWithOccupation == that.payWithOccupation && Objects.equals(cardsToSelectFromIds, that.cardsToSelectFromIds) && Objects.equals(resourcesSelected, that.resourcesSelected);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerId, cardId, occupationId, executed, cardsToSelectFromIds, payWithResources, payWithDiscount, payWithOccupation);
+        return Objects.hash(playerId, cardId, occupationId, executed, cardsToSelectFromIds, resourcesSelected, payWithResources, payWithDiscount, discountMethodID, payWithOccupation);
     }
 
     @Override

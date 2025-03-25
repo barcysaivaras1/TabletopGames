@@ -8,6 +8,7 @@ import core.components.Counter;
 import core.components.Deck;
 import games.everdell.actions.*;
 import games.everdell.components.ConstructionCard;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
@@ -316,6 +317,9 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         EverdellGameState egs = (EverdellGameState) currentState;
 
+
+        updatePurpleProsperityCards(egs);
+
         System.out.println("Forward Model : After Action");
         if(checkEndForPlayer((EverdellGameState) currentState, action)){
             System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
@@ -333,7 +337,6 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         endPlayerTurn(currentState);
     }
-
     private boolean checkEndForPlayer(EverdellGameState state, AbstractAction action){
         if(action instanceof EndGame){
             return true;
@@ -349,6 +352,24 @@ public class EverdellForwardModel extends StandardForwardModel {
             }
         }
         return true;
+    }
+
+    private void updatePurpleProsperityCards(EverdellGameState state){
+        //Go through each player and check if they have purple prosperity cards and call their card functions
+        for(int i=0; i<state.getNPlayers(); i++){
+            for (var card : state.playerVillage.get(i)){
+                if(card.getCardType() == EverdellParameters.CardType.PURPLE_PROSPERITY){
+                    if(card instanceof ConstructionCard cc){
+                        cc.applyCardEffect(state);
+                    }
+                    else{
+                        CritterCard cc = (CritterCard) card;
+                        cc.applyCardEffect(state);
+                    }
+                }
+            }
+        }
 
     }
+
 }

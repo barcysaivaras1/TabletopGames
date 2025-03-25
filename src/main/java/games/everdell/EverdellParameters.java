@@ -988,8 +988,8 @@ public class EverdellParameters extends AbstractParameters {
         static {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
-                        put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 0); //1
+                        put(ResourceTypes.TWIG, 1); //2
+                        put(ResourceTypes.RESIN, 3); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1041,8 +1041,8 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, false, false, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0); //2
-                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.BERRY, 1); //2
+                put(ResourceTypes.RESIN, 3);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
@@ -1118,9 +1118,9 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             CASTLE.createEverdellCard = (gameState) -> new ConstructionCard("Castle", CASTLE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 2);
-                put(ResourceTypes.RESIN, 3);
-                put(ResourceTypes.PEBBLE, 2);
+                put(ResourceTypes.TWIG, 0);
+                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.PEBBLE, 0);
             }}, (state) -> {
 
                 int counter = 0;
@@ -1172,9 +1172,9 @@ public class EverdellParameters extends AbstractParameters {
 
 
             PALACE.createEverdellCard = (gameState) -> new ConstructionCard("Palace", PALACE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 2);
-                put(ResourceTypes.RESIN, 3);
-                put(ResourceTypes.PEBBLE, 3);
+                put(ResourceTypes.TWIG, 0);
+                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.PEBBLE, 0);
             }}, (state) -> {
                 int counter = 0;
                 //Find all unique constructions
@@ -1198,9 +1198,9 @@ public class EverdellParameters extends AbstractParameters {
 
 
             THEATRE.createEverdellCard = (gameState) -> new ConstructionCard("Theatre", THEATRE, CardType.PURPLE_PROSPERITY, true, true, 3, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 3);
-                put(ResourceTypes.RESIN, 1);
-                put(ResourceTypes.PEBBLE, 1);
+                put(ResourceTypes.TWIG, 0);
+                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.PEBBLE, 0);
             }}, (state) -> {
                 int counter = 0;
                 //Find all unique critters
@@ -1223,8 +1223,8 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(BARD)));
 
             SCHOOL.createEverdellCard = (gameState) -> new ConstructionCard("School", SCHOOL, CardType.PURPLE_PROSPERITY, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 2);
-                put(ResourceTypes.RESIN, 2);
+                put(ResourceTypes.TWIG, 0);
+                put(ResourceTypes.RESIN, 0);
             }}, (state) -> {
                 int counter = 0;
                 //Find all common critters
@@ -1759,12 +1759,13 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
+        put(CardDetails.ARCHITECT, 0);
         put(CardDetails.BARD, 0);
         put(CardDetails.BARGE_TOAD, 0);
         put(CardDetails.CASTLE, 0);
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.CHAPEL, 0);
-        put(CardDetails.CHIP_SWEEP, 25);
+        put(CardDetails.CHIP_SWEEP, 0);
         put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.CRANE, 0);
@@ -1778,12 +1779,12 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.HISTORIAN, 0);
         put(CardDetails.HUSBAND, 0);
         put(CardDetails.INN, 0);
-        put(CardDetails.INNKEEPER, 0);
+        put(CardDetails.INNKEEPER, 25);
         put(CardDetails.JUDGE, 0);
         put(CardDetails.KING, 0);
         put(CardDetails.LOOKOUT, 0);
         put(CardDetails.MINE, 0);
-        put(CardDetails.MINER_MOLE, 25);
+        put(CardDetails.MINER_MOLE, 0);
         put(CardDetails.MONASTERY, 0);
         put(CardDetails.MONK, 0);
         put(CardDetails.PALACE, 0);
@@ -1804,8 +1805,8 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.UNDERTAKER, 0);
         put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 0);
-        put(CardDetails.WOOD_CARVER, 25);
+        put(CardDetails.WIFE, 25);
+        put(CardDetails.WOOD_CARVER, 0);
 
     }};
 
