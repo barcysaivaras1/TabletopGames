@@ -37,11 +37,11 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
     //Basic Cards
     /* Basic Card -> PlayCard
     /* Here is a list of cards that are considered basic :
-    *  Castle, Chapel, Evertree, Fairgrounds, Farm, General Store, Mine, Palace, Resin Refinery, School, Theatre, Twig Barge, King, Historian, Architect, Wife, Shopkeeper, Wanderer, Barge Toad
+     * Castle, Chapel, Evertree, Fairgrounds, Farm, General Store, Mine, Palace, Resin Refinery, School, Theatre, Twig Barge, King, Historian, Architect, Wife, Shopkeeper, Wanderer, Barge Toad
        This also includes all Red Destination cards*/
 
     //Special Cards (These are cards that require extra steps !)
-    /* WOOD_CARVER -> ResourceSelect -> PlayCard
+    /* Wood_Carver -> ResourceSelect -> PlayCard
      * Doctor -> ResourceSelect -> PlayCard
      * Peddler -> ResourceSelect -> ResourceSelect -> PlayCard
      * Bard -> SelectAListOfCards -> PlayCard
@@ -57,7 +57,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
      * Storehouse -> ResourceSelection -> PlayCard
      * Judge -> PlayCard (When conditions are met this card effect will be triggered)
      * Courthouse -> PlayCard (When conditions are met this card effect will be triggered)
-     * Chip_Sweep -> SelectCard -> ...Card Specific Actions... -> PlayCard*/
+     * Chip_Sweep -> SelectCard -> ...Card Specific Actions... -> PlayCard
+     * Miner_Mole -> SelectCard -> ...Card Specific Actions... -> PlayCard */
 
 
     public SelectCard(int playerId, int cardId, ArrayList<Integer> cardsToSelectFromIds) {
@@ -280,6 +281,50 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     ArrayList<Integer> cardIds = egs.playerVillage.get(playerId).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new));
                     if(cardIds.isEmpty()){
                         new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
+                    }
+                    else if (egs.copyMode){ //In the scenario where a minermole is copying a chipsweep, we do not want to enter an infinite loop of them copying eachother
+                        EverdellCard copyCard = (EverdellCard) egs.getComponentById(egs.copyID);
+                        if( copyCard.getCardEnumValue() == CardDetails.MINER_MOLE) {
+                            cardIds = egs.playerVillage.get(playerId).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.MINER_MOLE).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new));
+                            if(cardIds.isEmpty()){
+                                new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
+                            }
+                            else{
+                                new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                            }
+                        }
+                    }
+                    else {
+                        egs.copyMode = true;
+                        egs.copyID = card.getComponentID();
+
+                        new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                    }
+                }
+                else if(card.getCardEnumValue() == CardDetails.MINER_MOLE){
+                    ArrayList<Integer> cardIds = new ArrayList<>();
+                    for(int i=0; i<egs.getNPlayers(); i++){
+                        if( i == egs.getCurrentPlayer()) continue;
+                        cardIds.addAll(egs.playerVillage.get(i).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.MINER_MOLE).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new)));
+                    }
+                    if(cardIds.isEmpty()){
+                        new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
+                    }
+                    else if (egs.copyMode){ //In the scenario where a chipsweep is copying a miner mole, we do not want to enter an infinite loop of them copying eachother
+                        EverdellCard copyCard = (EverdellCard) egs.getComponentById(egs.copyID);
+                        if( copyCard.getCardEnumValue() == CardDetails.CHIP_SWEEP) {
+                            for(int i=0; i<egs.getNPlayers(); i++){
+                                if( i == egs.getCurrentPlayer()) continue;
+                                cardIds = new ArrayList<>();
+                                cardIds.addAll(egs.playerVillage.get(i).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.MINER_MOLE).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new)));
+                            }
+                            if(cardIds.isEmpty()){
+                                new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);
+                            }
+                            else{
+                                new SelectCard(playerId, -1, -1, cardIds, true, false, false).execute(state);
+                            }
+                        }
                     }
                     else {
                         egs.copyMode = true;

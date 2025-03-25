@@ -85,10 +85,13 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         if(state.copyMode){
             Component comp = state.getComponentById(state.copyID);
             if(comp instanceof CopyCard cc){
-                if(cc.getCardEnumValue() == EverdellParameters.CardDetails.CHIP_SWEEP){
+                if(cc.getCardEnumValue() == CardDetails.CHIP_SWEEP){
                     cc.setCardToCopy(currentCard);
                 }
-                 currentCard = cc;
+                if(cc.getCardEnumValue() == CardDetails.MINER_MOLE){
+                    cc.setCardToCopy(currentCard);
+                }
+                currentCard = cc;
                 currentCardID = cc.getComponentID();
             }
         }

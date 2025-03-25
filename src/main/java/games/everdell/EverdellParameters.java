@@ -1783,7 +1783,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.KING, 0);
         put(CardDetails.LOOKOUT, 0);
         put(CardDetails.MINE, 0);
-        put(CardDetails.MINER_MOLE, 0);
+        put(CardDetails.MINER_MOLE, 25);
         put(CardDetails.MONASTERY, 0);
         put(CardDetails.MONK, 0);
         put(CardDetails.PALACE, 0);
@@ -1805,7 +1805,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.WANDERER, 0);
         put(CardDetails.WIFE, 0);
-        put(CardDetails.WOOD_CARVER, 50);
+        put(CardDetails.WOOD_CARVER, 25);
 
     }};
 
