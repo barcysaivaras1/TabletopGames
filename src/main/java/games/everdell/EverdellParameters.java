@@ -1041,8 +1041,8 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, false, false, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 1); //2
-                put(ResourceTypes.RESIN, 3);
+                put(ResourceTypes.BERRY, 0); //2
+                put(ResourceTypes.RESIN, 0);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
@@ -1770,16 +1770,16 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.CRANE, 0);
         put(CardDetails.DOCTOR, 0);
-        put(CardDetails.DUNGEON, 0);
+        put(CardDetails.DUNGEON, 25);
         put(CardDetails.EVER_TREE, 0);
         put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.FARM, 0);
+        put(CardDetails.FARM, 25);
         put(CardDetails.FOOL, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.HISTORIAN, 0);
         put(CardDetails.HUSBAND, 0);
         put(CardDetails.INN, 0);
-        put(CardDetails.INNKEEPER, 25);
+        put(CardDetails.INNKEEPER, 0);
         put(CardDetails.JUDGE, 0);
         put(CardDetails.KING, 0);
         put(CardDetails.LOOKOUT, 0);

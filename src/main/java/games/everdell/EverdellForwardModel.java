@@ -275,6 +275,9 @@ public class EverdellForwardModel extends StandardForwardModel {
     @Override
     protected List<AbstractAction> _computeAvailableActions(AbstractGameState gameState) {
         System.out.println("Forward Model : Computing Available Actions, Current Player: "+gameState.getCurrentPlayer());
+        for(int i=0; i<gameState.getNPlayers(); i++){
+            System.out.println("Player : "+i+" with Results : "+gameState.getPlayerResults()[i]);
+        }
         List<AbstractAction> actions = new ArrayList<>();
         EverdellGameState egs = (EverdellGameState) gameState;
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
@@ -325,6 +328,7 @@ public class EverdellForwardModel extends StandardForwardModel {
             System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
             System.out.println("Player "+currentState.getCurrentPlayer()+" with card : "+egs.playerHands.get(currentState.getCurrentPlayer()));
             currentState.setPlayerResult(GAME_END, currentState.getCurrentPlayer());
+            System.out.println("Player "+currentState.getCurrentPlayer()+" has ENDED WITH RESULT : "+currentState.getPlayerResults()[currentState.getCurrentPlayer()]);
         }
         if(checkEnd((EverdellGameState) currentState)){
             System.out.println("Game End");
@@ -332,8 +336,7 @@ public class EverdellForwardModel extends StandardForwardModel {
             return;
         }
 
-        EverdellGameState state = (EverdellGameState) currentState;
-        state.temporaryDeck.clear();
+        egs.temporaryDeck.clear();
 
         endPlayerTurn(currentState);
     }
