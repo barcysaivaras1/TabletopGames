@@ -24,6 +24,8 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
     final int locationId;
     final int cardId;
 
+    final boolean isMovingSeason;
+
     ArrayList<EverdellCard> cardsToSelectFrom;
 
     ArrayList<EverdellCard> selectedCards;
@@ -36,6 +38,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
 
     boolean executed;
 
+    //Location OR Card Action
     public SelectAListOfCards(int playerId, int locationId, int cardId, ArrayList<EverdellCard> cardsToSelectFrom, int maxAmount, boolean isStrict) {
         this.playerId = playerId;
         this.locationId = locationId;
@@ -47,12 +50,31 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             ctsf.add(card.copy());
         }
         this.cardsToSelectFrom = ctsf;
-        this.loopAction = false;
+        this.loopAction = true;
+        this.isMovingSeason = false;
     }
-    private SelectAListOfCards(int playerId, int locationId, int cardId, ArrayList<EverdellCard> cardsToSelectFrom, int maxAmount, boolean isStrict, ArrayList<EverdellCard> selectedCards, boolean loopAction) {
+
+    //MoveSeason Action
+    public SelectAListOfCards(int playerId, boolean isMovingSeason, ArrayList<EverdellCard> cardsToSelectFrom, int maxAmount, boolean isStrict) {
+        this.playerId = playerId;
+        this.locationId = -1;
+        this.cardId = -1;
+        this.isMovingSeason = isMovingSeason;
+        this.maxAmount = maxAmount;
+        this.isStrict = isStrict;
+        ArrayList<EverdellCard> ctsf = new ArrayList<>();
+        for(EverdellCard card : cardsToSelectFrom){
+            ctsf.add(card.copy());
+        }
+        this.cardsToSelectFrom = ctsf;
+        this.loopAction = true;
+    }
+
+    private SelectAListOfCards(int playerId, int locationId, int cardId, boolean isMovingSeason, ArrayList<EverdellCard> cardsToSelectFrom, int maxAmount, boolean isStrict, ArrayList<EverdellCard> selectedCards, boolean loopAction) {
         this.playerId = playerId;
         this.locationId = locationId;
         this.cardId = cardId;
+        this.isMovingSeason = isMovingSeason;
         this.maxAmount = maxAmount;
         this.isStrict = isStrict;
         this.loopAction = loopAction;
@@ -75,7 +97,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
     public boolean execute(AbstractGameState gs) {
         System.out.println("SelectAListOfCards: execute");
 
-        if(selectedCards == null){
+        if(loopAction){
             gs.setActionInProgress(this);
         }
         return true;
@@ -90,14 +112,14 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
 
         generateCardCombinations(new ArrayList<>(), 0, actions);
         if(actions.isEmpty()){
-            actions.add(new SelectAListOfCards(playerId, locationId, cardId, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
+            actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
         }
         return actions;
     }
 
     private void generateCardCombinations(List<EverdellCard> currentCombination, int start, List<AbstractAction> actions) {
         if (currentCombination.size() == maxAmount || (!isStrict && currentCombination.size() <= maxAmount)) {
-            actions.add(new SelectAListOfCards(playerId, locationId, cardId, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(currentCombination), false));
+            actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(currentCombination), false));
             if (isStrict && currentCombination.size() == maxAmount) return;
         }
         for (int i = start; i < cardsToSelectFrom.size(); i++) {
@@ -127,6 +149,11 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         EverdellGameState egs = (EverdellGameState) state;
 
         SelectAListOfCards sa = (SelectAListOfCards) action;
+
+        ArrayList<Integer> cardIDs = new ArrayList<>();
+        for(EverdellCard card : sa.selectedCards){
+            cardIDs.add(card.getComponentID());
+        }
 
 
         if(locationId != -1) {
@@ -203,11 +230,14 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 while (egs.meadowDeck.getSize() != 8) {
                     egs.meadowDeck.add(egs.cardDeck.draw());
                 }
-                new SelectAListOfCards(playerId, -1, cardId, new ArrayList<>(egs.meadowDeck.getComponents()), 1, true, null, true).execute(egs);
+                new SelectAListOfCards(playerId, -1, cardId, isMovingSeason, new ArrayList<>(egs.meadowDeck.getComponents()), 1, true, null, true).execute(egs);
             }
             else {
                 new PlayCard(playerId, cardId, cardsToIDs(cardsToSelectFrom), new HashMap<>()).execute(egs);
             }
+        }
+        if(isMovingSeason){
+            new MoveSeason(cardIDs).execute(egs);
         }
 
 
@@ -231,30 +261,35 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 sc.add(card.copy());
             }
         }
-        SelectAListOfCards retValue = new SelectAListOfCards(playerId, locationId, cardId, ctsf, maxAmount, isStrict, sc, loopAction);
+        SelectAListOfCards retValue = new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, ctsf, maxAmount, isStrict, sc, loopAction);
+
         retValue.executed = executed;
         return retValue;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SelectAListOfCards that = (SelectAListOfCards) o;
-        return playerId == that.playerId && locationId == that.locationId && cardId == that.cardId && maxAmount == that.maxAmount && isStrict == that.isStrict && loopAction == that.loopAction && executed == that.executed && Objects.equals(cardsToSelectFrom, that.cardsToSelectFrom) && Objects.equals(selectedCards, that.selectedCards);
+        return playerId == that.playerId && locationId == that.locationId && cardId == that.cardId && isMovingSeason == that.isMovingSeason && maxAmount == that.maxAmount && isStrict == that.isStrict && loopAction == that.loopAction && executed == that.executed && Objects.equals(cardsToSelectFrom, that.cardsToSelectFrom) && Objects.equals(selectedCards, that.selectedCards);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(playerId, locationId, cardId, cardsToSelectFrom, selectedCards, maxAmount, isStrict, loopAction, executed);
+        return Objects.hash(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, selectedCards, maxAmount, isStrict, loopAction, executed);
     }
 
     @Override
     public String getString(AbstractGameState gameState) {
-        return "Selecting A list of cards";
+        return toString();
     }
 
     @Override
     public String toString(){
+        if(isMovingSeason){
+            return "Selecting Cards for Moving Season";
+        }
         return "Selecting A List of Cards";
     }
 

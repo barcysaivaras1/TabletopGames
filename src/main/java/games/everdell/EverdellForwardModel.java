@@ -4,6 +4,7 @@ import core.AbstractGameState;
 import core.CoreConstants;
 import core.StandardForwardModel;
 import core.actions.AbstractAction;
+import core.components.Component;
 import core.components.Counter;
 import core.components.Deck;
 import games.everdell.actions.*;
@@ -16,6 +17,7 @@ import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.components.EverdellLocation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static core.CoreConstants.GameResult.GAME_END;
 
@@ -60,6 +62,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.currentSeason = new EverdellParameters.Seasons[state.getNPlayers()];
         state.copyMode = false;
         state.copyID = -1;
+        state.greenProductionMode = false;
 
         state.playerHands = new ArrayList<>();
         state.playerVillage = new ArrayList<>(state.getNPlayers());
@@ -221,7 +224,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
             state.villageMaxSize[i].increment(15);
             state.cardCount[i].increment(5+i);
-            state.workers[i].increment(2);
+            state.workers[i].increment(0);
 
 
             state.playerVillage.add(new Deck<>("Player Village",i, CoreConstants.VisibilityMode.VISIBLE_TO_ALL));
@@ -275,9 +278,9 @@ public class EverdellForwardModel extends StandardForwardModel {
     @Override
     protected List<AbstractAction> _computeAvailableActions(AbstractGameState gameState) {
         System.out.println("Forward Model : Computing Available Actions, Current Player: "+gameState.getCurrentPlayer());
-        for(int i=0; i<gameState.getNPlayers(); i++){
-            System.out.println("Player : "+i+" with Results : "+gameState.getPlayerResults()[i]);
-        }
+//        for(int i=0; i<gameState.getNPlayers(); i++){
+//            System.out.println("Player : "+i+" with Results : "+gameState.getPlayerResults()[i]);
+//        }
         List<AbstractAction> actions = new ArrayList<>();
         EverdellGameState egs = (EverdellGameState) gameState;
         // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
@@ -293,19 +296,41 @@ public class EverdellForwardModel extends StandardForwardModel {
 //        for (EverdellCard card : egs.meadowDeck.getComponents()) {
 //            cardsToSelectFrom.add(card);
 //        }
-        for (EverdellCard card : egs.playerHands.get(gameState.getCurrentPlayer()).getComponents()) {
-            cardsToSelectFrom.add(card.getComponentID());
-        }
-        System.out.println("*************CHECKING IF ACTION CAN BE PERFORMED*************");
-        if(!new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
-            System.out.println("*************PERFORMING ACTION*************");
-            actions.add(new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom));
-        }
+//        for (EverdellCard card : egs.playerHands.get(gameState.getCurrentPlayer()).getComponents()) {
+//            cardsToSelectFrom.add(card.getComponentID());
+//        }
+//        System.out.println("*************CHECKING IF ACTION CAN BE PERFORMED*************");
+//        if(!new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+//            System.out.println("*************PERFORMING ACTION*************");
+//            actions.add(new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom));
+//        }
 
         //Season Decisions
-//        if(egs.workers[egs.getCurrentPlayer()].getValue() == 0) {
-//            actions.add(new MoveSeason(new ArrayList<>()));
-//        }
+        if(egs.workers[egs.getCurrentPlayer()].getValue() == 0) {
+            EverdellParameters.Seasons nextSeason = EverdellParameters.Seasons.values()[(egs.currentSeason[egs.getCurrentPlayer()].ordinal() + 1) % EverdellParameters.Seasons.values().length];
+            System.out.println("Next Season: "+nextSeason);
+
+            //Green Production, Select the order in which to play the cards
+            if(nextSeason == EverdellParameters.Seasons.AUTUMN || nextSeason == EverdellParameters.Seasons.SPRING){
+                ArrayList<Integer> greenCardsToSelectFrom = egs.meadowDeck.getComponents().stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).mapToInt(Component::getComponentID).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                actions.add(new MoveSeason(greenCardsToSelectFrom));
+            }
+
+            //Summer Event, Select cards to take from the meadow
+            else if (nextSeason == EverdellParameters.Seasons.SUMMER) {
+                int cardsToDraw = Math.min(2, egs.playerHands.get(egs.getCurrentPlayer()).getCapacity() - egs.playerHands.get(egs.getCurrentPlayer()).getSize());
+                ArrayList<EverdellCard> seasonCardsToSelectFrom = new ArrayList<>(egs.meadowDeck.getComponents());
+
+                System.out.println("Cards to draw : "+cardsToDraw);
+                //Perhaps can be reworked at some point but this works
+                if(cardsToDraw > 0) {
+                    actions.add(new SelectAListOfCards(egs.getCurrentPlayer(), true, seasonCardsToSelectFrom, cardsToDraw, false));
+                }
+                else{
+                    actions.add(new MoveSeason(new ArrayList<>()));
+                }
+            }
+        }
         if(actions.isEmpty()){
             actions.add(new EndGame());
 

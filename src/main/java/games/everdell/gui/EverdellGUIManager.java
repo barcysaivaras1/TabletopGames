@@ -609,12 +609,12 @@ public class EverdellGUIManager extends AbstractGUIManager {
         for(var c : cardSelection){
             csID.add(c.getComponentID());
         }
-        new MoveSeason(csID).execute(state);
 
         EverdellParameters.Seasons currentSeason = state.currentSeason[state.getCurrentPlayer()];
+        EverdellParameters.Seasons nextSeason = EverdellParameters.Seasons.values()[(currentSeason.ordinal() + 1) % EverdellParameters.Seasons.values().length];
 
         //If it is summer, the player must draw 2 cards from the meadow
-        if(currentSeason == EverdellParameters.Seasons.SUMMER){
+        if(nextSeason == EverdellParameters.Seasons.SUMMER){
             FunctionWrapper.addAFunction(() -> {
                 summerEventGUI(state);
                 return true;
@@ -622,7 +622,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
         }
         //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
         // need to be taken
-        if(currentSeason == EverdellParameters.Seasons.AUTUMN || currentSeason == EverdellParameters.Seasons.SPRING){
+        if(nextSeason == EverdellParameters.Seasons.AUTUMN || nextSeason == EverdellParameters.Seasons.SPRING){
+            new MoveSeason(csID).execute(state);
             FunctionWrapper.addAFunction(() -> {
                 greenProductionEventGUI(state);
                 return true;
@@ -1468,10 +1469,8 @@ public class EverdellGUIManager extends AbstractGUIManager {
     }
 
 
-    //THIS NEEDS TO BE UPDATED TO USE THE NEW SYSTEM
-    //SUMMER GUI IS CURRENTLY NOT WORKING
     private void summerEventGUI(EverdellGameState state){
-        cardSelection = new ArrayList<EverdellCard>();
+        cardSelection = new ArrayList<>();
         int cardsToDraw = Math.min(2, state.playerHands.get(state.getCurrentPlayer()).getCapacity() - state.playerHands.get(state.getCurrentPlayer()).getSize());
 
         //When it is summer, the player will be given the choice to grab 2 cards from the meadow into their hand(Depending on how many cards they have)
@@ -1503,7 +1502,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 csID.add(c.getComponentID());
             }
 
-            new MoveSeason(csID).summerEvent(state);
+            new MoveSeason(csID).execute(state);
             resetValues();
             redrawPanels();
         });

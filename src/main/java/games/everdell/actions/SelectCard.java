@@ -62,7 +62,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
      * Judge -> PlayCard (When conditions are met this card effect will be triggered)
      * Courthouse -> PlayCard (When conditions are met this card effect will be triggered)
      * Chip_Sweep -> SelectCard -> ...Card Specific Actions... -> PlayCard
-     * Miner_Mole -> SelectCard -> ...Card Specific Actions... -> PlayCard */
+     * Miner_Mole -> SelectCard -> ...Card Specific Actions... -> PlayCard
+     * Ranger -> SelectLocation (From) -> PlayCard -> SelectLocation (To) -> ...Location Specific Actions... -> PlaceWorker?*/
 
 
 
@@ -605,6 +606,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 }
                 else if(card.getCardEnumValue() == CardDetails.SHEPHERD){
                     new SelectPlayer(playerId, card.getComponentID(), -1).execute(state);
+                }
+                else if(card.getCardEnumValue() == CardDetails.RANGER){
+
                 }
                 else if(card.getCardEnumValue() == CardDetails.POSTAL_PIGEON){
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();

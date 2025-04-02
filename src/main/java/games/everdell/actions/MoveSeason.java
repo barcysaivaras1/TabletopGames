@@ -3,6 +3,7 @@ package games.everdell.actions;
 import core.AbstractGameState;
 import core.actions.AbstractAction;
 import core.components.Component;
+import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.Seasons;
@@ -13,6 +14,7 @@ import games.everdell.components.EverdellLocation;
 import org.apache.spark.sql.sources.In;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,7 +33,7 @@ import java.util.Objects;
  * use the {@link AbstractGameState#getComponentById(int)} function to retrieve the actual reference to the component,
  * given your componentID.</p>
  */
-public class MoveSeason extends AbstractAction {
+public class MoveSeason extends AbstractAction implements IExtendedSequence {
 
     /**
      * Executes this action, applying its effect to the given game state. Can access any component IDs stored
@@ -41,6 +43,10 @@ public class MoveSeason extends AbstractAction {
      */
 
     private ArrayList<Integer> cardSelectionID;
+
+    private int playerID;
+
+    private boolean executed;
 
 
     //String printout value
@@ -59,6 +65,7 @@ public class MoveSeason extends AbstractAction {
     @Override
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
+        System.out.println("MoveSeason: execute");
 
         EverdellGameState state = (EverdellGameState) gs;
 
@@ -84,6 +91,7 @@ public class MoveSeason extends AbstractAction {
                 case SUMMER:
                     //Draw 2 from the meadow
                     state.workers[state.getCurrentPlayer()].increment();
+                    summerEvent(state);
                     break;
                 case AUTUMN:
                     //Production event
@@ -143,7 +151,7 @@ public class MoveSeason extends AbstractAction {
 
     }
 
-    public void summerEvent(EverdellGameState state){
+    private void summerEvent(EverdellGameState state){
         //Take cards from meadow and place in player hand
         //It is assumed that the player has space in their hand
 
@@ -160,6 +168,40 @@ public class MoveSeason extends AbstractAction {
     }
 
 
+    @Override
+    public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
+        //What is there to select?
+        /* -If it's summer the player must select cards to gain from the meadow, can be done using selectAListOfCards
+        *  -Need to handle green production events here. If its green production we handle this here. If its summer
+        * we handle it kinda here. We need to handle cards that activate just before moving seasons, i.e Clocktower(might be the only one :)))
+        *  - Could worry about selecting order of activation for green production. Could also just ignore it as it might be quite annoying to implement
+        * */
+        //But what actions am i selecting from here? The actions are already defined by which season we are in.
+        //When we move seasons we either 1, draw cards from the meadow or 2, activate green production cards
+        //WE can do green production here, but we need to handle the meadow drawing in the selectAListOfCards action
+        //The only actions that we can compute would be to decide which order would we activate the green production cards
+        //We will probably have to store a list of green production cards in the game state and then select the order of activation
+        //We can also use a boolean to check if we should activate green production. SelectCard could then behave differently depending
+        //on the boolean value, false would be standard behaviours and true would be green production behaviours.
+
+        return null;
+    }
+
+    @Override
+    public int getCurrentPlayer(AbstractGameState state) {
+        return 0;
+    }
+
+    @Override
+    public void _afterAction(AbstractGameState state, AbstractAction action) {
+
+    }
+
+    @Override
+    public boolean executionComplete(AbstractGameState state) {
+        return false;
+    }
+
     /**
      * @return Make sure to return an exact <b>deep</b> copy of the object, including all of its variables.
      * Make sure the return type is this class (e.g. GTAction) and NOT the super class AbstractAction.
@@ -169,19 +211,23 @@ public class MoveSeason extends AbstractAction {
     @Override
     public MoveSeason copy() {
         // TODO: copy non-final variables appropriately
-        return this;
+        ArrayList<Integer> cardSelectionID = new ArrayList<>(this.cardSelectionID);
+        MoveSeason ms = new MoveSeason(cardSelectionID);
+        ms.executed = executed;
+        return ms;
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MoveSeason that = (MoveSeason) o;
-        return Objects.equals(cardSelectionID, that.cardSelectionID);
+        return executed == that.executed && Objects.equals(cardSelectionID, that.cardSelectionID) && Objects.equals(seasonName, that.seasonName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(cardSelectionID);
+        return Objects.hash(cardSelectionID, executed, seasonName);
     }
 
     @Override

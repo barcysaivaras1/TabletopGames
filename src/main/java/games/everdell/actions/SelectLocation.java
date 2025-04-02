@@ -101,11 +101,11 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
         if(locationId == -1){
 
-            //actions.addAll(getBasicLocationActions(egs));
+            actions.addAll(getBasicLocationActions(egs));
             //actions.addAll(getForestLocationActions(egs));
             //actions.addAll(getBasicEventActions(egs));
             //actions.addAll(getSpecialEventActions(egs));
-            actions.addAll(getRedDestinationActions(egs));
+            //actions.addAll(getRedDestinationActions(egs));
             //actions.addAll(getHavenActions(egs));
             //actions.addAll(getJourneyActions(egs));
         }
