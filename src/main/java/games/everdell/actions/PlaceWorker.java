@@ -8,6 +8,7 @@ import core.interfaces.IExtendedSequence;
 import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.BasicEvent;
+import games.everdell.components.ClockTowerCard;
 import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.components.EverdellLocation;
@@ -68,6 +69,17 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         EverdellGameState state = (EverdellGameState) gs;
         EverdellLocation locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID));
 
+        state.cardSelection = new ArrayList<>();
+        for(var cardId : cardSelectionID){
+            state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
+        }
+
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+        for(var resource : resourceSelectionValues.keySet()){
+            resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+        }
+
+
         //AI COPYMODE PLAY
         if(state.copyMode){
             Component comp = state.getComponentById(state.copyID);
@@ -76,6 +88,48 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                     EverdellParameters.RedDestinationLocation.copyLocationChoice = locationToPlaceIn.getAbstractLocation();
                 }
                 locationToPlaceIn = (EverdellLocation) comp;
+                state.copyMode = false;
+                state.copyID = -1;
+            }
+        }
+
+        //This can be simplified
+        if(state.clockTowerMode){
+            //Find Clock tower card
+            for(var clockCard : state.playerVillage.get(state.getCurrentPlayer())){
+                if(clockCard instanceof ClockTowerCard ctc){
+                    System.out.println("Clock tower effect activating");
+                    ctc.selectLocation(locationToPlaceIn.getComponentID());
+                    ctc.applyCardEffect(state);
+                    state.clockTowerMode = false;
+
+                    //Go through standard season process
+                    EverdellParameters.Seasons nextSeason = EverdellParameters.Seasons.values()[(state.currentSeason[state.getCurrentPlayer()].ordinal() + 1) % EverdellParameters.Seasons.values().length];
+                    System.out.println("Next Season: "+nextSeason);
+
+                    //Green Production, Select the order in which to play the cards
+                    if(nextSeason == EverdellParameters.Seasons.AUTUMN || nextSeason == EverdellParameters.Seasons.SPRING){
+                        ArrayList<Integer> greenCardsToSelectFrom = state.playerVillage.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).mapToInt(Component::getComponentID).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                        new MoveSeason(greenCardsToSelectFrom, state.getCurrentPlayer()).execute(state);
+                    }
+
+                    //Summer Event, Select cards to take from the meadow
+                    else if (nextSeason == EverdellParameters.Seasons.SUMMER) {
+                        int cardsToDraw = Math.min(2, state.playerHands.get(state.getCurrentPlayer()).getCapacity() - state.playerHands.get(state.getCurrentPlayer()).getSize());
+                        ArrayList<EverdellCard> seasonCardsToSelectFrom = new ArrayList<>(state.meadowDeck.getComponents());
+
+                        System.out.println("Cards to draw : "+cardsToDraw);
+                        //Perhaps can be reworked at some point but this works
+                        if(cardsToDraw > 0) {
+                            new SelectAListOfCards(state.getCurrentPlayer(), true, seasonCardsToSelectFrom, cardsToDraw, false).execute(state);
+                        }
+                        else{
+                            new MoveSeason(new ArrayList<>(), state.getCurrentPlayer()).execute(state);
+                        }
+                    }
+                    resetValues(state);
+                    return true;
+                }
             }
         }
 
@@ -85,17 +139,6 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             System.out.println("**************************************************");
             //System.out.println("Placing Worker in : " + locationToPlaceIn);
 
-
-            state.cardSelection = new ArrayList<>();
-            for(var cardId : cardSelectionID){
-                state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
-            }
-
-
-            HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
-            for(var resource : resourceSelectionValues.keySet()){
-                resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
-            }
 
             //Check if we meet the requirements for the basic event
             if(locationToPlaceIn.getAbstractLocation() instanceof BasicEvent be){
@@ -122,13 +165,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             System.out.println("**************************************************");
 
 
-            //Reset the resource selection
-            state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
-            //Reset Card Selection
-            for (var card : state.cardSelection){
-                state.temporaryDeck.add(card);
-            }
-            state.cardSelection.clear();
+            resetValues(state);
 
 
             //AI PLAY
@@ -142,6 +179,16 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         }
 
         return false;
+    }
+
+    public void resetValues(EverdellGameState state){
+        //Reset the resource selection
+        state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+        //Reset Card Selection
+        for (var card : state.cardSelection){
+            state.temporaryDeck.add(card);
+        }
+        state.cardSelection.clear();
     }
 
     @Override

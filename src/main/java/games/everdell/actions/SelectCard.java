@@ -102,6 +102,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
     @Override
     public boolean execute(AbstractGameState gs) {
         System.out.println("SelectCard: execute");
+
         playerId = gs.getCurrentPlayer();
         EverdellGameState state = (EverdellGameState) gs;
         if(cardId == -1 || (!payWithResources && !payWithDiscount && !payWithOccupation)){
@@ -117,7 +118,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
             EverdellCard card = (EverdellCard) state.getComponentById(discountMethodID);
             if(card instanceof DungeonCard dc){
                 if(secondaryCardId == -1){
-                    System.out.println("SETTING ACTION IN PROGRESS BECAUSE OF SECONDARYCARDID");
                     state.setActionInProgress(this);
                 }
             }
@@ -140,7 +140,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 if (canCardBePlayed(card, egs)) {
                     actions.add(new SelectCard(playerId, card.getComponentID(), cardsToSelectFromIds));
                 }
-
             }
         }
         else if (payWithOccupation) {
@@ -170,23 +169,24 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
             else if(discountCard instanceof DungeonCard dc){
                 System.out.println("Selecting Critter Card for Dungeon");
                 //Create an action for every critter card selection in the dungeon
-                System.out.println("Current Player : " + playerId);
                 if(dc.cell1ID == -1){
-                    System.out.println("CHECK1");
                     for(EverdellCard card : egs.playerVillage.get(getCurrentPlayer(state))){
-                        System.out.println("Checking Card for Dungeon : " + card.getCardEnumValue());
                         if(card instanceof CritterCard && card.getCardEnumValue() != CardDetails.RANGER){
-                            System.out.println("CHECKLOOP");
                             actions.add(new SelectCard(playerId, cardId, -1, new ArrayList<>(), false, true, false, resourcesSelected, discountMethodID, card.getComponentID()));
                         }
                     }
                 }
-                System.out.println("CHECK2");
             }
         }
         else{ // Select Payment Method
 
             System.out.println("Selecting Payment Method");
+
+            //If green production mode is enabled, the card is paid for already so we can ignore this step.
+            if(egs.greenProductionMode){
+                actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, true, false, false, null));
+                return actions;
+            }
 
             //Paying with resources
             if(thisCardCanBePaidByResources(cardId, egs)){
@@ -203,7 +203,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 actions.add(new SelectCard(playerId, cardId, occupationId, cardsToSelectFromIds, false, false, true, null));
             }
         }
-        System.out.println("CHECK3");
         return actions;
     }
 
@@ -423,6 +422,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         if(card.getCardEnumValue() == CardDetails.FOOL){
             return ((FoolCard) card).canFoolBePlaced(state, playerId) && card.checkIfPlayerCanBuyCard(state, playerId);
         }
+        //Green Production card is not played, we are only activating the effect
+        if (state.greenProductionMode || state.copyMode){
+            return true;
+        }
         //If the Village Has Space, AND (Can be bought by an occupation OR by resources OR by discount) AND the player can place this unique card
         return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(card.getComponentID(), state) || thisCardCanBePaidByResources(card.getComponentID(), state) || thisCardCanBePaidByDiscount(card.getComponentID(), state)) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
     }
@@ -434,9 +437,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     @Override
     public void _afterAction(AbstractGameState state, AbstractAction action) {
+
         System.out.println("SelectCard: _afterAction");
-        System.out.println("After Action Current Player : " + playerId);
-        System.out.println("After Action Current Player : " + getCurrentPlayer(state));
         SelectCard selectCard = (SelectCard) action;
         EverdellCard c = (EverdellCard) state.getComponentById(selectCard.cardId);
         EverdellGameState egs = (EverdellGameState) state;

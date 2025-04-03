@@ -623,7 +623,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
         //If it is Spring or Autumn, we must trigger the green production event and see if any additional actions
         // need to be taken
         if(nextSeason == EverdellParameters.Seasons.AUTUMN || nextSeason == EverdellParameters.Seasons.SPRING){
-            new MoveSeason(csID).execute(state);
+            new MoveSeason(csID, state.getCurrentPlayer()).execute(state);
             FunctionWrapper.addAFunction(() -> {
                 greenProductionEventGUI(state);
                 return true;
@@ -1502,7 +1502,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
                 csID.add(c.getComponentID());
             }
 
-            new MoveSeason(csID).execute(state);
+            new MoveSeason(csID, state.getCurrentPlayer()).execute(state);
             resetValues();
             redrawPanels();
         });

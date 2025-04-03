@@ -952,7 +952,7 @@ public class BottomPanel extends JPanel {
                     button.addActionListener(k -> {
                         if (SpecialEvent.TAX_RELIEF.checkIfConditionMet.apply(state)) {
                             //This will trigger the green production event for all cards that require NO GUI interaction
-                            new MoveSeason(new ArrayList<>()).productionEvent(state);
+                            new MoveSeason(new ArrayList<>(), state.getCurrentPlayer()).productionEvent(state);
                             FunctionWrapper.addAFunction(() -> {
 
                                 placeWorkerActionWithComponentToIDConversion(location, everdellGUIManager.cardSelection, everdellGUIManager.resourceSelection).execute(state);

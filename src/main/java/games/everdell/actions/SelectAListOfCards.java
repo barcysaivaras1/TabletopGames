@@ -237,7 +237,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             }
         }
         if(isMovingSeason){
-            new MoveSeason(cardIDs).execute(egs);
+            new MoveSeason(cardIDs, state.getCurrentPlayer()).execute(egs);
         }
 
 

@@ -39,6 +39,9 @@ public class ClockTowerCard extends ConstructionCard{
         locationSelectedId = -1;
     }
 
+    public boolean canPerformAction(){
+        return getPoints() > 0;
+    }
 
     public void selectLocation(int locationId) {
         locationSelectedId = locationId;

@@ -340,6 +340,7 @@ public class EverdellParameters extends AbstractParameters {
             COPY_BASIC_LOCATION_DRAW_CARD.applyLocationEffect = (state) ->{
                 //Copy a basic location
                 if(basicLocationChoice != null) {
+                    System.out.println("Basic Copying  : "+basicLocationChoice);
                     basicLocationChoice.getLocationEffect(state).accept(state);
                 }
                 System.out.println("IN COPY BASIC LOCATION DRAW CARD");
@@ -986,10 +987,10 @@ public class EverdellParameters extends AbstractParameters {
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
         static {
-            FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
+            FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, true, 1,
                     new HashMap<>() {{
-                        put(ResourceTypes.TWIG, 1); //2
-                        put(ResourceTypes.RESIN, 3); //1
+                        put(ResourceTypes.TWIG, 0); //2
+                        put(ResourceTypes.RESIN, 0); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1310,7 +1311,7 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(PEDDLER)));
 
 
-            WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
+            WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, true, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
                 put(ResourceTypes.RESIN, 0);
             }}, (state) -> {
@@ -1392,7 +1393,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }));
 
-            CHIP_SWEEP.createEverdellCard = (gameState) -> new CopyCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
+            CHIP_SWEEP.createEverdellCard = (gameState) -> new CopyCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, true, 2, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 0);
             }}, (state) -> {
                 //Chip Sweep takes in a production card and copies its effect.
@@ -1766,14 +1767,14 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.CHAPEL, 0);
         put(CardDetails.CHIP_SWEEP, 0);
-        put(CardDetails.CLOCK_TOWER, 0);
+        put(CardDetails.CLOCK_TOWER, 100);
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.CRANE, 0);
         put(CardDetails.DOCTOR, 0);
-        put(CardDetails.DUNGEON, 25);
+        put(CardDetails.DUNGEON, 0);
         put(CardDetails.EVER_TREE, 0);
         put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.FARM, 25);
+        put(CardDetails.FARM, 0);
         put(CardDetails.FOOL, 0);
         put(CardDetails.GENERAL_STORE, 0);
         put(CardDetails.HISTORIAN, 0);
@@ -1805,7 +1806,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.UNDERTAKER, 0);
         put(CardDetails.UNIVERSITY, 0);
         put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 25);
+        put(CardDetails.WIFE, 0);
         put(CardDetails.WOOD_CARVER, 0);
 
     }};

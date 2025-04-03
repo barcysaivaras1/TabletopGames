@@ -100,14 +100,19 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
         EverdellGameState egs = (EverdellGameState) state;
 
         if(locationId == -1){
-
-            actions.addAll(getBasicLocationActions(egs));
-            //actions.addAll(getForestLocationActions(egs));
-            //actions.addAll(getBasicEventActions(egs));
-            //actions.addAll(getSpecialEventActions(egs));
-            //actions.addAll(getRedDestinationActions(egs));
-            //actions.addAll(getHavenActions(egs));
-            //actions.addAll(getJourneyActions(egs));
+            if(egs.clockTowerMode){
+                //actions.addAll(getBasicLocationActions(egs));
+                actions.addAll(getForestLocationActions(egs));
+            }
+            else {
+                actions.addAll(getBasicLocationActions(egs));
+                //actions.addAll(getForestLocationActions(egs));
+                //actions.addAll(getBasicEventActions(egs));
+                //actions.addAll(getSpecialEventActions(egs));
+                //actions.addAll(getRedDestinationActions(egs));
+                //actions.addAll(getHavenActions(egs));
+                //actions.addAll(getJourneyActions(egs));
+            }
         }
         else{
             EverdellLocation location = (EverdellLocation) egs.getComponentById(locationId);
@@ -116,7 +121,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 actions.addAll(getBasicLocationActions(egs));
             }
             else if(location.getAbstractLocation() == RedDestinationLocation.LOOKOUT_DESTINATION){
-                //actions.addAll(getBasicLocationActions(egs));
+                actions.addAll(getBasicLocationActions(egs));
                 actions.addAll(getForestLocationActions(egs));
             }
             else if(location.getAbstractLocation() == RedDestinationLocation.CEMETERY_DESTINATION){
@@ -133,7 +138,10 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
         //Basic Locations
         for(EverdellLocation location : state.everdellLocations){
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicLocations){
-                if(locationIsFree(state, location)){
+                if(state.clockTowerMode || state.copyMode){ // If we are copying, we can select any location
+                    actions.add(new SelectLocation(playerId, location.getComponentID(),false, false));
+                }
+                else if(locationIsFree(state, location)){
                     actions.add(new SelectLocation(playerId, location.getComponentID(),false, false));
                 }
             }
@@ -146,7 +154,10 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
         //Forest Locations
         for(EverdellLocation location : state.everdellLocations){
             if(location.getAbstractLocation() instanceof EverdellParameters.ForestLocations){
-                if(locationIsFree(state, location)){
+                if(state.clockTowerMode || state.copyMode){ //If we are copying, we can select any location
+                    actions.add(new SelectLocation(playerId, location.getComponentID(),false, false));
+                }
+                else if(locationIsFree(state, location)){
                     actions.add(new SelectLocation(playerId, location.getComponentID(),false, false));
                 }
             }

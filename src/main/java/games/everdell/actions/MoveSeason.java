@@ -17,43 +17,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * <p>Actions are unit things players can do in the game (e.g. play a card, move a pawn, roll dice, attack etc.).</p>
- * <p>Actions in the game can (and should, if applicable) extend one of the other existing actions, in package {@link core.actions}.
- * Or, a game may simply reuse one of the existing core actions.</p>
- * <p>Actions may have parameters, so as not to duplicate actions for the same type of functionality,
- * e.g. playing card of different types (see {@link games.sushigo.actions.ChooseCard} action from SushiGo as an example).
- * Include these parameters in the class constructor.</p>
- * <p>They need to extend at a minimum the {@link AbstractAction} super class and implement the {@link AbstractAction#execute(AbstractGameState)} method.
- * This is where the main functionality of the action should be inserted, which modifies the given game state appropriately (e.g. if the action is to play a card,
- * then the card will be moved from the player's hand to the discard pile, and the card's effect will be applied).</p>
- * <p>They also need to include {@link Object#equals(Object)} and {@link Object#hashCode()} methods.</p>
- * <p>They <b>MUST NOT</b> keep references to game components. Instead, store the {@link Component#getComponentID()}
- * in variables for any components that must be referenced in the action. Then, in the execute() function,
- * use the {@link AbstractGameState#getComponentById(int)} function to retrieve the actual reference to the component,
- * given your componentID.</p>
- */
-public class MoveSeason extends AbstractAction implements IExtendedSequence {
-
-    /**
-     * Executes this action, applying its effect to the given game state. Can access any component IDs stored
-     * through the {@link AbstractGameState#getComponentById(int)} method.
-     * @param gs - game state which should be modified by this action.
-     * @return - true if successfully executed, false otherwise.
-     */
+public class MoveSeason extends AbstractAction implements IExtendedSequence{
 
     private ArrayList<Integer> cardSelectionID;
 
-    private int playerID;
+    private final int playerID;
 
     private boolean executed;
+
+    private boolean clocktowerEvent = false;
 
 
     //String printout value
     private String seasonName;
 
-    public MoveSeason(ArrayList<Integer> cardSelection){
+    public MoveSeason(ArrayList<Integer> cardSelection, int playerID) {
         this.cardSelectionID = cardSelection;
+        this.playerID = playerID;
+    }
+
+    public MoveSeason(ArrayList<Integer> cardSelection, int playerID, boolean clocktowerEvent) {
+        this.cardSelectionID = cardSelection;
+        this.playerID = playerID;
+        this.clocktowerEvent = clocktowerEvent;
     }
 
     //This will need to have unique effects implemented each season
@@ -68,6 +54,15 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence {
         System.out.println("MoveSeason: execute");
 
         EverdellGameState state = (EverdellGameState) gs;
+
+        //Check if the player has clocktower card
+        for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
+            if(card.getCardEnumValue() == EverdellParameters.CardDetails.CLOCK_TOWER){
+                clocktowerEvent = true;
+                break;
+            }
+        }
+
 
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
         for (var id : cardSelectionID){
@@ -129,7 +124,20 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence {
     }
 
     public void productionEvent(EverdellGameState state){
+        //AI Green Production
+        if(!cardSelectionID.isEmpty()){
+            System.out.println("AI Green Production");
+            state.setActionInProgress(this);
+            state.greenProductionMode = true;
+            //Generate a list of green production cards that need to be activated
+            for(var id : cardSelectionID){
+                state.greenProductionCards.add((EverdellCard) state.getComponentById(id));
+            }
 
+            return;
+        }
+
+        //GUI Green Production
         System.out.println("Production Event");
         //Iterate through all players
         for(int i = 0; i<state.getNPlayers(); i++){
@@ -183,23 +191,26 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence {
         //We will probably have to store a list of green production cards in the game state and then select the order of activation
         //We can also use a boolean to check if we should activate green production. SelectCard could then behave differently depending
         //on the boolean value, false would be standard behaviours and true would be green production behaviours.
-
-        return null;
+        ArrayList<AbstractAction> actions = new ArrayList<>();
+        actions.add(new SelectCard(playerID, -1, cardSelectionID));
+        return actions;
     }
 
     @Override
     public int getCurrentPlayer(AbstractGameState state) {
-        return 0;
+        return playerID;
     }
 
     @Override
     public void _afterAction(AbstractGameState state, AbstractAction action) {
+        executed = true;
+        return;
 
     }
 
     @Override
     public boolean executionComplete(AbstractGameState state) {
-        return false;
+        return executed;
     }
 
     /**
@@ -212,7 +223,7 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence {
     public MoveSeason copy() {
         // TODO: copy non-final variables appropriately
         ArrayList<Integer> cardSelectionID = new ArrayList<>(this.cardSelectionID);
-        MoveSeason ms = new MoveSeason(cardSelectionID);
+        MoveSeason ms = new MoveSeason(cardSelectionID, playerID);
         ms.executed = executed;
         return ms;
     }

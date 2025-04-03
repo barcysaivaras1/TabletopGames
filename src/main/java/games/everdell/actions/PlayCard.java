@@ -93,7 +93,30 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 }
                 currentCard = cc;
                 currentCardID = cc.getComponentID();
+                state.copyID = -1;
+                state.copyMode = false;
             }
+        }
+
+        //AI Green Production
+        if(state.greenProductionMode) {
+            System.out.println("Green Production Mode in PLAYCARD");
+            EverdellCard greenCard = state.greenProductionCards.get(0);
+            triggerCardEffect(state, greenCard);
+            state.greenProductionCards.remove(0);
+
+            if(state.greenProductionCards.isEmpty()){
+                state.greenProductionMode = false;
+                return true;
+            }
+
+            ArrayList<Integer> greenIds = new ArrayList<>();
+            for(var card : state.greenProductionCards){
+                greenIds.add(card.getComponentID());
+            }
+
+            new SelectCard(playerId, -1, greenIds).execute(state);
+            return true;
         }
 
         //Only working for the first player, 0 values need to be updated to be playerTurn
@@ -141,8 +164,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
             state.cardSelection.clear();
             state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
-            state.copyID = -1;
-            state.copyMode = false;
 
 
             //AI PLAY
@@ -251,26 +272,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 triggerCardEffect(state, card);
                 return true;
             }
-//            if(card.getCardEnumValue() == CardDetails.CASTLE){
-//                //Trigger Castle effect
-//                triggerCardEffect(state, card);
-//                return true;
-//            }
-//            if(card.getCardEnumValue() == CardDetails.PALACE){
-//                //Trigger Palace effect
-//                triggerCardEffect(state, card);
-//                return true;
-//            }
-//            if(card.getCardEnumValue() == CardDetails.THEATRE){
-//                //Trigger Theatre effect
-//                triggerCardEffect(state, card);
-//                return true;
-//            }
-//            if(card.getCardEnumValue() == CardDetails.SCHOOL){
-//                //Trigger School effect
-//                triggerCardEffect(state, card);
-//                return true;
-//            }
             if(card.getCardEnumValue() == CardDetails.JUDGE && currentCard.getCardEnumValue() != CardDetails.JUDGE){
                 judge = card;
             }
