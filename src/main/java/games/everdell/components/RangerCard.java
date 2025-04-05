@@ -41,11 +41,24 @@ public class RangerCard extends CritterCard{
             dc.unlockSecondCell();
         }
 
+
+        if(state.rangerCardMode){//This is specifically for AI play as this makes development easier
+            if (locationFrom == null){
+                System.out.println("Location From is null");
+                return;
+            }
+
+            System.out.println("Ranger Card Mode");
+            locationFrom.playersOnLocation.remove((Integer) state.getCurrentPlayer());
+            state.workers[state.getCurrentPlayer()].increment();
+            return;
+        }
+
         if(locationFrom == null || locationTo == null || !(locationTo.isLocationFreeForPlayer(state))){
             return;
         }
 
-        locationFrom.playersOnLocation.remove(state.getCurrentPlayer());
+        locationFrom.playersOnLocation.remove((Integer) state.getCurrentPlayer());
         locationTo.applyLocationEffect(state);
         locationTo.playersOnLocation.add(state.getCurrentPlayer());
         state.workers[state.getCurrentPlayer()].decrement();
@@ -60,6 +73,10 @@ public class RangerCard extends CritterCard{
     public void setLocationTo(EverdellLocation locationTo){
         System.out.println("Setting Location To: " + locationTo.getAbstractLocation());
         this.locationTo = locationTo;
+    }
+
+    public EverdellLocation getLocationFrom(){
+        return locationFrom;
     }
 
 

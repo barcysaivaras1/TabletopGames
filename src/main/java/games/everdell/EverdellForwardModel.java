@@ -8,13 +8,10 @@ import core.components.Component;
 import core.components.Counter;
 import core.components.Deck;
 import games.everdell.actions.*;
-import games.everdell.components.ConstructionCard;
-import games.everdell.components.CritterCard;
-import games.everdell.components.EverdellCard;
+import games.everdell.components.*;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.ForestLocations;
-import games.everdell.components.EverdellLocation;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +60,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         state.copyMode = false;
         state.copyID = -1;
         state.greenProductionMode = false;
+        state.rangerCardMode = false;
 
         state.playerHands = new ArrayList<>();
         state.playerVillage = new ArrayList<>(state.getNPlayers());
@@ -103,7 +101,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
 
         //Randomly Select forest locations
-        int numberOfLocations = 3;
+        int numberOfLocations = 1;
         if(state.getNPlayers() >= 3){
             numberOfLocations = 4;
         }
@@ -119,7 +117,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
 
         //Tests
-        selectedLocations.add(ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD);
+        selectedLocations.add(ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT);
 
         for (ForestLocations location : selectedLocations) {
             state.everdellLocations.add(new EverdellLocation(location, forestLocationSpace, false, location.getLocationEffect(state)));
@@ -225,7 +223,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
             state.villageMaxSize[i].increment(15);
             state.cardCount[i].increment(5+i);
-            state.workers[i].increment(0);
+            state.workers[i].increment(2);
 
 
             state.playerVillage.add(new Deck<>("Player Village",i, CoreConstants.VisibilityMode.VISIBLE_TO_ALL));
@@ -243,33 +241,19 @@ public class EverdellForwardModel extends StandardForwardModel {
             }
         }
 
-        populateWithTest(state);
+        //populateWithTest(state);
 
     }
 
 
     private void populateWithTest(EverdellGameState state){
-        //Add green production cards to player 2
-//        while(state.playerVillage.get(1).getComponents().size() < 5){
-//            EverdellCard card = state.cardDeck.draw();
-//            if(card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION){
-//                state.playerVillage.get(1).add(card);
-//            }
-//        }
-        //Add the inn card to player 2
-//        while(state.playerVillage.get(1).getComponents().size() < 6){
-//            EverdellCard card = state.cardDeck.draw();
-//            state.temporaryDeck.add(card);
-//            if(card.getCardEnumValue() == EverdellParameters.CardDetails.CHAPEL){
-//                card.payForCard();
-//                System.out.println("Adding Chapel to Player 2");
-//                System.out.println("Card: "+card);
-//                endPlayerTurn(state);
-//                new PlayCard(1, card.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
-//                break;
-//            }
-//        }
+        JudgeCard jc = (JudgeCard) EverdellParameters.CardDetails.JUDGE.createEverdellCard.apply(state);
+        EverdellCard cc = (EverdellCard) EverdellParameters.CardDetails.COURTHOUSE.createEverdellCard.apply(state);
+        state.temporaryDeck.add(jc);
+        state.temporaryDeck.add(cc);
 
+        new PlayCard(0, jc.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
+        new PlayCard(0, cc.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
     }
 
     /**
@@ -288,8 +272,12 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
 
         //Location Decisions
-        if(!new SelectLocation(gameState.getCurrentPlayer(), -1)._computeAvailableActions(egs).isEmpty()) {
-            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1));
+        ArrayList<Integer> locationsToSelectFrom = new ArrayList<>();
+        for (var location : egs.everdellLocations) {
+            locationsToSelectFrom.add(location.getComponentID());
+        }
+        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, locationsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, locationsToSelectFrom));
         }
 
         //Card Decisions

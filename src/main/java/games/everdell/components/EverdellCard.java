@@ -132,6 +132,21 @@ public abstract class EverdellCard extends Card {
         return true;
     }
 
+    //Will player be able to pay for the card with the resources they have
+    public boolean checkIfPlayerCanBuyCardWithDiscount(EverdellGameState state, int discountAmount){
+        int totalCost = this.getResourceCost().values().stream().mapToInt(Integer::intValue).sum();
+        int totalResources = discountAmount;
+        for(var resource : this.getResourceCost().keySet()){
+            if(this.getResourceCost().get(resource) == 0){continue;}
+            //If the full discount is applied to a specific resource and it is still less than the cost of the card, return false
+            if(state.PlayerResources.get(resource)[state.getCurrentPlayer()].getValue()+discountAmount < this.getResourceCost().get(resource)){
+                return false;
+            }
+            totalResources += state.PlayerResources.get(resource)[state.getCurrentPlayer()].getValue();
+        }
+        return totalResources >= totalCost;
+    }
+
 
     //Setter
     public void setCardPoints(int points){

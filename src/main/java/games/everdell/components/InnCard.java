@@ -46,21 +46,22 @@ public class InnCard extends ConstructionCard{
             //If the occupying player is not the owner, they must pay 1 token to the owner
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();
-                state.pointTokens[occupyingPlayer].decrement();
             }
 
 
             //From gameState Resource Selection will tell us how much of a discount will be applied.
             //The card selection will hold the card that the player selected to play at a discount
-            for(var resource : state.cardSelection.get(0).getResourceCost().keySet()){
-                int discount = state.resourceSelection.get(resource).getValue();
-                int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
+            if(!state.cardSelection.isEmpty()) {
+                for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
+                    int discount = state.resourceSelection.get(resource).getValue();
+                    int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
 
-                int finalCost = Math.max(initialCost - discount, 0);
+                    int finalCost = Math.max(initialCost - discount, 0);
 
-                state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
+                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
+                }
+                state.cardSelection.get(0).payForCard();
             }
-            state.cardSelection.get(0).payForCard();
         };
     }
 
@@ -71,8 +72,7 @@ public class InnCard extends ConstructionCard{
 
     @Override
     public InnCard copy() {
-        InnCard card;
-        card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer);
+        InnCard card = new InnCard(getName(), componentID, playerOwner, occupyingPlayer);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

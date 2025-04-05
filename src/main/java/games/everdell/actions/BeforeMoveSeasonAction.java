@@ -92,7 +92,12 @@ public class BeforeMoveSeasonAction extends AbstractAction implements IExtendedS
             System.out.println("Clock Tower Event");
             egs.clockTowerMode = true;
 
-            new SelectLocation(playerID, -1).execute(egs);
+            ArrayList<Integer> locationsToSelectFrom = new ArrayList<>();
+            for (var location : egs.everdellLocations) {
+                locationsToSelectFrom.add(location.getComponentID());
+            }
+
+            new SelectLocation(playerID, -1, locationsToSelectFrom).execute(egs);
         }
         else{
             //Go through standard season process

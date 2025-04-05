@@ -48,11 +48,11 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
      * @return - true if successfully executed, false otherwise.
      */
     //private EverdellParameters.AbstractLocations locationToPlaceIn;
-    private int playerId;
-    private int locationComponentID;
+    private final int playerId;
+    private final int locationComponentID;
     private String locationName;
-    private ArrayList<Integer> cardSelectionID;
-    private HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
+    private final ArrayList<Integer> cardSelectionID;
+    private final HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
     public PlaceWorker(int playerId, int location, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
         this.playerId = playerId;
@@ -133,10 +133,8 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             }
         }
 
-        System.out.println("****************PLACE WORKER CHECKING IF LOCATION IS FREE****************");
         //Check if this location is free
         if(state.workers[state.getCurrentPlayer()].getValue() > 0 && locationToPlaceIn.isLocationFreeForPlayer(gs)){
-            System.out.println("**************************************************");
             //System.out.println("Placing Worker in : " + locationToPlaceIn);
 
 
@@ -145,19 +143,18 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                 if(!BasicEvent.defaultCheckIfConditionMet(state, be)){
                     return false;
                 }
-                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
-                    //If there is a King Card Present we must apply the effect after a basic Event claim
-                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
-                        CritterCard kingCard = (CritterCard) card;
-                        kingCard.applyCardEffect(state);
-                    }
-                }
+//                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+//                    //If there is a King Card Present we must apply the effect after a basic Event claim
+//                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
+//                        CritterCard kingCard = (CritterCard) card;
+//                        kingCard.applyCardEffect(state);
+//                    }
+//                }
             }
 
             state.workers[state.getCurrentPlayer()].decrement();
-            //EverdellLocation everdellLocation = state.Locations.get(locationToPlaceIn);
             locationToPlaceIn.applyLocationEffect(state);
-            locationToPlaceIn.playersOnLocation.add(((EverdellGameState) gs).getCurrentPlayer());
+            locationToPlaceIn.playersOnLocation.add(state.getCurrentPlayer());
 
             System.out.println("****************PLACE WORKER ACTION****************");
             System.out.println("Player : " + state.getCurrentPlayer()+" Placed Worker in : " + locationToPlaceIn);
@@ -169,8 +166,19 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
 
             //AI PLAY
-            if(locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION || locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION){
+            if(locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION
+                    || locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION
+                    || locationToPlaceIn.getAbstractLocation() == EverdellParameters.RedDestinationLocation.INN_DESTINATION
+                    || locationToPlaceIn.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT)
+            {
+                //Make sure a selection was made
                 if(!cardSelectionID.isEmpty()) {
+                    //Ensure we have a pointer in the state to the card
+                    EverdellCard cardToPlay = (EverdellCard) state.getComponentById(cardSelectionID.get(0));
+                    state.temporaryDeck.add(cardToPlay);
+
+                    System.out.println("Card Selection ID In PLACEWORKER AI PLAY: " + cardSelectionID.get(0));
+                    System.out.println("Is card paid for ? : " + cardToPlay.isCardPayedFor());
                     new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
                 }
             }

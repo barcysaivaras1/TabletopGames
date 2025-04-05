@@ -358,13 +358,37 @@ public class EverdellParameters extends AbstractParameters {
                 //Draw two cards
                 //Card Choices will hold the card that the player wants to take in their hand
                 //Card Selection will hold the card that the player wants to play at a discount
+                //Resource Selection will define which resource we want to discount
+                //If both card selections cannot be played via discount, then we draw both cards
 
                 //Attempt to place the card in the players hand
+                int player = state.getCurrentPlayer();
 
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                if(!state.cardSelection.isEmpty()){
+                    if(state.cardSelection.get(0).getComponentID() == EverdellParameters.ForestLocations.cardChoices.get(0).getComponentID()){
+                        EverdellParameters.ForestLocations.cardChoices.remove(0);
+                        state.temporaryDeck.add(state.cardSelection.get(0));
+                    }
+                }
+
+                if(state.playerHands.get(player).getSize() < state.villageMaxSize[player].getValue()){
                     System.out.println("Adding card to hand : "+cardChoices.get(0).getName());
                     state.playerHands.get(state.getCurrentPlayer()).add(cardChoices.get(0));
+                    state.meadowDeck.remove(cardChoices.get(0));
+                    state.meadowDeck.add(state.cardDeck.draw());
                     state.cardCount[state.getCurrentPlayer()].increment();
+                }
+                //If there are no cards in cardSelection,  it means that we could not play the card, we will attempt to draw instead
+                if(state.cardSelection.isEmpty()) {
+                    System.out.println("DRAW TWO MEADOW, NO PLAYABLE CARDS, DRAWING BOTH");
+                    if (state.playerHands.get(player).getSize() < state.playerHands.get(player).getCapacity()) {
+                        System.out.println("Adding card to hand : " + cardChoices.get(1).getName());
+                        state.playerHands.get(player).add(cardChoices.get(1));
+                        state.meadowDeck.remove(cardChoices.get(1));
+                        state.meadowDeck.add(state.cardDeck.draw());
+                        state.cardCount[player].increment();
+                    }
+                    return;
                 }
 
                 //Apply the discount to the card
@@ -382,7 +406,7 @@ public class EverdellParameters extends AbstractParameters {
 
                     System.out.println("Final Cost : "+finalCost);
 
-                    state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement(finalCost);
+                    state.PlayerResources.get(resource)[player].decrement(finalCost);
                 }
                 state.cardSelection.get(0).payForCard();
             };
@@ -987,10 +1011,10 @@ public class EverdellParameters extends AbstractParameters {
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
         static {
-            FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, true, 1,
+            FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
-                        put(ResourceTypes.TWIG, 0); //2
-                        put(ResourceTypes.RESIN, 0); //1
+                        put(ResourceTypes.TWIG, 2); //2
+                        put(ResourceTypes.RESIN, 3); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1419,9 +1443,9 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }));
 
-            INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 2);
-                put(ResourceTypes.RESIN, 1);
+            INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, true, 2, new HashMap<>() {{
+                put(ResourceTypes.TWIG, 0);
+                put(ResourceTypes.RESIN, 0);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
@@ -1767,7 +1791,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.CEMETERY, 0);
         put(CardDetails.CHAPEL, 0);
         put(CardDetails.CHIP_SWEEP, 0);
-        put(CardDetails.CLOCK_TOWER, 100);
+        put(CardDetails.CLOCK_TOWER, 0);
         put(CardDetails.COURTHOUSE, 0);
         put(CardDetails.CRANE, 0);
         put(CardDetails.DOCTOR, 0);
@@ -1793,7 +1817,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.POST_OFFICE, 0);
         put(CardDetails.POSTAL_PIGEON, 0);
         put(CardDetails.QUEEN, 0);
-        put(CardDetails.RANGER, 0);
+        put(CardDetails.RANGER, 100);
         put(CardDetails.RESIN_REFINERY, 0);
         put(CardDetails.RUINS, 0);
         put(CardDetails.SCHOOL, 0);

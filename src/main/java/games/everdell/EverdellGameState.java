@@ -45,8 +45,6 @@ public class EverdellGameState extends AbstractGameState {
     public List<Deck<EverdellCard>> playerVillage;
     public EverdellParameters.Seasons[] currentSeason;
 
-//    public HashMap<AbstractLocations, ArrayList<EverdellLocation>> Locations;
-
     public ArrayList<EverdellLocation> everdellLocations;
 
     public HashMap<ResourceTypes,Counter[]> PlayerResources;
@@ -63,10 +61,9 @@ public class EverdellGameState extends AbstractGameState {
     public boolean greenProductionMode;
     public ArrayList<EverdellCard> greenProductionCards;
     public boolean clockTowerMode;
+    public boolean rangerCardMode;
 
     //These values are used to indicate what the player has selected in their turn
-    //I think this keeps things more organised
-
     public EverdellCard currentCard;
     public HashMap<ResourceTypes, Counter> resourceSelection;
     public ArrayList<EverdellCard> cardSelection;
@@ -196,6 +193,7 @@ public class EverdellGameState extends AbstractGameState {
         copy.greenProductionMode = greenProductionMode;
         copy.copyMode = copyMode;
         copy.clockTowerMode = clockTowerMode;
+        copy.rangerCardMode = rangerCardMode;
         copy.copyID = copyID;
         copy.cardDeck = cardDeck.copy();
         copy.meadowDeck = meadowDeck.copy();
@@ -293,12 +291,12 @@ public class EverdellGameState extends AbstractGameState {
     public boolean _equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState state = (EverdellGameState) o;
-        return clockTowerMode == state.clockTowerMode && copyMode == state.copyMode && copyID == state.copyID && greenProductionMode == state.greenProductionMode && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && Objects.equals(greenProductionCards, state.greenProductionCards) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
+        return copyMode == state.copyMode && copyID == state.copyID && greenProductionMode == state.greenProductionMode && clockTowerMode == state.clockTowerMode && rangerCardMode == state.rangerCardMode && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && Objects.equals(greenProductionCards, state.greenProductionCards) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), copyMode, copyID, clockTowerMode, greenProductionMode, greenProductionCards, currentCard, resourceSelection, cardSelection);
+        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), copyMode, copyID, greenProductionMode, greenProductionCards, clockTowerMode, rangerCardMode, currentCard, resourceSelection, cardSelection);
     }
 
     //    @Override

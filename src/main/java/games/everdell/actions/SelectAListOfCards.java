@@ -10,10 +10,7 @@ import games.everdell.EverdellParameters.JourneyLocations;
 import games.everdell.EverdellParameters.ForestLocations;
 import games.everdell.EverdellParameters.RedDestinationLocation;
 import games.everdell.EverdellParameters.ResourceTypes;
-import games.everdell.components.CopyCard;
-import games.everdell.components.EverdellCard;
-import games.everdell.components.EverdellLocation;
-import games.everdell.components.TeacherCard;
+import games.everdell.components.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -165,6 +162,33 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             } else if (location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED) {
                 ForestLocations.cardChoices = sa.selectedCards;
                 new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size(), true, false).execute(egs);
+            }
+            else if (location.getAbstractLocation() == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT) {
+                //Check if any of the 2 cards can be played
+                ForestLocations.cardChoices = sa.selectedCards;
+                boolean canPlay = false;
+                for(EverdellCard card : sa.selectedCards){
+                    //Check if its unique and can be played
+                    if(!card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)){
+                        continue;
+                    }
+                    //Check for space
+                    if(egs.villageMaxSize[playerId].getValue() <= egs.playerVillage.get(playerId).getSize()){
+                        continue;
+                    }
+                    //Check if the card can be played with the discount
+                    System.out.println("Can the card be played with discount? "+card.checkIfPlayerCanBuyCardWithDiscount(egs, 1));
+                    if(!card.checkIfPlayerCanBuyCardWithDiscount(egs, 1)){
+                        continue;
+                    }
+                    canPlay = true;
+                }
+                if(canPlay) {
+                    new SelectCard(playerId, -1, locationId, cardsToIDs(sa.selectedCards)).execute(egs);
+                }
+                else{ //No card we can play
+                    new PlaceWorker(playerId, locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                }
             }
 
             //Haven
