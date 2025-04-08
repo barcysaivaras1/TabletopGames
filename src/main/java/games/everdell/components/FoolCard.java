@@ -29,7 +29,6 @@ public class FoolCard extends CritterCard{
         //The player must place this card in another players village
         System.out.println("Fool Card Effect");
         System.out.println("Player " + state.getCurrentPlayer() + " is placing the Fool Card in Player " + selectedPlayer + "'s village");
-        state.pointTokens[selectedPlayer].decrement(2);
         state.playerVillage.get(selectedPlayer).add(this);
     }
 

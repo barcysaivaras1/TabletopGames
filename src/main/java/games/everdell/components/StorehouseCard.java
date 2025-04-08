@@ -22,8 +22,9 @@ public class StorehouseCard extends ConstructionCard{
         }
     }
 
-    private StorehouseCard(String name, int compID) {
+    private StorehouseCard(String name, int compID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceStorage) {
         super(name, compID);
+        this.resourceStorage = resourceStorage;
     }
 
 
@@ -58,7 +59,7 @@ public class StorehouseCard extends ConstructionCard{
 
 
         //Set the location of the card if it is not already set
-        if(super.getLocation(state) == null) {
+        if(super.getRedDestinationLocationID() == -1) {
             super.applyCardEffect(state, setLocationEffect(state));
         }
     }
@@ -77,7 +78,12 @@ public class StorehouseCard extends ConstructionCard{
 
     @Override
     public StorehouseCard copy() {
-        StorehouseCard card = new StorehouseCard(getName(), componentID);
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourceStorageCopy = new HashMap<>();
+        for (EverdellParameters.ResourceTypes rt : EverdellParameters.ResourceTypes.values()) {
+            resourceStorageCopy.put(rt, resourceStorage.get(rt));
+        }
+
+        StorehouseCard card = new StorehouseCard(getName(), componentID, resourceStorageCopy);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;

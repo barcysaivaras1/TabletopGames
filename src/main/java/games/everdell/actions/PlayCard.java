@@ -65,15 +65,21 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         EverdellGameState state = (EverdellGameState) gs;
 
         System.out.println("Executing Play Card Action");
+        resetValues(state);
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
+        state.currentCard = currentCard;
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
         for(var cardID : cardSelectionID){
             cardSelection.add((EverdellCard) state.getComponentById(cardID));
         }
-        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = new HashMap<>();
         for(var resource : resourceSelectionValues.keySet()){
+            resourceSelection.put(resource, new Counter());
             resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+        }
+        for(var resource : resourceSelection.keySet()){
+            state.resourceSelection.get(resource).setValue(resourceSelection.get(resource).getValue());
         }
 
         //Fool Card has a special case where the player must select a player to give the card to
@@ -163,7 +169,9 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
             //AI PLAY
             if(currentCard.getCardEnumValue() == CardDetails.POSTAL_PIGEON){
-                new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+                if(!cardSelectionID.isEmpty()) {
+                    new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+                }
             }
             if(state.rangerCardMode){
                 RangerCard rc = (RangerCard) currentCard;
@@ -187,14 +195,19 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         return false;
     }
 
-    private void resetValues(EverdellGameState state){
+    public void resetValues(EverdellGameState state){
         //Reset the resource selection
-        state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+        state.resourceSelection = new HashMap<>();
+        for(var resource : EverdellParameters.ResourceTypes.values()){
+            state.resourceSelection.put(resource, new Counter());
+            state.resourceSelection.get(resource).setValue(0);
+        }
         //Reset Card Selection
         for (var card : state.cardSelection){
             state.temporaryDeck.add(card);
         }
         state.cardSelection.clear();
+        state.currentCard = null;
     }
 
     public boolean checkIfVillageHasSpace(EverdellGameState state, int playerId){
@@ -279,11 +292,11 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
         for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
 
-            if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER){
+            if(card.getCardEnumValue() == CardDetails.SHOP_KEEPER && currentCard.getCardEnumValue() != CardDetails.SHOP_KEEPER && !currentCard.isConstruction()){
                 //Trigger Shop keeper effect
                 triggerCardEffect(state, card);
             }
-            if(card.getCardEnumValue() == CardDetails.HISTORIAN){
+            if(card.getCardEnumValue() == CardDetails.HISTORIAN && currentCard.getCardEnumValue() != CardDetails.HISTORIAN){
                 //Trigger Historian effect
                 triggerCardEffect(state, card);
             }

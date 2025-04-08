@@ -29,8 +29,10 @@ public class WifeCard extends CritterCard{
 
         if(husbandId == null) {
             for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
-                if (card instanceof HusbandCard) {
+                if (card.getCardEnumValue() == EverdellParameters.CardDetails.HUSBAND) {
+                    System.out.println("HUSBAND FOUND");
                     if(((HusbandCard) card).getWife() == null) {
+                        System.out.println("HUSBAND IS FREE");
                         ((HusbandCard) card).setWife(this);
                         setHusband((HusbandCard) card);
                     }

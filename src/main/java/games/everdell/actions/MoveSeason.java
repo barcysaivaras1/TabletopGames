@@ -25,8 +25,6 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
 
     private boolean executed;
 
-    private boolean clocktowerEvent = false;
-
 
     //String printout value
     private String seasonName;
@@ -36,11 +34,6 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
         this.playerID = playerID;
     }
 
-    public MoveSeason(ArrayList<Integer> cardSelection, int playerID, boolean clocktowerEvent) {
-        this.cardSelectionID = cardSelection;
-        this.playerID = playerID;
-        this.clocktowerEvent = clocktowerEvent;
-    }
 
     //This will need to have unique effects implemented each season
 
@@ -55,13 +48,6 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
 
         EverdellGameState state = (EverdellGameState) gs;
 
-        //Check if the player has clocktower card
-        for(var card : state.playerVillage.get(state.getCurrentPlayer()).getComponents()){
-            if(card.getCardEnumValue() == EverdellParameters.CardDetails.CLOCK_TOWER){
-                clocktowerEvent = true;
-                break;
-            }
-        }
 
 
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
@@ -192,7 +178,10 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
         //We can also use a boolean to check if we should activate green production. SelectCard could then behave differently depending
         //on the boolean value, false would be standard behaviours and true would be green production behaviours.
         ArrayList<AbstractAction> actions = new ArrayList<>();
-        actions.add(new SelectCard(playerID, -1, cardSelectionID));
+        EverdellGameState egs = (EverdellGameState) state;
+        if(egs.greenProductionMode){
+            actions.add(new SelectCard(playerID, -1, cardSelectionID));
+        }
         return actions;
     }
 

@@ -9,6 +9,7 @@ import core.components.Deck;
 import core.components.FrenchCard;
 import games.GameType;
 import games.everdell.components.ConstructionCard;
+import games.everdell.components.CritterCard;
 import games.everdell.components.EverdellCard;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.ResourceTypes;
@@ -52,8 +53,9 @@ public class EverdellGameState extends AbstractGameState {
     public Counter[] cardCount;
     public Counter[] workers;
     public Counter[] pointTokens;
-
     public Counter[] villageMaxSize;
+
+    public Integer[] score;
 
     //AI Game Logic
     public boolean copyMode;
@@ -105,8 +107,17 @@ public class EverdellGameState extends AbstractGameState {
 
     public void printAllComponents(){
         System.out.println("Printing all components");
-        for(var component : _getAllComponents()){
-            System.out.println(component+" : "+component.getComponentID()+" : "+component.getComponentID());
+//        for(var component : _getAllComponents()){
+//            System.out.println(component+" : "+component.getComponentID()+" : "+component.getComponentID());
+//        }
+
+        System.out.println("Hand: ");
+        for(var card : playerHands.get(getCurrentPlayer()).getComponents()){
+            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
+        }
+        System.out.println("Meadow");
+        for(var card : meadowDeck.getComponents()){
+            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
         }
         System.out.println("End of components");
     }
@@ -129,14 +140,17 @@ public class EverdellGameState extends AbstractGameState {
 
         for(var hand : playerHands){
             components.add(hand);
-            for(var card : hand){
-                if(card instanceof ConstructionCard cc){
-                    components.add(cc);
-                }
-                else {
-                    components.add(card);
-                }
-            }
+//            for(var card : hand){
+//                if(card instanceof ConstructionCard cc){
+//                    components.add(cc);
+//                }
+//                else if(card instanceof CritterCard cc){
+//                    components.add(cc);
+//                }
+//                else {
+//                    components.add(card);
+//                }
+//            }
         }
         components.addAll(playerVillage);
         for(var resource : PlayerResources.keySet()){
@@ -258,6 +272,10 @@ public class EverdellGameState extends AbstractGameState {
         if(currentCard != null){
             copy.currentCard = currentCard.copy();
         }
+        copy.score = new Integer[score.length];
+        for(int i = 0; i< score.length; i++){
+            copy.score[i] = score[i];
+        }
         return copy;
     }
 
@@ -270,7 +288,7 @@ public class EverdellGameState extends AbstractGameState {
     protected double _getHeuristicScore(int playerId) {
         if (isNotTerminal()) {
             // TODO calculate an approximate value
-            return 0;
+            return getGameScore(playerId);
         } else {
             // The game finished, we can instead return the actual result of the game for the given player.
             return getPlayerResults()[playerId].value;
@@ -284,19 +302,19 @@ public class EverdellGameState extends AbstractGameState {
     @Override
     public double getGameScore(int playerId) {
         // TODO: What is this player's score (if any)?
-        return 0;
+        return score[playerId];
     }
 
     @Override
     public boolean _equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         EverdellGameState state = (EverdellGameState) o;
-        return copyMode == state.copyMode && copyID == state.copyID && greenProductionMode == state.greenProductionMode && clockTowerMode == state.clockTowerMode && rangerCardMode == state.rangerCardMode && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && Objects.equals(greenProductionCards, state.greenProductionCards) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
+        return copyMode == state.copyMode && copyID == state.copyID && greenProductionMode == state.greenProductionMode && clockTowerMode == state.clockTowerMode && rangerCardMode == state.rangerCardMode && Objects.equals(cardDeck, state.cardDeck) && Objects.equals(discardDeck, state.discardDeck) && Objects.equals(temporaryDeck, state.temporaryDeck) && Objects.equals(meadowDeck, state.meadowDeck) && Objects.equals(playerHands, state.playerHands) && Objects.equals(playerVillage, state.playerVillage) && deepEquals(currentSeason, state.currentSeason) && Objects.equals(everdellLocations, state.everdellLocations) && Objects.equals(PlayerResources, state.PlayerResources) && deepEquals(cardCount, state.cardCount) && deepEquals(workers, state.workers) && deepEquals(pointTokens, state.pointTokens) && deepEquals(villageMaxSize, state.villageMaxSize) && deepEquals(score, state.score) && Objects.equals(greenProductionCards, state.greenProductionCards) && Objects.equals(currentCard, state.currentCard) && Objects.equals(resourceSelection, state.resourceSelection) && Objects.equals(cardSelection, state.cardSelection);
     }
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), copyMode, copyID, greenProductionMode, greenProductionCards, clockTowerMode, rangerCardMode, currentCard, resourceSelection, cardSelection);
+        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), Arrays.hashCode(score), copyMode, copyID, greenProductionMode, greenProductionCards, clockTowerMode, rangerCardMode, currentCard, resourceSelection, cardSelection);
     }
 
     //    @Override

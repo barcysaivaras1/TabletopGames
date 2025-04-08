@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static core.CoreConstants.GameResult.GAME_END;
+import static core.CoreConstants.GameResult.WIN_GAME;
 
 /**
  * <p>The forward model contains all the game rules and logic. It is mainly responsible for declaring rules for:</p>
@@ -64,6 +65,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         state.playerHands = new ArrayList<>();
         state.playerVillage = new ArrayList<>(state.getNPlayers());
+        state.score = new Integer[state.getNPlayers()];
 
         state.everdellLocations = new ArrayList<>();
         state.cardSelection = new ArrayList<>();
@@ -101,7 +103,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
 
         //Randomly Select forest locations
-        int numberOfLocations = 1;
+        int numberOfLocations = 3;
         if(state.getNPlayers() >= 3){
             numberOfLocations = 4;
         }
@@ -114,10 +116,6 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
         //Insert the selected locations into the game state
 
-
-
-        //Tests
-        selectedLocations.add(ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT);
 
         for (ForestLocations location : selectedLocations) {
             state.everdellLocations.add(new EverdellLocation(location, forestLocationSpace, false, location.getLocationEffect(state)));
@@ -208,11 +206,7 @@ public class EverdellForwardModel extends StandardForwardModel {
             state.PlayerResources.get(ResourceTypes.PEBBLE)[i] = new Counter();
             state.PlayerResources.get(ResourceTypes.BERRY)[i] = new Counter();
             state.PlayerResources.get(ResourceTypes.RESIN)[i] = new Counter();
-
-            //TEST
-            state.PlayerResources.get(ResourceTypes.TWIG)[i].increment(10);
-            state.PlayerResources.get(ResourceTypes.BERRY)[i].increment(10);
-            //******
+            
 
             state.cardCount[i] = new Counter(8,"Player "+(i+1)+" Card Count");
             state.workers[i] = new Counter("Player "+(i+1)+" Workers");
@@ -220,6 +214,7 @@ public class EverdellForwardModel extends StandardForwardModel {
             state.pointTokens[i].setMinimum(-999);
             state.villageMaxSize[i] = new Counter("Player "+(i+1)+" Village Max Size");
             state.currentSeason[i] = EverdellParameters.Seasons.WINTER;
+            state.score[i] = 0;
 
             state.villageMaxSize[i].increment(15);
             state.cardCount[i].increment(5+i);
@@ -228,9 +223,9 @@ public class EverdellForwardModel extends StandardForwardModel {
 
             state.playerVillage.add(new Deck<>("Player Village",i, CoreConstants.VisibilityMode.VISIBLE_TO_ALL));
             state.playerHands.add(new Deck<>("Player Hand", i, CoreConstants.VisibilityMode.VISIBLE_TO_OWNER));
+            //Set Hand Capacity to 8
+            state.playerHands.get(i).setCapacity(8);
             for (int j = 0; j < state.cardCount[i].getValue(); j++) {
-                //Set Hand Capacity to 8
-                state.playerHands.get(i).setCapacity(8);
 
                 //Set Village Capacity to 15
                // state.playerVillage.get(i).setCapacity(15;
@@ -246,7 +241,7 @@ public class EverdellForwardModel extends StandardForwardModel {
     }
 
 
-    private void populateWithTest(EverdellGameState state){
+   /* private void populateWithTest(EverdellGameState state){
         JudgeCard jc = (JudgeCard) EverdellParameters.CardDetails.JUDGE.createEverdellCard.apply(state);
         EverdellCard cc = (EverdellCard) EverdellParameters.CardDetails.COURTHOUSE.createEverdellCard.apply(state);
         state.temporaryDeck.add(jc);
@@ -254,7 +249,7 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         new PlayCard(0, jc.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
         new PlayCard(0, cc.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(state);
-    }
+    }*/
 
     /**
      * Calculates the list of currently available actions, possibly depending on the game phase.
@@ -262,41 +257,45 @@ public class EverdellForwardModel extends StandardForwardModel {
      */
     @Override
     protected List<AbstractAction> _computeAvailableActions(AbstractGameState gameState) {
-        System.out.println("Forward Model : Computing Available Actions, Current Player: "+gameState.getCurrentPlayer());
 //        for(int i=0; i<gameState.getNPlayers(); i++){
 //            System.out.println("Player : "+i+" with Results : "+gameState.getPlayerResults()[i]);
 //        }
         List<AbstractAction> actions = new ArrayList<>();
         EverdellGameState egs = (EverdellGameState) gameState;
-        // TODO: create action classes for the current player in the given game state and add them to the list. Below just an example that does nothing, remove.
-        EverdellParameters params = (EverdellParameters) gameState.getGameParameters();
+        int playerId = egs.getCurrentPlayer();
+        System.out.println("Forward Model : Computing Available Actions, Current Player: "+playerId);
 
         //Location Decisions
         ArrayList<Integer> locationsToSelectFrom = new ArrayList<>();
         for (var location : egs.everdellLocations) {
             locationsToSelectFrom.add(location.getComponentID());
         }
-        if(!new SelectLocation(gameState.getCurrentPlayer(), -1, locationsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
-            actions.add(new SelectLocation(gameState.getCurrentPlayer(), -1, locationsToSelectFrom));
+//
+//        if(!new SelectLocation(playerId, -1, locationsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+//            actions.add(new SelectLocation(playerId, -1, locationsToSelectFrom));
+//        }
+        if(egs.workers[playerId].getValue() > 0) {
+            actions.add(new SelectLocation(playerId, -1, locationsToSelectFrom));
         }
 
         //Card Decisions
         ArrayList<Integer> cardsToSelectFrom = new ArrayList<>();
-//        for (EverdellCard card : egs.meadowDeck.getComponents()) {
-//            cardsToSelectFrom.add(card);
-//        }
-        for (EverdellCard card : egs.playerHands.get(gameState.getCurrentPlayer()).getComponents()) {
-            cardsToSelectFrom.add(card.getComponentID());
+        for (EverdellCard mcard : egs.meadowDeck.getComponents()) {
+            cardsToSelectFrom.add(mcard.getComponentID());
+        }
+        for (EverdellCard hcard : egs.playerHands.get(playerId).getComponents()) {
+            System.out.println("CardID being Added for selection! : "+hcard.getComponentID());
+            cardsToSelectFrom.add(hcard.getComponentID());
         }
         System.out.println("*************CHECKING IF ACTION CAN BE PERFORMED*************");
-        if(!new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
+        if(!new SelectCard(playerId, -1, cardsToSelectFrom)._computeAvailableActions(gameState).isEmpty()) {
             System.out.println("*************PERFORMING ACTION*************");
-            actions.add(new SelectCard(gameState.getCurrentPlayer(), -1, cardsToSelectFrom));
+            actions.add(new SelectCard(playerId, -1, cardsToSelectFrom));
         }
 
         //Season Decisions
-        if(egs.workers[egs.getCurrentPlayer()].getValue() == 0 && egs.currentSeason[egs.getCurrentPlayer()] != EverdellParameters.Seasons.AUTUMN) {
-            actions.add(new BeforeMoveSeasonAction(gameState.getCurrentPlayer()));
+        if(egs.workers[playerId].getValue() == 0 && egs.currentSeason[playerId] != EverdellParameters.Seasons.AUTUMN) {
+            actions.add(new BeforeMoveSeasonAction(playerId));
         }
         if(actions.isEmpty()){
             actions.add(new EndGame());
@@ -311,26 +310,44 @@ public class EverdellForwardModel extends StandardForwardModel {
         if (currentState.isActionInProgress()) return;
 
         EverdellGameState egs = (EverdellGameState) currentState;
+        int playerId = egs.getCurrentPlayer();
 
 
         updatePurpleProsperityCards(egs);
 
-        System.out.println("Forward Model : After Action");
-        if(checkEndForPlayer((EverdellGameState) currentState, action)){
-            System.out.println("Game Over for Player "+currentState.getCurrentPlayer());
-            System.out.println("Player "+currentState.getCurrentPlayer()+" with card : "+egs.playerHands.get(currentState.getCurrentPlayer()));
-            currentState.setPlayerResult(GAME_END, currentState.getCurrentPlayer());
-            System.out.println("Player "+currentState.getCurrentPlayer()+" has ENDED WITH RESULT : "+currentState.getPlayerResults()[currentState.getCurrentPlayer()]);
+        //Calculate the score for each player
+        for(int i=0; i<egs.getNPlayers(); i++){
+            int points = calculatePoints(egs, i);
+            egs.score[i] = egs.pointTokens[i].getValue()+points;
         }
-        if(checkEnd((EverdellGameState) currentState)){
+
+
+        System.out.println("Forward Model : After Action");
+        if(checkEndForPlayer(egs, action)){
+            System.out.println("Game Over for Player "+playerId);
+            System.out.println("Player "+playerId+" with card : "+egs.playerVillage.get(playerId).getComponents());
+            egs.setPlayerResult(GAME_END, playerId);
+            System.out.println("Player "+playerId+" has ENDED WITH RESULT : "+egs.getPlayerResults()[playerId]);
+        }
+        if(checkEnd(egs)){
             System.out.println("Game End");
-            endGame(currentState);
+            int playerWithMostPoints = -1;
+            int maxPoints = -1;
+            for(int i=0; i<egs.getNPlayers(); i++){
+                if(egs.score[i] > maxPoints){
+                    maxPoints = egs.score[i];
+                    playerWithMostPoints = i;
+                }
+            }
+            egs.setPlayerResult(WIN_GAME, playerWithMostPoints);
+            System.out.println("Player "+playerWithMostPoints+" has WON WITH RESULT : "+egs.getPlayerResults()[playerWithMostPoints] + " with "+maxPoints+" points");
+            endGame(egs);
             return;
         }
 
         egs.temporaryDeck.clear();
 
-        endPlayerTurn(currentState);
+        endPlayerTurn(egs);
     }
     private boolean checkEndForPlayer(EverdellGameState state, AbstractAction action){
         if(action instanceof EndGame){
@@ -365,6 +382,14 @@ public class EverdellForwardModel extends StandardForwardModel {
             }
         }
 
+    }
+
+    private int calculatePoints(EverdellGameState state, int playerId){
+        int points = 0;
+        for (var card : state.playerVillage.get(playerId)){
+            points += card.getPoints();
+        }
+        return points;
     }
 
 }

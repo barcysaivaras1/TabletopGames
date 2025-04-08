@@ -68,11 +68,10 @@ public class HusbandCard extends CritterCard{
         }
         return false;
     }
-
     public boolean findWife(EverdellGameState state){
         if(wifeId == null) {
             for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
-                if (card instanceof WifeCard) {
+                if (card.getCardEnumValue() == EverdellParameters.CardDetails.WIFE) {
                     if (((WifeCard) card).getHusband() == null) {
                         ((WifeCard) card).setHusband(this);
                         setWife((WifeCard) card);

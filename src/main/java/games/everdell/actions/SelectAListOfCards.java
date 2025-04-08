@@ -177,7 +177,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                         continue;
                     }
                     //Check if the card can be played with the discount
-                    System.out.println("Can the card be played with discount? "+card.checkIfPlayerCanBuyCardWithDiscount(egs, 1));
+                    System.out.println("Can the card : "+card.getCardEnumValue()+" be played with discount? "+card.checkIfPlayerCanBuyCardWithDiscount(egs, 1));
                     if(!card.checkIfPlayerCanBuyCardWithDiscount(egs, 1)){
                         continue;
                     }

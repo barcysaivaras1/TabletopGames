@@ -26,6 +26,7 @@ public class PostOfficeCard extends ConstructionCard{
         super(name, compID);
         this.playerOwner = playerOwner;
         this.selectedPlayer = selectedPlayer;
+        this.occupyingPlayer = occupyingPlayer;
     }
 
 
@@ -59,6 +60,11 @@ public class PostOfficeCard extends ConstructionCard{
             //If the occupying player is not the owner, the owner gains 1 token
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();
+            }
+
+            if(state.cardSelection.isEmpty()){
+                System.out.println("No cards selected");
+                return;
             }
 
             //Move the cards from the occupying player to the selected player

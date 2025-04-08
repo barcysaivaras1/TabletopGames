@@ -16,7 +16,7 @@ public class ConstructionCard extends EverdellCard{
 
     //RED DESTINATION VARIABLE
     private EverdellParameters.RedDestinationLocation redDestinationAbstractLocation;
-    private Integer redDestinationLocationID;
+    private int redDestinationLocationID;
 
 
     //STANDARD CONSTRUCTOR
@@ -109,6 +109,9 @@ public class ConstructionCard extends EverdellCard{
             return (EverdellLocation) state.getComponentById(redDestinationLocationID);
         }
         return null;
+    }
+    public int getRedDestinationLocationID(){
+        return redDestinationLocationID;
     }
 
     public boolean isOccupied(){

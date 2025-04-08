@@ -58,44 +58,48 @@ public class EverdellParameters extends AbstractParameters {
                 state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(3);
             };
             TWO_WOOD_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(2);
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                int playerID = state.getCurrentPlayer();
+                state.PlayerResources.get(ResourceTypes.TWIG)[playerID].increment(2);
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
             ONE_BERRY.applyLocationEffect = (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
             };
             ONE_BERRY_ONE_CARD.applyLocationEffect = (state) -> {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
-                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                        state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                        state.cardCount[state.getCurrentPlayer()].increment();
-                    }
+                int playerID = state.getCurrentPlayer();
+                state.PlayerResources.get(ResourceTypes.BERRY)[playerID].increment();
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
+                }
             };
             ONE_PEBBLE.applyLocationEffect = (state) -> {
                 state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
             };
             TWO_CARD_ONE_POINT.applyLocationEffect = (state) -> {
                 state.pointTokens[state.getCurrentPlayer()].increment();
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()-1){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                } else if (state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                int playerID = state.getCurrentPlayer();
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()-1){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                } else if (state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
                 }
-                state.cardCount[state.getCurrentPlayer()].increment(2);
+                state.cardCount[playerID].increment(2);
             };
             TWO_RESIN.applyLocationEffect = (state) -> {
                 state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment(2);
             };
             ONE_RESIN_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.RESIN)[state.getCurrentPlayer()].increment();
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
+                int playerID = state.getCurrentPlayer();
+                state.PlayerResources.get(ResourceTypes.RESIN)[playerID].increment();
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
                 }
-                state.cardCount[state.getCurrentPlayer()].increment();
+                state.cardCount[playerID].increment();
             };
         }
     }
@@ -135,6 +139,11 @@ public class EverdellParameters extends AbstractParameters {
         }
         public static Boolean defaultCheckIfConditionMet(EverdellGameState state, JourneyLocations journey){
             //Check They meet the card Conditions
+            if(state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN){
+                return false;
+            }
+
+
             return switch (journey) {
                 case JOURNEY_2 -> {
                     if (state.playerHands.get(state.getCurrentPlayer()).getSize() >= 2) {
@@ -236,10 +245,11 @@ public class EverdellParameters extends AbstractParameters {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(3);
             };
             TWO_BERRY_ONE_CARD.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(2);
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                int playerID = state.getCurrentPlayer();
+                state.PlayerResources.get(ResourceTypes.BERRY)[playerID].increment(2);
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
             TWO_RESIN_ONE_TWIG.applyLocationEffect = (state) -> {
@@ -247,14 +257,15 @@ public class EverdellParameters extends AbstractParameters {
                 state.PlayerResources.get(ResourceTypes.TWIG)[state.getCurrentPlayer()].increment(1);
             };
             THREE_CARDS_ONE_PEBBLE.applyLocationEffect = (state) -> {
-                state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
+                int playerID = state.getCurrentPlayer();
+                state.PlayerResources.get(ResourceTypes.PEBBLE)[playerID].increment(1);
 
                 for(int i = 0 ; i<3; i++){
-                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    if(state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
             ONE_TWIG_ONE_RESIN_ONE_BERRY.applyLocationEffect = (state) -> {
@@ -269,29 +280,31 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
             TWO_CARDS_ONE_ANY.applyLocationEffect = (state) ->{
+                int playerID = state.getCurrentPlayer();
 
                 //Add the selected resources
                 for(var resources :  state.resourceSelection.keySet()){
-                    state.PlayerResources.get(resources)[state.getCurrentPlayer()].increment(state.resourceSelection.get(resources).getValue());
+                    state.PlayerResources.get(resources)[playerID].increment(state.resourceSelection.get(resources).getValue());
                 }
 
                 // Draw two cards
                 for(int i = 0 ; i<2; i++){
-                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    if(state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
 
             DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED.applyLocationEffect = (state) ->{
+                int playerID = state.getCurrentPlayer();
                 //Discard a card
                 for(var card : cardChoices){
                     try{
-                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+                        state.playerHands.get(playerID).remove((EverdellCard) card);
                         state.discardDeck.add(card);
-                        state.cardCount[state.getCurrentPlayer()].decrement();
+                        state.cardCount[playerID].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
                     }
@@ -300,11 +313,11 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Draw two cards
                 for(int i = 0 ; i<(cardChoices.size()*2); i++){
-                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
+                    if(state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()){
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
 
@@ -338,6 +351,7 @@ public class EverdellParameters extends AbstractParameters {
             };
 
             COPY_BASIC_LOCATION_DRAW_CARD.applyLocationEffect = (state) ->{
+                int playerID = state.getCurrentPlayer();
                 //Copy a basic location
                 if(basicLocationChoice != null) {
                     System.out.println("Basic Copying  : "+basicLocationChoice);
@@ -345,9 +359,9 @@ public class EverdellParameters extends AbstractParameters {
                 }
                 System.out.println("IN COPY BASIC LOCATION DRAW CARD");
                 //Draw a card
-                if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
 
                 basicLocationChoice = null;
@@ -362,7 +376,7 @@ public class EverdellParameters extends AbstractParameters {
                 //If both card selections cannot be played via discount, then we draw both cards
 
                 //Attempt to place the card in the players hand
-                int player = state.getCurrentPlayer();
+                int playerID = state.getCurrentPlayer();
 
                 if(!state.cardSelection.isEmpty()){
                     if(state.cardSelection.get(0).getComponentID() == EverdellParameters.ForestLocations.cardChoices.get(0).getComponentID()){
@@ -371,22 +385,22 @@ public class EverdellParameters extends AbstractParameters {
                     }
                 }
 
-                if(state.playerHands.get(player).getSize() < state.villageMaxSize[player].getValue()){
+                if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
                     System.out.println("Adding card to hand : "+cardChoices.get(0).getName());
-                    state.playerHands.get(state.getCurrentPlayer()).add(cardChoices.get(0));
+                    state.playerHands.get(playerID).add(cardChoices.get(0));
                     state.meadowDeck.remove(cardChoices.get(0));
                     state.meadowDeck.add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.cardCount[playerID].increment();
                 }
                 //If there are no cards in cardSelection,  it means that we could not play the card, we will attempt to draw instead
                 if(state.cardSelection.isEmpty()) {
                     System.out.println("DRAW TWO MEADOW, NO PLAYABLE CARDS, DRAWING BOTH");
-                    if (state.playerHands.get(player).getSize() < state.playerHands.get(player).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()) {
                         System.out.println("Adding card to hand : " + cardChoices.get(1).getName());
-                        state.playerHands.get(player).add(cardChoices.get(1));
+                        state.playerHands.get(playerID).add(cardChoices.get(1));
                         state.meadowDeck.remove(cardChoices.get(1));
                         state.meadowDeck.add(state.cardDeck.draw());
-                        state.cardCount[player].increment();
+                        state.cardCount[playerID].increment();
                     }
                     return;
                 }
@@ -406,7 +420,7 @@ public class EverdellParameters extends AbstractParameters {
 
                     System.out.println("Final Cost : "+finalCost);
 
-                    state.PlayerResources.get(resource)[player].decrement(finalCost);
+                    state.PlayerResources.get(resource)[playerID].decrement(finalCost);
                 }
                 state.cardSelection.get(0).payForCard();
             };
@@ -518,8 +532,8 @@ public class EverdellParameters extends AbstractParameters {
                     break;
                 }
             }
-            //Needs to Return hasCard, currently true for testing
-            return true;
+            //Needs to Return hasCards, currently true for testing
+            return hasCards;
         }
 
         public ArrayList<CardDetails> eventConditions;
@@ -559,7 +573,7 @@ public class EverdellParameters extends AbstractParameters {
                     return true;
                 }
                 //SHOULD BE FALSE, TRUE FOR TESTING
-                return true;
+                return false;
 
             };
             THE_EVERDELL_GAMES.applyLocationEffect = (state) -> {
@@ -627,7 +641,7 @@ public class EverdellParameters extends AbstractParameters {
                 for (EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())) {
                     if (card.getCardEnumValue() == CardDetails.WIFE) {
                         WifeCard wc = (WifeCard) card;
-                        if(wc.getHusband() != null){
+                        if(wc.getHusband() != -1){
                             points += 3;
                         }
                     }
@@ -710,6 +724,7 @@ public class EverdellParameters extends AbstractParameters {
                 return defaultCheckIfConditionMet(state, ANCIENT_SCROLLS_DISCOVERED);
             };
             ANCIENT_SCROLLS_DISCOVERED.applyLocationEffect = (state) -> {
+                int playerID = state.getCurrentPlayer();
                 //5 Cards are Revealed From the deck to the player
                 //The player may select however many to draw into their hand and however many to place under the event
                 //Each card that is placed under the event, will give 1 point
@@ -719,9 +734,9 @@ public class EverdellParameters extends AbstractParameters {
                 //Draw the cards
                 int points = 5;
                 for (EverdellCard card : state.cardSelection) {
-                    if(state.playerHands.get(state.getCurrentPlayer()).getSize() < state.playerHands.get(state.getCurrentPlayer()).getCapacity()){
-                        state.playerHands.get(state.getCurrentPlayer()).add(card);
-                        state.cardCount[state.getCurrentPlayer()].increment();
+                    if(state.playerHands.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()){
+                        state.playerHands.get(playerID).add(card);
+                        state.cardCount[playerID].increment();
                         points--;
                     }
                 }
@@ -769,12 +784,13 @@ public class EverdellParameters extends AbstractParameters {
             PRISTINE_CHAPEL_CEILING.applyLocationEffect = (state) -> {
                 //Draw 1 card and Gain 1 of any resource for each point on the chapel
                 //Resource Selection will dictate which resource they want to gain
+                int playerID = state.getCurrentPlayer();
 
                 int numberOfPointsPlaced = 0;
 
                 int pointsChapelCardsStartWith = 2;
                 //Find Chapel Card
-                for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
+                for(EverdellCard card : state.playerVillage.get(playerID)){
                     if(card.getCardEnumValue() == CardDetails.CHAPEL){
                         numberOfPointsPlaced = card.getPoints()-pointsChapelCardsStartWith;
                         break;
@@ -788,7 +804,7 @@ public class EverdellParameters extends AbstractParameters {
                         if (counter == 0){
                             break;
                         }
-                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                        state.PlayerResources.get(resource)[playerID].increment();
                         counter--;
                     }
                     if(counter == 0){
@@ -797,11 +813,11 @@ public class EverdellParameters extends AbstractParameters {
                 }
                 //Draw Cards
                 for (int i = 0; i < numberOfPointsPlaced; i++) {
-                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()) {
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
             PATH_OF_THE_PILGRIMS.eventConditions = new ArrayList<>(List.of(CardDetails.WANDERER, CardDetails.MONASTERY));
@@ -968,12 +984,13 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
             CHAPEL_DESTINATION.applyLocationEffect = (state) -> {
+                int playerID = state.getCurrentPlayer();
                 //Places 1 point on the Chapel card
                 //Makes the player draw 2 cards for every point that is on the chapel
 
                 //Place a point on the Chapel card
                 EverdellCard chapelCard = null;
-                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+                for(var card : state.playerVillage.get(playerID)){
                     if(card.getCardEnumValue() == CardDetails.CHAPEL){
                         chapelCard = card;
                         chapelCard.setCardPoints(chapelCard.getPoints()+1);
@@ -983,11 +1000,11 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Draw 2 Cards for every point PLACED on the chapel card
                 for (int i = 0; i < (chapelCard.getPoints()-2)*2; i++) {
-                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()) {
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
             };
 
@@ -1014,7 +1031,7 @@ public class EverdellParameters extends AbstractParameters {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
                     new HashMap<>() {{
                         put(ResourceTypes.TWIG, 2); //2
-                        put(ResourceTypes.RESIN, 3); //1
+                        put(ResourceTypes.RESIN, 1); //1
                     }}, (state) -> {
                 state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment();
                 return true;
@@ -1052,29 +1069,29 @@ public class EverdellParameters extends AbstractParameters {
             WANDERER.createEverdellCard = (gameState) -> new CritterCard("Wanderer", WANDERER, CardType.TAN_TRAVELER, false, false, 1, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
+                int playerID = state.getCurrentPlayer();
                 for (int i = 0; i < 3; i++) {
-                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()) {
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
-                state.villageMaxSize[state.getCurrentPlayer()].increment();
+                state.villageMaxSize[playerID].increment();
                 return true;
             }, (everdellGameState -> {
                 everdellGameState.villageMaxSize[everdellGameState.getCurrentPlayer()].decrement();
             }));
 
             WIFE.createEverdellCard = (gameState) -> new WifeCard("Wife", WIFE, CardType.PURPLE_PROSPERITY, false, false, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0); //2
-                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }));
 
             HUSBAND.createEverdellCard = (gameState) -> new HusbandCard("Husband", HUSBAND, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
@@ -1085,16 +1102,17 @@ public class EverdellParameters extends AbstractParameters {
                 put(ResourceTypes.RESIN, 2);
                 put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
+                int playerID = state.getCurrentPlayer();
                 for (int i = 0; i < 2; i++) {
-                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()) {
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
+            }), new ArrayList<>(List.of(FOOL)));
 
             MINE.createEverdellCard = (gameState) -> new ConstructionCard("Mine", MINE, CardType.GREEN_PRODUCTION, true, false, 2, new HashMap<>() {{
                 put(ResourceTypes.PEBBLE, 1);
@@ -1104,7 +1122,7 @@ public class EverdellParameters extends AbstractParameters {
                 state.PlayerResources.get(ResourceTypes.PEBBLE)[state.getCurrentPlayer()].increment(1);
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(WIFE)));//WIFE is incorrect. but this is for testing purposes
+            }), new ArrayList<>(List.of(MINER_MOLE)));
 
             TWIG_BARGE.createEverdellCard = (gameState) -> new ConstructionCard("Twig Barge", TWIG_BARGE, CardType.GREEN_PRODUCTION, true, false, 1, new HashMap<>() {{
                 put(ResourceTypes.TWIG, 1);
@@ -1131,21 +1149,16 @@ public class EverdellParameters extends AbstractParameters {
             SHOP_KEEPER.createEverdellCard = (gameState) -> new CritterCard("Shop Keeper", SHOP_KEEPER, CardType.BLUE_GOVERNANCE, false, true, 1, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
-                if (state.cardSelection.get(0).getCardEnumValue() == SHOP_KEEPER) {
-                    return false;
-                }
                 //Check if it is a critter
-                if (!state.cardSelection.get(0).isConstruction()) {
-                    state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
-                }
+                state.PlayerResources.get(ResourceTypes.BERRY)[state.getCurrentPlayer()].increment(1);
                 return true;
             }, (everdellGameState -> {
             }));
 
             CASTLE.createEverdellCard = (gameState) -> new ConstructionCard("Castle", CASTLE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 2);
+                put(ResourceTypes.RESIN, 3);
+                put(ResourceTypes.PEBBLE, 2);
             }}, (state) -> {
 
                 int counter = 0;
@@ -1168,7 +1181,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(KING)));
 
-            //NOT FULLY IMPLEMENTED BECAUSE IT REQUIRES SPECIAL EVENTS ASWELLL
+            //NOT FULLY IMPLEMENTED BECAUSE IT REQUIRES SPECIAL EVENTS ASWELL
             KING.createEverdellCard = (gameState) -> new CritterCard("King", KING, CardType.PURPLE_PROSPERITY, false, true, 4, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 6);
             }}, (state) -> {
@@ -1197,9 +1210,9 @@ public class EverdellParameters extends AbstractParameters {
 
 
             PALACE.createEverdellCard = (gameState) -> new ConstructionCard("Palace", PALACE, CardType.PURPLE_PROSPERITY, true, true, 4, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 2);
+                put(ResourceTypes.RESIN, 3);
+                put(ResourceTypes.PEBBLE, 3);
             }}, (state) -> {
                 int counter = 0;
                 //Find all unique constructions
@@ -1219,13 +1232,13 @@ public class EverdellParameters extends AbstractParameters {
 
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(WIFE)));//INCORRECT
+            }), new ArrayList<>(List.of(QUEEN)));
 
 
             THEATRE.createEverdellCard = (gameState) -> new ConstructionCard("Theatre", THEATRE, CardType.PURPLE_PROSPERITY, true, true, 3, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 3);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 int counter = 0;
                 //Find all unique critters
@@ -1248,8 +1261,8 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(BARD)));
 
             SCHOOL.createEverdellCard = (gameState) -> new ConstructionCard("School", SCHOOL, CardType.PURPLE_PROSPERITY, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.TWIG, 2);
+                put(ResourceTypes.RESIN, 2);
             }}, (state) -> {
                 int counter = 0;
                 //Find all common critters
@@ -1269,10 +1282,10 @@ public class EverdellParameters extends AbstractParameters {
 
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(BARD)));
+            }), new ArrayList<>(List.of(TEACHER)));
 
             BARD.createEverdellCard = (gameState) -> new CritterCard("Bard", BARD, CardType.TAN_TRAVELER, false, true, 0, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
                 int counter = 0;
 
@@ -1301,15 +1314,16 @@ public class EverdellParameters extends AbstractParameters {
             }}, (state) -> {
                 //A card must be selected to be removed from the village
                 //This uses CardSelection from the gameState to determine which card to remove
+                int playerID = state.getCurrentPlayer();
 
                 if (!state.cardSelection.isEmpty()) {
                     //Remove the selected card from the village
                     System.out.println("Removing card from village");
                     System.out.println(state.cardSelection.get(0));
 
-                    for (var card : state.playerVillage.get(state.getCurrentPlayer())) {
+                    for (var card : state.playerVillage.get(playerID)) {
                         if (card == state.cardSelection.get(0)) {
-                            state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+                            state.playerVillage.get(playerID).remove(card);
                             state.discardDeck.add(card);
                             break;
                         }
@@ -1318,16 +1332,16 @@ public class EverdellParameters extends AbstractParameters {
 
                     //Refund the Resources
                     for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
-                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment(state.cardSelection.get(0).getResourceCost().get(resource));
+                        state.PlayerResources.get(resource)[playerID].increment(state.cardSelection.get(0).getResourceCost().get(resource));
                     }
                 }
                 //Draw 2 Cards
                 for (int i = 0; i < 2; i++) {
-                    if (state.playerHands.get(state.getCurrentPlayer()).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                    if (state.playerHands.get(playerID).getSize() == state.playerHands.get(playerID).getCapacity()) {
                         break;
                     }
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
 
                 return true;
@@ -1335,9 +1349,8 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(PEDDLER)));
 
 
-            WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, true, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
-                put(ResourceTypes.RESIN, 0);
+            WOOD_CARVER.createEverdellCard = (gameState) -> new CritterCard("Wood Carver", WOOD_CARVER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how much wood was given
@@ -1362,7 +1375,7 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             DOCTOR.createEverdellCard = (gameState) -> new CritterCard("Doctor", DOCTOR, CardType.GREEN_PRODUCTION, false, true, 4, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 4);
             }}, (state) -> {
                 if (!state.resourceSelection.isEmpty()) {
                     //Increment Points based on how many berries were given
@@ -1409,7 +1422,7 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             PEDDLER.createEverdellCard = (gameState) -> new PeddlerCard("Peddler", PEDDLER, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 //Peddler, you can pay up to 2 of any resource and you can get 1 any for each resource paid
                 //Its effect exists within PeddlerCard
@@ -1417,8 +1430,8 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }));
 
-            CHIP_SWEEP.createEverdellCard = (gameState) -> new CopyCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, true, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+            CHIP_SWEEP.createEverdellCard = (gameState) -> new CopyCard("Chip Sweep", CHIP_SWEEP, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
                 //Chip Sweep takes in a production card and copies its effect.
                 //The player can select which production card to copy
@@ -1428,91 +1441,92 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             LOOKOUT.createEverdellCard = (gameState) -> new ConstructionCard(RedDestinationLocation.LOOKOUT_DESTINATION, "Lookout", LOOKOUT, CardType.RED_DESTINATION, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 1);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(WANDERER)));
 
-            QUEEN.createEverdellCard = (gameState) -> new CritterCard(RedDestinationLocation.QUEEN_DESTINATION, "Queen", QUEEN, CardType.RED_DESTINATION, false, true, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+            QUEEN.createEverdellCard = (gameState) -> new CritterCard(RedDestinationLocation.QUEEN_DESTINATION, "Queen", QUEEN, CardType.RED_DESTINATION, false, true, 4, new HashMap<>() {{
+                put(ResourceTypes.BERRY, 5);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }));
 
-            INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
+            INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
+                put(ResourceTypes.TWIG, 2);
+                put(ResourceTypes.RESIN, 1);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of())); //THIS NEEDS TO OCCUPY INNKEEPER
+            }), new ArrayList<>(List.of(INNKEEPER)));
 
             POST_OFFICE.createEverdellCard = (gameState) -> new PostOfficeCard(RedDestinationLocation.POST_OFFICE_DESTINATION, "Post Office", POST_OFFICE, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
+                put(ResourceTypes.TWIG, 1);
+                put(ResourceTypes.RESIN, 2);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(POSTAL_PIGEON)));
 
             MONK.createEverdellCard = (gameState) -> new MonkCard("Monk", MONK, CardType.GREEN_PRODUCTION, false, true, 0, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 1);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }));
 
             FOOL.createEverdellCard = (gameState) -> new FoolCard("Fool", FOOL, CardType.TAN_TRAVELER, false, true, -2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }));
 
             TEACHER.createEverdellCard = (gameState) -> new TeacherCard("Teacher", TEACHER, CardType.GREEN_PRODUCTION, false, false, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
             }));
 
             MONASTERY.createEverdellCard = (gameState) -> new MonasteryCard(RedDestinationLocation.MONASTERY_DESTINATION, "Monastery", MONASTERY, CardType.RED_DESTINATION, true, true, 1, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 1);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(MONK))); //THIS NEEDS TO OCCUPY MONK
+            }), new ArrayList<>(List.of(MONK)));
 
             HISTORIAN.createEverdellCard = (gameState) -> new CritterCard("Historian", HISTORIAN, CardType.BLUE_GOVERNANCE, false, true, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
+                int playerID = state.getCurrentPlayer();
                 if (state.currentCard.getCardEnumValue() == HISTORIAN) {
                     return true;
                 }
                 //Makes you draw 1 card whenever a construction or critter card is played
-                if (state.playerVillage.get(state.getCurrentPlayer()).getSize() < state.playerVillage.get(state.getCurrentPlayer()).getCapacity()) {
-                    state.playerHands.get(state.getCurrentPlayer()).add(state.cardDeck.draw());
-                    state.cardCount[state.getCurrentPlayer()].increment();
+                if (state.playerVillage.get(playerID).getSize() < state.playerHands.get(playerID).getCapacity()) {
+                    state.playerHands.get(playerID).add(state.cardDeck.draw());
+                    state.cardCount[playerID].increment();
                 }
                 return true;
             }, (everdellGameState -> {
             }));
 
             CEMETERY.createEverdellCard = (gameState) -> new CemeteryCard(RedDestinationLocation.CEMETERY_DESTINATION, "Cemetery", CEMETERY, CardType.RED_DESTINATION, true, true, 0, new HashMap<>() {{
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.PEBBLE, 2);
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(UNDERTAKER))); //THIS NEEDS TO OCCUPY Undertaker
+            }), new ArrayList<>(List.of(UNDERTAKER)));
 
             UNDERTAKER.createEverdellCard = (gameState) -> new CritterCard("Undertaker", UNDERTAKER, CardType.TAN_TRAVELER, false, true, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 //Undertaker allows the player to remove 3 cards from the meadow,
                 //Replenish those cards, and then allow the player to draw 1 card from the meadow
@@ -1538,7 +1552,7 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             POSTAL_PIGEON.createEverdellCard = (gameState) -> new CritterCard("Postal Pigeon", POSTAL_PIGEON, CardType.TAN_TRAVELER, false, false, 0, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 //The postal pigeon allows the player to reveal 2 cards, the player may select 1 of these cards to play for free
                 // up to 3 points
@@ -1546,6 +1560,9 @@ public class EverdellParameters extends AbstractParameters {
                 //CardSelection[0] will hold the card that the player chooses to play for free
                 //CardSelection[1] will hold the card that the player chose to discard
                 //If CardSelection[0] has a point token value higher than 3, it will not be paid for
+                if(state.cardSelection.isEmpty()){
+                    return true;
+                }
 
                 if (state.cardSelection.get(0).getPoints() <= 3) {
                     state.cardSelection.get(0).payForCard();
@@ -1558,7 +1575,7 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             JUDGE.createEverdellCard = (gameState) -> new JudgeCard("Judge", JUDGE, CardType.BLUE_GOVERNANCE, false, true, 2, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
                 //The Judge allows the player to select a card from the meadow and play it for free
                 return true;
@@ -1566,7 +1583,7 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             CRANE.createEverdellCard = (gameState) -> new ConstructionCard("Crane", CRANE, CardType.BLUE_GOVERNANCE, true, true, 1, new HashMap<>() {{
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 //This gives a discount of 3 resources to a card
                 //ResourceSelection will tell us which 3 resources they had selected
@@ -1603,7 +1620,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
             INNKEEPER.createEverdellCard = (gameState) -> new CritterCard("Innkeeper", INNKEEPER, CardType.BLUE_GOVERNANCE, false, true, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 1);
             }}, (state) -> {
                 //Innkeeper allows the player to discount a card up to 3 Berries
                 //ResourceSelection will tell us which 3 resources they had selected
@@ -1634,8 +1651,8 @@ public class EverdellParameters extends AbstractParameters {
 
 
             UNIVERSITY.createEverdellCard = (gameState) -> new ConstructionCard(RedDestinationLocation.UNIVERSITY_DESTINATION, "University", UNIVERSITY, CardType.RED_DESTINATION, true, true, 3, new HashMap<>() {{
-                put(ResourceTypes.RESIN, 0);//1
-                put(ResourceTypes.PEBBLE, 0);//2
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 2);
             }}, (state) -> {
                 //Check University Location for behaviour
                 return true;
@@ -1644,9 +1661,9 @@ public class EverdellParameters extends AbstractParameters {
 
 
             CHAPEL.createEverdellCard = (gameState) -> new ConstructionCard(RedDestinationLocation.CHAPEL_DESTINATION, "Chapel", CHAPEL, CardType.RED_DESTINATION, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0); //2
-                put(ResourceTypes.RESIN, 0); //1
-                put(ResourceTypes.PEBBLE, 0); //1
+                put(ResourceTypes.TWIG, 2);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 //Check Chapel Location for behaviour
                 return true;
@@ -1662,19 +1679,18 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             CLOCK_TOWER.createEverdellCard = (gameState) -> new ClockTowerCard("Clock Tower", CLOCK_TOWER, CardType.BLUE_GOVERNANCE, true, true, 3, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0); //3
-                put(ResourceTypes.PEBBLE, 0); //1
+                put(ResourceTypes.TWIG, 3);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 //Check ClockTowerCard for behaviour
                 return true;
             }, (everdellGameState -> {
-            }),
-                    new ArrayList<>(List.of(HISTORIAN)));
+            }), new ArrayList<>(List.of(HISTORIAN)));
 
             COURTHOUSE.createEverdellCard = (gameState) -> new ConstructionCard("Courthouse", COURTHOUSE, CardType.BLUE_GOVERNANCE, true, true, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 1);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 2);
             }}, (state) -> {
                 //The Courthouse allows the player to gain a Twig, a resin or a pebble after placing a construcion
 
@@ -1702,7 +1718,7 @@ public class EverdellParameters extends AbstractParameters {
 
 
             RANGER.createEverdellCard = (gameState) -> new RangerCard("Ranger", RANGER, CardType.TAN_TRAVELER, false, true, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 2);
             }}, (state) -> {
                 //Ranger allows the player to draw 1 card from the deck
 
@@ -1712,8 +1728,8 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             DUNGEON.createEverdellCard = (gameState) -> new DungeonCard("Dungeon", DUNGEON, CardType.BLUE_GOVERNANCE, true, true, 0, new HashMap<>() {{
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 2);
             }}, (state) -> {
                 //Dungeon allows the player to draw 2 cards from the deck
                 return true;
@@ -1721,7 +1737,7 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(RANGER)));
 
             MINER_MOLE.createEverdellCard = (gameState) -> new CopyCard("Miner Mole", MINER_MOLE, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>() {{
-                put(ResourceTypes.BERRY, 0);
+                put(ResourceTypes.BERRY, 3);
             }}, (state) -> {
 
                 //Miner Mole takes in a production card and copies its effect.
@@ -1731,9 +1747,9 @@ public class EverdellParameters extends AbstractParameters {
             }));
 
             EVER_TREE.createEverdellCard = (gameState) -> new ConstructionCard("Ever Tree", EVER_TREE, CardType.PURPLE_PROSPERITY, true, true, 5, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0);
-                put(ResourceTypes.RESIN, 0);
-                put(ResourceTypes.PEBBLE, 0);
+                put(ResourceTypes.TWIG, 3);
+                put(ResourceTypes.RESIN, 3);
+                put(ResourceTypes.PEBBLE, 3);
             }}, (state) -> {
                 //The Ever Tree gives the player 1 point for every purple prosperity card in the village (Includes itself)
                 int defaultPoints = 5;
@@ -1755,9 +1771,9 @@ public class EverdellParameters extends AbstractParameters {
             }), new ArrayList<>(List.of(Arrays.stream(CardDetails.values()).filter(c -> c != CardDetails.EVER_TREE && !c.createEverdellCard.apply(null).isConstruction()).toArray(CardDetails[]::new))));;
 
             STORE_HOUSE.createEverdellCard = (gameState) -> new StorehouseCard(RedDestinationLocation.STORE_HOUSE_DESTINATION, "Storehouse", STORE_HOUSE, CardType.GREEN_PRODUCTION, true, false, 2, new HashMap<>() {{
-                put(ResourceTypes.TWIG, 0); //1
-                put(ResourceTypes.RESIN, 0); //1
-                put(ResourceTypes.PEBBLE, 0); //1
+                put(ResourceTypes.TWIG, 1);
+                put(ResourceTypes.RESIN, 1);
+                put(ResourceTypes.PEBBLE, 1);
             }}, (state) -> {
                 //Check STORE HOUSE card for behaviour
                 return true;
@@ -1784,54 +1800,57 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-        put(CardDetails.ARCHITECT, 0);
-        put(CardDetails.BARD, 0);
-        put(CardDetails.BARGE_TOAD, 0);
-        put(CardDetails.CASTLE, 0);
-        put(CardDetails.CEMETERY, 0);
-        put(CardDetails.CHAPEL, 0);
-        put(CardDetails.CHIP_SWEEP, 0);
-        put(CardDetails.CLOCK_TOWER, 0);
-        put(CardDetails.COURTHOUSE, 0);
-        put(CardDetails.CRANE, 0);
-        put(CardDetails.DOCTOR, 0);
-        put(CardDetails.DUNGEON, 0);
-        put(CardDetails.EVER_TREE, 0);
-        put(CardDetails.FAIRGROUNDS, 0);
-        put(CardDetails.FARM, 0);
-        put(CardDetails.FOOL, 0);
-        put(CardDetails.GENERAL_STORE, 0);
-        put(CardDetails.HISTORIAN, 0);
-        put(CardDetails.HUSBAND, 0);
-        put(CardDetails.INN, 0);
-        put(CardDetails.INNKEEPER, 0);
-        put(CardDetails.JUDGE, 0);
-        put(CardDetails.KING, 0);
-        put(CardDetails.LOOKOUT, 0);
-        put(CardDetails.MINE, 0);
-        put(CardDetails.MINER_MOLE, 0);
-        put(CardDetails.MONASTERY, 0);
-        put(CardDetails.MONK, 0);
-        put(CardDetails.PALACE, 0);
-        put(CardDetails.PEDDLER, 0);
-        put(CardDetails.POST_OFFICE, 0);
-        put(CardDetails.POSTAL_PIGEON, 0);
-        put(CardDetails.QUEEN, 0);
-        put(CardDetails.RANGER, 100);
-        put(CardDetails.RESIN_REFINERY, 0);
-        put(CardDetails.RUINS, 0);
+//        put(CardDetails.FARM, 32);
+//        put(CardDetails.WIFE, 16);
+//        put(CardDetails.HUSBAND, 16);
+        put(CardDetails.ARCHITECT, 2);
+        put(CardDetails.BARD, 2);
+        put(CardDetails.BARGE_TOAD, 3);
+        put(CardDetails.CASTLE, 2);
+        put(CardDetails.CEMETERY, 2);
+        put(CardDetails.CHAPEL, 2);
+        put(CardDetails.CHIP_SWEEP, 3);
+        put(CardDetails.CLOCK_TOWER, 3);
+        put(CardDetails.COURTHOUSE, 2);
+        put(CardDetails.CRANE, 3);
+        put(CardDetails.DOCTOR, 2);
+        put(CardDetails.DUNGEON, 2);
+        put(CardDetails.EVER_TREE, 2);
+        put(CardDetails.FAIRGROUNDS, 3);
+        put(CardDetails.FARM, 8);
+        put(CardDetails.FOOL, 2);
+        put(CardDetails.GENERAL_STORE, 3);
+        put(CardDetails.HISTORIAN, 3);
+        put(CardDetails.HUSBAND, 4);
+        put(CardDetails.INN, 3);
+        put(CardDetails.INNKEEPER, 3);
+        put(CardDetails.JUDGE, 2);
+        put(CardDetails.KING, 2);
+        put(CardDetails.LOOKOUT, 2);
+        put(CardDetails.MINE, 3);
+        put(CardDetails.MINER_MOLE, 3);
+        put(CardDetails.MONASTERY, 2);
+        put(CardDetails.MONK, 2);
+        put(CardDetails.PALACE, 2);
+        put(CardDetails.PEDDLER, 3);
+        put(CardDetails.POST_OFFICE, 3);
+        put(CardDetails.POSTAL_PIGEON, 3);
+        put(CardDetails.QUEEN, 2);
+        put(CardDetails.RANGER, 2);
+        put(CardDetails.RESIN_REFINERY, 3);
+        put(CardDetails.RUINS, 3);
         put(CardDetails.SCHOOL, 0);
-        put(CardDetails.SHEPHERD, 0);
-        put(CardDetails.SHOP_KEEPER, 0);
-        put(CardDetails.STORE_HOUSE, 0);
-        put(CardDetails.TEACHER, 0);
-        put(CardDetails.THEATRE, 0);
-        put(CardDetails.TWIG_BARGE, 0);
-        put(CardDetails.UNDERTAKER, 0);
-        put(CardDetails.UNIVERSITY, 0);
-        put(CardDetails.WANDERER, 0);
-        put(CardDetails.WIFE, 0);
-        put(CardDetails.WOOD_CARVER, 0);
+        put(CardDetails.SHEPHERD, 2);
+        put(CardDetails.SHOP_KEEPER, 3);
+        put(CardDetails.STORE_HOUSE, 3);
+        put(CardDetails.TEACHER, 3);
+        put(CardDetails.THEATRE, 2);
+        put(CardDetails.TWIG_BARGE, 3);
+        put(CardDetails.UNDERTAKER, 2);
+        put(CardDetails.UNIVERSITY, 2);
+        put(CardDetails.WANDERER, 3);
+        put(CardDetails.WIFE, 4);
+        put(CardDetails.WOOD_CARVER, 3);
 
     }};
 

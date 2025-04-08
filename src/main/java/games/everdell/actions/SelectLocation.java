@@ -108,17 +108,17 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
         if(locationId == -1){
             if(egs.clockTowerMode){
-                //actions.addAll(getBasicLocationActions(egs));
+                actions.addAll(getBasicLocationActions(egs));
                 actions.addAll(getForestLocationActions(egs));
             }
             else {
                 actions.addAll(getBasicLocationActions(egs));
-                //actions.addAll(getForestLocationActions(egs));
-                //actions.addAll(getBasicEventActions(egs));
+                actions.addAll(getForestLocationActions(egs));
+                actions.addAll(getBasicEventActions(egs));
                 //actions.addAll(getSpecialEventActions(egs));
-                //actions.addAll(getRedDestinationActions(egs));
-                //actions.addAll(getHavenActions(egs));
-                //actions.addAll(getJourneyActions(egs));
+                actions.addAll(getRedDestinationActions(egs));
+                actions.addAll(getHavenActions(egs));
+                actions.addAll(getJourneyActions(egs));
             }
         }
         else{
@@ -213,7 +213,9 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationID);
             if(location.getAbstractLocation() instanceof EverdellParameters.RedDestinationLocation){
                 if(locationIsFree(state, location)){
-                    actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs, false, false));
+                    System.out.println("Red Destination Location Get ID : " + location.getComponentID());
+                    System.out.println("Red Destination Location static ID : " + locationID);
+                    actions.add(new SelectLocation(playerId, locationID, everdellLocationIDs, false, false));
                 }
             }
         }
@@ -230,7 +232,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationID);
             if(location.getAbstractLocation() instanceof HavenLocation){
                 if(locationIsFree(state, location)){
-                    actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs));
+                    actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs, false, false));
                 }
             }
         }
@@ -247,7 +249,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             if(location.getAbstractLocation() instanceof JourneyLocations jl){
                 if(locationIsFree(state, location)){
                     if(JourneyLocations.defaultCheckIfConditionMet(state, jl)) {
-                        actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs));
+                        actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs, false, false));
                     }
                 }
             }
@@ -261,7 +263,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             return true;
         }
 
-        return location.isLocationFreeForPlayer(state) && state.workers[state.getCurrentPlayer()].getValue() > 0;
+        return location.isLocationFreeForPlayer(state) && state.workers[playerId].getValue() > 0;
     }
 
 
@@ -284,23 +286,24 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
         if(egs.rangerCardMode){
             //Find card
             int cardID = -1;
-            for(EverdellCard card : egs.playerHands.get(egs.getCurrentPlayer()).getComponents()){
+            ArrayList<EverdellCard> cardsToLookThrough = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
+            cardsToLookThrough.addAll(egs.meadowDeck.getComponents());
+            for(EverdellCard card : cardsToLookThrough){
                 if(card.getCardEnumValue() == CardDetails.RANGER){
                     cardID = card.getComponentID();
                     break;
                 }
             }
-            if(cardID != -1){
-                RangerCard rc = (RangerCard) egs.getComponentById(cardID);
-                rc.setLocationFrom(location);
-                new PlayCard(playerId, cardID, new ArrayList<>(), new HashMap<>()).execute(egs);
-            }
+            RangerCard rc = (RangerCard) egs.getComponentById(cardID);
+            rc.setLocationFrom(location);
+            new PlayCard(playerId, cardID, new ArrayList<>(), new HashMap<>()).execute(egs);
             executed = true;
             return;
         }
 
         //First Action
         if(loopAction){
+            System.out.println("Location ID : " + locationId);
             //Basic Location
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicLocations){
 
@@ -309,11 +312,11 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                     EverdellLocation basicL = (EverdellLocation) egs.getComponentById(locationId);
                     if(basicL.getAbstractLocation() == EverdellParameters.ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD ){
                         EverdellParameters.ForestLocations.basicLocationChoice = (EverdellParameters.BasicLocations) location.getAbstractLocation();
-                        new PlaceWorker(state.getCurrentPlayer(), locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                        new PlaceWorker(playerId, locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                     }
                 }
                 else { //STANDARD OUTCOME
-                    new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                 }
             }
 
@@ -349,12 +352,12 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 }
                 else {
                     //Standard Action
-                    new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                 }
             }
             //Basic Event
             if(location.getAbstractLocation() instanceof BasicEvent){
-                new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
             }
 
             //Special Event
@@ -376,7 +379,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             if(location.getAbstractLocation() instanceof RedDestinationLocation){
                 if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
                     ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>();
-                    cardsToSelectFrom.addAll(egs.playerHands.get(egs.getCurrentPlayer()).getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
+                    cardsToSelectFrom.addAll(egs.playerHands.get(playerId).getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
                     cardsToSelectFrom.addAll(egs.meadowDeck.getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
                     cardsToSelectFrom = cardsToSelectFrom.stream().filter(card -> card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)).collect(Collectors.toCollection(ArrayList::new));
                     new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
@@ -412,7 +415,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                     }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
-                    ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(egs.getCurrentPlayer()).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(playerId).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
                     new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.INN_DESTINATION){
@@ -447,8 +450,14 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                     }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
-                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(egs.getCurrentPlayer()).getComponents());
-                    new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 2, true).execute(egs);
+                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
+                    if(egs.playerHands.get(playerId).getComponents().size() < 2){
+                        //They need at least 2 cards to trigger the effect
+                        new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    }
+                    else {
+                        new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 2, true).execute(egs);
+                    }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.MONASTERY_DESTINATION){
                     new ResourceSelect(playerId, -1, selectLocation.locationId, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 2, false, true).execute(egs);
@@ -462,7 +471,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                     }
                 }
                 else{ //CHAPEL_DESTINATION or STOREHOUSE_DESTINATION
-                    new PlaceWorker(state.getCurrentPlayer(), selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                 }
             }
         }
@@ -495,7 +504,11 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
     @Override
     public String getString(AbstractGameState gameState) {
-        return "Selecting a Location";
+        if(locationId == -1){
+            return toString();
+        }
+        EverdellLocation location = (EverdellLocation) gameState.getComponentById(locationId);
+        return toString()+ ", " + location.getAbstractLocation();
     }
 
     @Override

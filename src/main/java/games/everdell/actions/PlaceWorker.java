@@ -74,9 +74,13 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
         }
 
-        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = state.resourceSelection;
+        HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = new HashMap<>();
         for(var resource : resourceSelectionValues.keySet()){
+            resourceSelection.put(resource, new Counter());
             resourceSelection.get(resource).setValue(resourceSelectionValues.get(resource));
+        }
+        for(var resource : resourceSelection.keySet()){
+            state.resourceSelection.get(resource).setValue(resourceSelection.get(resource).getValue());
         }
 
 
@@ -134,7 +138,8 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         }
 
         //Check if this location is free
-        if(state.workers[state.getCurrentPlayer()].getValue() > 0 && locationToPlaceIn.isLocationFreeForPlayer(gs)){
+        System.out.println("Location to place in ID : " + locationComponentID);
+        if(state.workers[state.getCurrentPlayer()].getValue() > 0 && locationToPlaceIn.isLocationFreeForPlayer(state)){
             //System.out.println("Placing Worker in : " + locationToPlaceIn);
 
 
@@ -191,7 +196,11 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
     public void resetValues(EverdellGameState state){
         //Reset the resource selection
-        state.resourceSelection.keySet().forEach(resource -> state.resourceSelection.get(resource).setValue(0));
+        state.resourceSelection = new HashMap<>();
+        for(var resource : EverdellParameters.ResourceTypes.values()){
+            state.resourceSelection.put(resource, new Counter());
+            state.resourceSelection.get(resource).setValue(0);
+        }
         //Reset Card Selection
         for (var card : state.cardSelection){
             state.temporaryDeck.add(card);

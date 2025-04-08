@@ -53,7 +53,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
 
     @Override
     public boolean execute(AbstractGameState gs) {
-        System.out.println("Resource SELECT EXECUTED");
+        System.out.println("ResourceSelect: execute");
 
         if(resourcesSelected == null) {
             gs.setActionInProgress(this);
@@ -66,7 +66,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
 
     @Override
     public List<AbstractAction> _computeAvailableActions(AbstractGameState state) {
-        System.out.println("Computing Resource Select Actions");
+        System.out.println("ResourceSelect: _computeAvailableActions");
         List<AbstractAction> amountActions = new ArrayList<>();
         EverdellGameState egs = (EverdellGameState) state;
 
@@ -91,25 +91,45 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
             generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
         }
         else {
-            generateResourceCombinations(new HashMap<>(), maxAmount, amountActions);
+            generateResourceCombinations(new HashMap<>(), maxAmount, amountActions, 0);
         }
 //        System.out.println("*****************RESOURCE SELECT ACTIONS*****************");
 //        for(var actions : amountActions){
 //            ResourceSelect rs = (ResourceSelect) actions;
 //            System.out.println("Resources Selection List : " + rs.resourcesSelected);
 //        }
+
+        for (var action : amountActions) {
+            if (action instanceof ResourceSelect resourceSelect) {
+                System.out.println("Resources to Select For: " + resourceSelect.resourcesToSelectFor);
+                System.out.println("Resources Selected: " + resourceSelect.resourcesSelected);
+            }
+        }
         return amountActions;
     }
 
-    private void generateResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions) {
+//    private void generateResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions) {
+//        if (remaining < 0) return;
+//        if (remaining == 0 || !isStrict) {
+//            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), maxAmount, isStrict, isCostBased, false));
+//            if (remaining == 0) return;
+//        }
+//        for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
+//            currentCombination.put(resource, currentCombination.getOrDefault(resource, 0) + 1);
+//            generateResourceCombinations(currentCombination, remaining - 1, actions);
+//            currentCombination.put(resource, currentCombination.get(resource) - 1);
+//        }
+//    }
+    private void generateResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions, int startIndex) {
         if (remaining < 0) return;
         if (remaining == 0 || !isStrict) {
             actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), maxAmount, isStrict, isCostBased, false));
             if (remaining == 0) return;
         }
-        for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
+        for (int i = startIndex; i < resourcesToSelectFor.size(); i++) {
+            EverdellParameters.ResourceTypes resource = resourcesToSelectFor.get(i);
             currentCombination.put(resource, currentCombination.getOrDefault(resource, 0) + 1);
-            generateResourceCombinations(currentCombination, remaining - 1, actions);
+            generateResourceCombinations(currentCombination, remaining - 1, actions, i);
             currentCombination.put(resource, currentCombination.get(resource) - 1);
         }
     }
@@ -139,7 +159,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
 
     @Override
     public void _afterAction(AbstractGameState state, AbstractAction action) {
-        System.out.println("After Action Resource Select");
+        System.out.println("ResourceSelect: _afterAction");
         EverdellGameState egs = (EverdellGameState) state;
         ResourceSelect resourceSelect = (ResourceSelect) action;
         System.out.println("Resources Selected: " + resourceSelect.resourcesSelected);
