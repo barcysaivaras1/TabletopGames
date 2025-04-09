@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class BeforeMoveSeasonAction extends AbstractAction implements IExtendedSequence {
 
-    private final int playerID;
+    private int playerID;
 
     private boolean executed;
 
@@ -40,6 +40,7 @@ public class BeforeMoveSeasonAction extends AbstractAction implements IExtendedS
     public boolean execute(AbstractGameState gs) {
         // TODO: Some functionality applied which changes the given game state.
         System.out.println("BeforeMoveSeasonAction: execute");
+        playerID = gs.getCurrentPlayer();
 
         EverdellGameState state = (EverdellGameState) gs;
 

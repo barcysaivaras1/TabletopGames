@@ -312,6 +312,8 @@ public class EverdellForwardModel extends StandardForwardModel {
         EverdellGameState egs = (EverdellGameState) currentState;
         int playerId = egs.getCurrentPlayer();
 
+        resetValues(egs);
+
 
         updatePurpleProsperityCards(egs);
 
@@ -356,6 +358,19 @@ public class EverdellForwardModel extends StandardForwardModel {
         return false;
     }
 
+    public void resetValues(EverdellGameState state){
+        //Reset the resource selection
+        state.resourceSelection = new HashMap<>();
+        for(var resource : EverdellParameters.ResourceTypes.values()){
+            state.resourceSelection.put(resource, new Counter());
+            state.resourceSelection.get(resource).setValue(0);
+        }
+        state.cardSelection.clear();
+        state.copyMode = false;
+        state.copyID = -1;
+        state.greenProductionMode = false;
+        state.rangerCardMode = false;
+    }
 
     private boolean checkEnd(EverdellGameState state){
         for (var result : state.getPlayerResults()) {

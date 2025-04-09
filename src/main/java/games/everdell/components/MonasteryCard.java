@@ -83,6 +83,11 @@ public class MonasteryCard extends ConstructionCard{
     }
 
     @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
+    }
+
+    @Override
     public MonasteryCard copy() {
         MonasteryCard card;
         card = new MonasteryCard(getName(), componentID, selectedPlayer);

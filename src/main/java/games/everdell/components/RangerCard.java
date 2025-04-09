@@ -79,10 +79,13 @@ public class RangerCard extends CritterCard{
         return locationFrom;
     }
 
-
+    @Override
     public void removeCardEffect(EverdellGameState state) {
-        DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
-        dc.lockSecondCell();
+        for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+            if(card instanceof DungeonCard dc){
+                dc.lockSecondCell();
+            }
+        }
     }
 
     @Override

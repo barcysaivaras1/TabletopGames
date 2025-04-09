@@ -46,7 +46,7 @@ public class ConstructionCard extends EverdellCard{
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         this.isOccupied = isOccupied;
     }
-    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, Integer rdlID, String name, boolean isOccupied, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
+    public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, int rdlID, String name, boolean isOccupied, ArrayList<CardDetails> cardsThatCanOccupy, int compID) {
         super(name, compID);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         this.isOccupied = isOccupied;
@@ -105,10 +105,11 @@ public class ConstructionCard extends EverdellCard{
     }
 
     public EverdellLocation getLocation(EverdellGameState state){
-        if(redDestinationAbstractLocation != null){
-            return (EverdellLocation) state.getComponentById(redDestinationLocationID);
-        }
-        return null;
+        return (EverdellLocation) state.getComponentById(redDestinationLocationID);
+//        if(redDestinationAbstractLocation != null){
+//            return (EverdellLocation) state.getComponentById(redDestinationLocationID);
+//        }
+//        return null;
     }
     public int getRedDestinationLocationID(){
         return redDestinationLocationID;
@@ -124,10 +125,10 @@ public class ConstructionCard extends EverdellCard{
 
     public void copyTo(ConstructionCard card){
         ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
-        if(redDestinationAbstractLocation != null){
-            card.redDestinationAbstractLocation = this.redDestinationAbstractLocation;
-        }
+        card.redDestinationAbstractLocation = this.redDestinationAbstractLocation;
         card.cardsThatCanOccupy = cardsThatCanOccupy;
+        card.redDestinationLocationID = this.redDestinationLocationID;
+        card.isOccupied = this.isOccupied;
         super.copyTo(card);
     }
 

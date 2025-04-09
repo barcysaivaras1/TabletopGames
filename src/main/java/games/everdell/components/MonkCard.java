@@ -49,9 +49,13 @@ public class MonkCard extends CritterCard{
     }
 
 
+    @Override
     public void removeCardEffect(EverdellGameState state) {
-        MonasteryCard mc = (MonasteryCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonasteryCard).findFirst().get();
-        mc.lockSecondLocation(state);
+        for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+            if(card instanceof MonasteryCard mc){
+                mc.lockSecondLocation(state);
+            }
+        }
     }
 
     @Override

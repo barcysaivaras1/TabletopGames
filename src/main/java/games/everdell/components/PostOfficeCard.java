@@ -67,6 +67,7 @@ public class PostOfficeCard extends ConstructionCard{
                 return;
             }
 
+            System.out.println("IN POSTOFFICE CARD, CARD SELECTION IS : " + state.cardSelection);
             //Move the cards from the occupying player to the selected player
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(0));
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(1));
@@ -105,6 +106,11 @@ public class PostOfficeCard extends ConstructionCard{
         this.selectedPlayer = selectedPlayer;
         this.occupyingPlayer = occupyingPlayer;
 
+    }
+
+    @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
     }
 
     @Override

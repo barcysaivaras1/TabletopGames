@@ -75,6 +75,10 @@ public class StorehouseCard extends ConstructionCard{
         };
     }
 
+    @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
+    }
 
     @Override
     public StorehouseCard copy() {

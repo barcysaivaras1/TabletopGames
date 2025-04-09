@@ -88,15 +88,23 @@ public class EverdellLocation extends Component {
     }
 
     //Red Destination Helper Function
-    public static Integer findCardLinkedToLocation(EverdellGameState state, EverdellLocation locationToLookFor){
+    public static int findCardLinkedToLocation(EverdellGameState state, EverdellLocation locationToLookFor){
         if(!(locationToLookFor.getAbstractLocation() instanceof EverdellParameters.RedDestinationLocation)){
             throw new RuntimeException("Location provided is not a Red Destination Location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
         }
         for(var playerDeck : state.playerVillage) {
             for (var card : playerDeck) {
+                System.out.println("Card: "+card.getCardEnumValue());
+
                 if (card instanceof ConstructionCard cc) {
+                    System.out.println("Is Construction Card");
+
                     if (cc.getLocation(state) != null) {
+                        System.out.println("Location: "+cc.getLocation(state).getAbstractLocation());
+                        System.out.println("Location ID: "+cc.getLocation(state).getComponentID());
+                        System.out.println("Location to look for ID: "+locationToLookFor.getComponentID());
                         if (cc.getLocation(state).getComponentID() == locationToLookFor.getComponentID()) {
+                            System.out.println("Found Location ID: "+cc.getLocation(state).getComponentID());
                             return cc.getComponentID();
                         }
                     }

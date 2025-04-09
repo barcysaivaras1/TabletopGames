@@ -24,7 +24,7 @@ public abstract class EverdellCard extends Card {
     private  HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost;
 
     private  Function<EverdellGameState, Boolean> applyCardEffect;
-    public Consumer<EverdellGameState> removeCardEffect;
+    private Consumer<EverdellGameState> removeCardEffect;
 
     private boolean isCardPayedFor;
     private boolean isUnique;

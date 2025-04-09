@@ -163,10 +163,13 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
             for (int cardId : cardsToSelectFromIds) {
                 System.out.println("SelectCard CardID: " + cardId);
                 EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
+                System.out.println("SelectCard Card Name : " + card.getCardEnumValue());
+                //Test **********
                 if(card == null){
                     System.out.println("Player ID is : " + playerId);
                     egs.printAllComponents();
                 }
+                //******
                 if (canCardBePlayed(cardId, egs)) {
                     actions.add(new SelectCard(playerId, cardId, locationId, cardsToSelectFromIds));
                 }
@@ -209,8 +212,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
             else if(discountCard instanceof DungeonCard dc){
                 System.out.println("Selecting Critter Card for Dungeon");
                 //Create an action for every critter card selection in the dungeon
-                if(dc.cell1ID == -1){
+                if(dc.isThereACellFree()){
+                    System.out.println("There is a cell free");
                     for(EverdellCard card : egs.playerVillage.get(playerId)){
+                        System.out.println("card in village for dungeon : " + card.getCardEnumValue());
                         if(card instanceof CritterCard && card.getCardEnumValue() != CardDetails.RANGER){
                             actions.add(new SelectCard(playerId, cardId, locationId, -1, new ArrayList<>(), false, true, false, resourcesSelected, discountMethodID, card.getComponentID()));
                         }
@@ -395,7 +400,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         //Is there a critter card that can be placed in the dungeon
         boolean critterCardInVillage = false;
         for(var card : state.playerVillage.get(playerId)){
-            if (card instanceof CritterCard) {
+            if (card instanceof CritterCard && card.getCardEnumValue() != CardDetails.RANGER) {
                 critterCardInVillage = true;
                 break;
             }
@@ -457,8 +462,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         }
     }
 
-    private boolean thisCardCanBePaidByResources(Integer cardId, EverdellGameState state){
+    private boolean thisCardCanBePaidByResources(int cardId, EverdellGameState state){
         EverdellCard card = (EverdellCard) state.getComponentById(cardId);
+        System.out.println("Is Card : " + card.getCardEnumValue() + " Payed For : " + card.isCardPayedFor());
         return card.checkIfPlayerCanBuyCard(state, playerId);
     }
 
@@ -483,12 +489,18 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 return pc.checkIfVillageHasSpace(state, playerId) && card.checkIfPlayerCanBuyCardWithDiscount(state, 3) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
             }
             else if(location.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                System.out.println("Within locationId -1");
+                System.out.println("Card LOOKING AT : "+ card.getCardEnumValue());
+                System.out.println("Can Player buy with discount : "+ card.checkIfPlayerCanBuyCardWithDiscount(state, 1));
                 return pc.checkIfVillageHasSpace(state, playerId) && card.checkIfPlayerCanBuyCardWithDiscount(state, 1) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
             }
         }
 
 
         System.out.println("Standard payment check in SelectCard");
+        System.out.println("Pay by Occupation : " + thisCardCanOccupy(cardID, state));
+        System.out.println("Pay by Resources : " + thisCardCanBePaidByResources(cardID, state));
+        System.out.println("Pay by Discount : " + thisCardCanBePaidByDiscount(cardID, state));
         //If the Village Has Space, AND (Can be bought by an occupation OR by resources OR by discount) AND the player can place this unique card
         return pc.checkIfVillageHasSpace(state, playerId) && (thisCardCanOccupy(cardID, state) || thisCardCanBePaidByResources(cardID, state) || thisCardCanBePaidByDiscount(cardID, state)) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
     }
@@ -520,8 +532,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.INN_DESTINATION) {
                     //If the location is the inn, we must place the card in the inn
                     System.out.println("Placing Card in Inn");
-                    egs.playerVillage.get(playerId).remove(c);
-                    egs.discardDeck.add(c);
                     int locationCardID = EverdellLocation.findCardLinkedToLocation(egs, location);
                     InnCard innCard = (InnCard) egs.getComponentById(locationCardID);
                     innCard.setPlayers(playerId);
@@ -719,6 +729,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                         EverdellCard ppCard = egs.cardDeck.draw();
                         if(ppCard.getPoints() <=3){
                             cardsToPickFrom.add(ppCard);
+                            egs.temporaryDeck.add(ppCard);
                         }
                         else{
                             ppCard.discardCard(egs);
@@ -736,7 +747,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     //Need to check if conditions are met
                     HusbandCard hc = (HusbandCard) card;
                     if(hc.isThereAFarm(egs) && hc.findWife(egs)) {
-                        new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, true).execute(state);
+                        new ResourceSelect(playerId, card.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false).execute(state);
                     }
                     else{
                         new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);

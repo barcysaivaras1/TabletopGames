@@ -90,6 +90,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
     public boolean execute(AbstractGameState gs) {
         System.out.println("SelectLocation: execute");
         EverdellGameState state = (EverdellGameState) gs;
+        playerId = gs.getCurrentPlayer();
         if(loopAction){
             state.setActionInProgress(this);
         }
@@ -117,7 +118,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 actions.addAll(getBasicEventActions(egs));
                 //actions.addAll(getSpecialEventActions(egs));
                 actions.addAll(getRedDestinationActions(egs));
-                actions.addAll(getHavenActions(egs));
+                //actions.addAll(getHavenActions(egs));
                 actions.addAll(getJourneyActions(egs));
             }
         }
@@ -288,7 +289,10 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             int cardID = -1;
             ArrayList<EverdellCard> cardsToLookThrough = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
             cardsToLookThrough.addAll(egs.meadowDeck.getComponents());
+            cardsToLookThrough.addAll(egs.temporaryDeck.getComponents());
+            System.out.println("In Ranger Card Mode. PlayerID is : " + playerId);
             for(EverdellCard card : cardsToLookThrough){
+                System.out.println("Looking for ranger card, card found : "+ card.getCardEnumValue());
                 if(card.getCardEnumValue() == CardDetails.RANGER){
                     cardID = card.getComponentID();
                     break;

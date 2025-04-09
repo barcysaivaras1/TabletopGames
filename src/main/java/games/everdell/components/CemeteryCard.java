@@ -45,9 +45,10 @@ public class CemeteryCard extends ConstructionCard{
         return k -> {
             if(!state.cardSelection.isEmpty()) {
                 state.cardSelection.get(0).payForCard();
-                state.temporaryDeck.add(state.cardSelection.get(0));
-                state.cardSelection.remove(0);
-                discardCards(state, state.cardSelection);
+                //state.temporaryDeck.add(state.cardSelection.get(0));
+                ArrayList<EverdellCard> cardsToDiscard = new ArrayList<>(state.cardSelection);
+                cardsToDiscard.remove(state.cardSelection.get(0));
+                discardCards(state, cardsToDiscard);
             }
         };
     }
@@ -67,6 +68,11 @@ public class CemeteryCard extends ConstructionCard{
 
     public void lockSecondLocation(EverdellGameState state){
         super.getLocation(state).setNumberOfSpaces(1);
+    }
+
+    @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
     }
 
     @Override
