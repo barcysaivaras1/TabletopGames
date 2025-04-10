@@ -42,7 +42,7 @@ public class PostOfficeCard extends ConstructionCard{
 //        locationId = location.getComponentID();
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //playerOwner is the player who owns the card
         //occupyingPlayer is the player who chose to place a worker on the card
         //selectedPlayer is the player that was chosen by the occupying player,to trigger the effect on
@@ -56,7 +56,7 @@ public class PostOfficeCard extends ConstructionCard{
 
         //Card Selection index [0] and index [1] represent the two cards to give away
 
-        return k -> {
+        return state -> {
             //If the occupying player is not the owner, the owner gains 1 token
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();
@@ -67,6 +67,7 @@ public class PostOfficeCard extends ConstructionCard{
                 return;
             }
 
+            System.out.println("IN POSTOFFICE CARD, CARD SELECTION IS : " + state.cardSelection);
             //Move the cards from the occupying player to the selected player
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(0));
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(1));
@@ -105,6 +106,11 @@ public class PostOfficeCard extends ConstructionCard{
         this.selectedPlayer = selectedPlayer;
         this.occupyingPlayer = occupyingPlayer;
 
+    }
+
+    @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
     }
 
     @Override

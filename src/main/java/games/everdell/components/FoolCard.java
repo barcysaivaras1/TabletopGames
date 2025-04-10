@@ -12,8 +12,6 @@ import java.util.function.Function;
 
 public class FoolCard extends CritterCard{
 
-
-
     private int selectedPlayer;
 
     public FoolCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {

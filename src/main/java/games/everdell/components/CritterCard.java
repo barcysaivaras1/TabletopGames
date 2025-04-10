@@ -17,12 +17,12 @@ public class CritterCard extends EverdellCard{
 
 
     public CritterCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
+        super(name, cardEnumValue, cardType, false, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
     }
 
     //RED DESTINATION CONSTRUCTOR
     public CritterCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
+        super(name, cardEnumValue, cardType, false, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         redDestinationAbstractLocation = rdl;
         redDestinationLocationID = -1;
     }
@@ -65,8 +65,11 @@ public class CritterCard extends EverdellCard{
     @Override
     public CritterCard copy() {
         CritterCard card;
-        if(redDestinationAbstractLocation != null){card = new CritterCard(redDestinationAbstractLocation, redDestinationLocationID, getName(),componentID);}
-        else {card = new CritterCard(getName(), componentID);}
+        if(redDestinationAbstractLocation != null) {
+            card = new CritterCard(redDestinationAbstractLocation, redDestinationLocationID, getName(),componentID);}
+        else {
+            card = new CritterCard(getName(), componentID);
+        }
 
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

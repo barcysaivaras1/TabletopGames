@@ -30,7 +30,7 @@ public class InnCard extends ConstructionCard{
         super.applyCardEffect(state, setLocationEffect(state));
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //playerOwner is the player who owns the card
         //occupyingPlayer is the player who chose to place a worker on the card
 
@@ -42,16 +42,18 @@ public class InnCard extends ConstructionCard{
 
         //Card Selection index [0] will represent the card to play
 
-        return k -> {
+        return state -> {
             //If the occupying player is not the owner, they must pay 1 token to the owner
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();
             }
 
 
+            System.out.println("IN THE INNCARD WE ARE TRYING TO PLAY THE CARD, IS CARD SELECTIO EMPTY ? : " + state.cardSelection.isEmpty());
             //From gameState Resource Selection will tell us how much of a discount will be applied.
             //The card selection will hold the card that the player selected to play at a discount
             if(!state.cardSelection.isEmpty()) {
+                System.out.println("TRYING TO PLAY THE CARD : "+ state.cardSelection.get(0).getCardEnumValue()+ " with ID : " + state.cardSelection.get(0).getComponentID());
                 for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
                     int discount = state.resourceSelection.get(resource).getValue();
                     int initialCost = state.cardSelection.get(0).getResourceCost().get(resource);
@@ -68,6 +70,11 @@ public class InnCard extends ConstructionCard{
     //Players NEED to be set before the location EFFECT is called
     public void setPlayers(int occupyingPlayer){
         this.occupyingPlayer = occupyingPlayer;
+    }
+
+    @Override
+    public void removeCardEffect(EverdellGameState state){
+        state.everdellLocations.remove(getLocation(state));
     }
 
     @Override

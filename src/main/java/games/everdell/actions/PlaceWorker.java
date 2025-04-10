@@ -69,10 +69,15 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         EverdellGameState state = (EverdellGameState) gs;
         EverdellLocation locationToPlaceIn = ((EverdellLocation) state.getComponentById(locationComponentID));
 
-        state.cardSelection = new ArrayList<>();
+        resetValues(state);
+
+
+        System.out.println("Card Selection ID in placeworker : " + cardSelectionID);
+        //state.cardSelection = new ArrayList<>();
         for(var cardId : cardSelectionID){
             state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
         }
+        System.out.println("STATE Card Selection in PlaceWorker 1: " + state.cardSelection);
 
         HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = new HashMap<>();
         for(var resource : resourceSelectionValues.keySet()){
@@ -158,12 +163,13 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             }
 
             state.workers[state.getCurrentPlayer()].decrement();
+            System.out.println("STATE Card Selection in PlaceWorker 2: " + state.cardSelection);
             locationToPlaceIn.applyLocationEffect(state);
-            locationToPlaceIn.playersOnLocation.add(state.getCurrentPlayer());
+            locationToPlaceIn.addPlayerToLocation(state.getCurrentPlayer());
 
             System.out.println("****************PLACE WORKER ACTION****************");
             System.out.println("Player : " + state.getCurrentPlayer()+" Placed Worker in : " + locationToPlaceIn);
-            System.out.println("Players on Location : " + locationToPlaceIn.playersOnLocation);
+            System.out.println("Players on Location : " + locationToPlaceIn.getPlayersOnLocation());
             System.out.println("**************************************************");
 
 

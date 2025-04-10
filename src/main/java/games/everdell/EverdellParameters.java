@@ -118,8 +118,8 @@ public class EverdellParameters extends AbstractParameters {
         //Card Selection will hold the cards that the player wants to discard
 
         @Override
-        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            return state1 -> {
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState k) {
+            return state -> {
                 if(state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN){
                     return;
                 }
@@ -188,28 +188,34 @@ public class EverdellParameters extends AbstractParameters {
     public enum HavenLocation implements AbstractLocations{
         HAVEN;
 
+
+        //The haven location has unlimited spots for workers. It can even take workers of the same colour
+        //When a worker is placed here, the player may discard as many cards as they like
+        //For every 2 cards they discard, they may select 1 of any resource
+
+        //Card Selection will represent which cards they would like to discard
+        //Resource selection will represent which resources they have selected
+
+        public Consumer<EverdellGameState> applyLocationEffect;
         @Override
         public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            //The haven location has unlimited spots for workers. It can even take workers of the same colour
-            //When a worker is placed here, the player may discard as many cards as they like
-            //For every 2 cards they discard, they may select 1 of any resource
-
-            //Card Selection will represent which cards they would like to discard
-            //Resource selection will represent which resources they have selected
-            return state1 -> {
+            return applyLocationEffect;
+        }
+        static {
+            HAVEN.applyLocationEffect = (state) -> {
                 //Remove cards from player hand
-                for(EverdellCard card : state1.cardSelection){
+                for(EverdellCard card : state.cardSelection){
                     state.playerHands.get(state.getCurrentPlayer()).remove(card);
                     state.cardCount[state.getCurrentPlayer()].decrement();
                 }
 
-                int numbOfResources = state1.cardSelection.size()/2;
+                int numbOfResources = state.cardSelection.size()/2;
                 int counter = 0;
 
                 //Give the player the resources they selected
-                for(var resource : state1.resourceSelection.keySet()){
-                    for(int i =0; i< state1.resourceSelection.get(resource).getValue(); i++){
-                        state1.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                for(var resource : state.resourceSelection.keySet()){
+                    for(int i =0; i< state.resourceSelection.get(resource).getValue(); i++){
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
                         counter++;
 
                         if(counter == numbOfResources){
@@ -222,6 +228,7 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
         }
+
     }
     public enum ForestLocations implements AbstractLocations{
         THREE_BERRY,TWO_BERRY_ONE_CARD,TWO_RESIN_ONE_TWIG,THREE_CARDS_ONE_PEBBLE,ONE_TWIG_ONE_RESIN_ONE_BERRY, TWO_ANY, TWO_CARDS_ONE_ANY,
@@ -433,8 +440,8 @@ public class EverdellParameters extends AbstractParameters {
         public Consumer<EverdellGameState> applyLocationEffect;
 
         @Override
-        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            return k -> state.pointTokens[state.getCurrentPlayer()].increment(3);
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState k) {
+            return state -> state.pointTokens[state.getCurrentPlayer()].increment(3);
         }
 
         public static Boolean defaultCheckIfConditionMet(EverdellGameState state, BasicEvent event){
@@ -606,7 +613,7 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard Cards
                 for (EverdellCard card : state.cardSelection) {
                     state.playerVillage.get(state.getCurrentPlayer()).remove(card);
-                    card.removeCardEffect.accept(state);
+                    card.removeCardEffect(state);
                     state.discardDeck.add(card);
                 }
 
@@ -832,7 +839,7 @@ public class EverdellParameters extends AbstractParameters {
                     if(card.getCardEnumValue() == CardDetails.MONASTERY){
                         MonasteryCard mc = (MonasteryCard) card;
                         EverdellLocation location = mc.getLocation(state);
-                        state.pointTokens[state.getCurrentPlayer()].increment( 3*location.playersOnLocation.size());
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*location.getPlayersOnLocation().size());
                     }
                 }
 
@@ -848,7 +855,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == CardDetails.CEMETERY){
                         CemeteryCard cc = (CemeteryCard) card;
-                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.getLocation(state).playersOnLocation.size());
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.getLocation(state).getPlayersOnLocation().size());
                     }
                 }
 
@@ -882,7 +889,7 @@ public class EverdellParameters extends AbstractParameters {
             };
             A_WELL_RUN_CITY.applyLocationEffect = (state) -> {
                 //Bring Back A Deployed Worker
-                A_WELL_RUN_CITY.selectedLocation.playersOnLocation.remove(state.getCurrentPlayer());
+                A_WELL_RUN_CITY.selectedLocation.removePlayerFromLocation(state.getCurrentPlayer());
                 state.workers[state.getCurrentPlayer()].increment();
 
                 //Give player 4 points
@@ -963,6 +970,7 @@ public class EverdellParameters extends AbstractParameters {
 
                 if(!state.cardSelection.isEmpty()) {
                     //Discard the card
+                    state.cardSelection.get(0).removeCardEffect(state);
                     state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
                     state.discardDeck.add(state.cardSelection.get(0));
 
@@ -1188,12 +1196,12 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
 
                 for (var loc : state.everdellLocations) {
-                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
+                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.isPlayerOnLocation(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }
                 for (var loc : state.everdellLocations) {
-                    if (loc.getAbstractLocation() instanceof SpecialEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
+                    if (loc.getAbstractLocation() instanceof SpecialEvent && loc.isPlayerOnLocation(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }
@@ -1323,6 +1331,7 @@ public class EverdellParameters extends AbstractParameters {
 
                     for (var card : state.playerVillage.get(playerID)) {
                         if (card == state.cardSelection.get(0)) {
+                            card.removeCardEffect(state);
                             state.playerVillage.get(playerID).remove(card);
                             state.discardDeck.add(card);
                             break;
@@ -1447,6 +1456,15 @@ public class EverdellParameters extends AbstractParameters {
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
+                //Remove Effect
+
+                //Find Lookout Card in players village
+                for (var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())) {
+                    if (card.getCardEnumValue() == LOOKOUT) {
+                        ConstructionCard cc = (ConstructionCard) card;
+                        everdellGameState.everdellLocations.remove(cc.getLocation(everdellGameState));
+                    }
+                }
             }), new ArrayList<>(List.of(WANDERER)));
 
             QUEEN.createEverdellCard = (gameState) -> new CritterCard(RedDestinationLocation.QUEEN_DESTINATION, "Queen", QUEEN, CardType.RED_DESTINATION, false, true, 4, new HashMap<>() {{
@@ -1454,6 +1472,15 @@ public class EverdellParameters extends AbstractParameters {
             }}, (state) -> {
                 return true;
             }, (everdellGameState -> {
+                //Remove Effect
+
+                //Find Queen Card in players village
+                for (var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())) {
+                    if (card.getCardEnumValue() == QUEEN) {
+                        CritterCard cc = (CritterCard) card;
+                        everdellGameState.everdellLocations.remove(cc.getLocation(everdellGameState));
+                    }
+                }
             }));
 
             INN.createEverdellCard = (gameState) -> new InnCard(RedDestinationLocation.INN_DESTINATION, "Inn", INN, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
@@ -1545,10 +1572,11 @@ public class EverdellParameters extends AbstractParameters {
                 }
                 return true;
             }, (everdellGameState -> {
-                everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer()).stream().filter(c -> c instanceof CemeteryCard).forEach(c -> {
-                    CemeteryCard cc = (CemeteryCard) c;
-                    cc.lockSecondLocation(everdellGameState);
-                });
+                for(var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())){
+                    if(card instanceof CemeteryCard cc){
+                        cc.lockSecondLocation(everdellGameState);
+                    }
+                }
             }));
 
             POSTAL_PIGEON.createEverdellCard = (gameState) -> new CritterCard("Postal Pigeon", POSTAL_PIGEON, CardType.TAN_TRAVELER, false, false, 0, new HashMap<>() {{
@@ -1657,6 +1685,15 @@ public class EverdellParameters extends AbstractParameters {
                 //Check University Location for behaviour
                 return true;
             }, (everdellGameState -> {
+                //Remove Effect
+
+                //Find University Card in players village
+                for (var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())) {
+                    if (card.getCardEnumValue() == UNIVERSITY) {
+                        ConstructionCard cc = (ConstructionCard) card;
+                        everdellGameState.everdellLocations.remove(cc.getLocation(everdellGameState));
+                    }
+                }
             }), new ArrayList<>(List.of(DOCTOR)));
 
 
@@ -1668,6 +1705,15 @@ public class EverdellParameters extends AbstractParameters {
                 //Check Chapel Location for behaviour
                 return true;
             }, (everdellGameState -> {
+                //Remove Effect
+
+                //Find Chapel Card in players village
+                for (var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())) {
+                    if (card.getCardEnumValue() == CHAPEL) {
+                        ConstructionCard cc = (ConstructionCard) card;
+                        everdellGameState.everdellLocations.remove(cc.getLocation(everdellGameState));
+                    }
+                }
             }), new ArrayList<>(List.of(SHEPHERD)));
 
             SHEPHERD.createEverdellCard = (gameState) -> new ShepherdCard("Shepherd", SHEPHERD, CardType.TAN_TRAVELER, false, true, 1, new HashMap<>() {{
@@ -1807,7 +1853,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.BARD, 2);
         put(CardDetails.BARGE_TOAD, 3);
         put(CardDetails.CASTLE, 2);
-        put(CardDetails.CEMETERY, 2);
+        //put(CardDetails.CEMETERY, 10);//2
         put(CardDetails.CHAPEL, 2);
         put(CardDetails.CHIP_SWEEP, 3);
         put(CardDetails.CLOCK_TOWER, 3);

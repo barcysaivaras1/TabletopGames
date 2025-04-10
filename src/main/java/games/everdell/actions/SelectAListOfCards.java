@@ -111,6 +111,8 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         if(actions.isEmpty()){
             actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
         }
+
+        System.out.println("SELECTLISTOFCARDS ACTIONS: "+actions);
         return actions;
     }
 
@@ -214,6 +216,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                     if(egs.cardSelection.isEmpty()){
                         //Cards To Give Away
                         egs.cardSelection.addAll(sa.selectedCards);
+                        System.out.println("Cards to give away POSTOFFICE SELECTALISTOFCARDS: "+egs.cardSelection);
                         ArrayList<EverdellCard> cardsToSelectFrom = egs.playerHands.get(playerId).getComponents().stream().filter(cardToCheck -> !sa.selectedCards.contains(cardToCheck)).collect(Collectors.toCollection(ArrayList::new));
                         new SelectAListOfCards(playerId, locationId, -1, cardsToSelectFrom, cardsToSelectFrom.size(), false).execute(egs);
                     }

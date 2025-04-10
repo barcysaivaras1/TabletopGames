@@ -77,8 +77,8 @@ public class WifeCard extends CritterCard{
     public void setHusband(HusbandCard husband){
         if (husband != null) {
             super.setCardPoints(3);
+            this.husbandId = husband.getComponentID();
         }
-        this.husbandId = husband.getComponentID();
     }
 
     @Override

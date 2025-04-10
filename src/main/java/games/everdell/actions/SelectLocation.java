@@ -90,6 +90,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
     public boolean execute(AbstractGameState gs) {
         System.out.println("SelectLocation: execute");
         EverdellGameState state = (EverdellGameState) gs;
+        playerId = gs.getCurrentPlayer();
         if(loopAction){
             state.setActionInProgress(this);
         }
@@ -288,7 +289,10 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             int cardID = -1;
             ArrayList<EverdellCard> cardsToLookThrough = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
             cardsToLookThrough.addAll(egs.meadowDeck.getComponents());
+            cardsToLookThrough.addAll(egs.temporaryDeck.getComponents());
+            System.out.println("In Ranger Card Mode. PlayerID is : " + playerId);
             for(EverdellCard card : cardsToLookThrough){
+                System.out.println("Looking for ranger card, card found : "+ card.getCardEnumValue());
                 if(card.getCardEnumValue() == CardDetails.RANGER){
                     cardID = card.getComponentID();
                     break;
@@ -303,7 +307,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
         //First Action
         if(loopAction){
-            System.out.println("Location ID : " + locationId);
+            System.out.println("Location ID : " + selectLocation.locationId);
             //Basic Location
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicLocations){
 
@@ -416,6 +420,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
                     ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(playerId).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+                    System.out.println("UNIVERSITY CARD TO SELECT FROM :"+ cardsToSelectFrom);
                     new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.INN_DESTINATION){

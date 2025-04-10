@@ -41,7 +41,9 @@ public class DungeonCard extends ConstructionCard{
             //Remove the cards from the village
             CritterCard cell1 = (CritterCard) state.getComponentById(cell1ID);
             CritterCard cell2 = (CritterCard) state.getComponentById(cell2ID);
-            state.playerVillage.get(state.getCurrentPlayer()).remove(cell1);
+            if(cell1 != null){
+                state.playerVillage.get(state.getCurrentPlayer()).remove(cell1);
+            }
             if(cell2 != null){
                 state.playerVillage.get(state.getCurrentPlayer()).remove(cell2);
             }
@@ -93,7 +95,7 @@ public class DungeonCard extends ConstructionCard{
         if(cell1ID == -1){
             return true;
         }
-        else if(cell2ID == -1 & secondCellUnlocked){
+        else if(cell2ID == -1 && secondCellUnlocked){
             return true;
         }
         return false;

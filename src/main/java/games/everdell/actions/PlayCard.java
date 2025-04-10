@@ -70,6 +70,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
         state.currentCard = currentCard;
         ArrayList<EverdellCard> cardSelection = new ArrayList<>();
+        System.out.println("Card Selection ID in playcard: " + cardSelectionID);
         for(var cardID : cardSelectionID){
             cardSelection.add((EverdellCard) state.getComponentById(cardID));
         }
@@ -128,7 +129,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         //Only working for the first player, 0 values need to be updated to be playerTurn
         if(checkIfVillageHasSpace(state, state.getCurrentPlayer())){
             state.currentCard = currentCard;
-            state.cardSelection = cardSelection;
+            state.cardSelection = new ArrayList<>(cardSelection);
 
 
             //Check if the card is Unique and if the player has this card in their village

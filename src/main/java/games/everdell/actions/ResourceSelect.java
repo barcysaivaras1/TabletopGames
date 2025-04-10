@@ -88,7 +88,7 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
 //            }
 //        }
         if(isCostBased){
-            generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned);
+            generateCostBasedResourceCombinations(new HashMap<>(), maxAmount, amountActions, amountOwned,0);
         }
         else {
             generateResourceCombinations(new HashMap<>(), maxAmount, amountActions, 0);
@@ -134,21 +134,38 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
         }
     }
 
-    private void generateCostBasedResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions, HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned) {
+    private void generateCostBasedResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions, HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned, int startIndex) {
         if (remaining < 0) return;
         if (remaining == 0 || (!isStrict && remaining <= maxAmount)) {
             actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), currentCombination.values().stream().mapToInt(Integer::intValue).sum(), isCostBased, true, false));
             if (remaining == 0) return;
         }
-        for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
+        for (int i = startIndex; i < resourcesToSelectFor.size(); i++) {
+            EverdellParameters.ResourceTypes resource = resourcesToSelectFor.get(i);
             int maxResourceAmount = Math.min(maxAmount, amountOwned.getOrDefault(resource, 0));
             if (currentCombination.getOrDefault(resource, 0) < maxResourceAmount) {
                 currentCombination.put(resource, currentCombination.getOrDefault(resource, 0) + 1);
-                generateCostBasedResourceCombinations(currentCombination, remaining - 1, actions, amountOwned);
+                generateCostBasedResourceCombinations(currentCombination, remaining - 1, actions, amountOwned, i);
                 currentCombination.put(resource, currentCombination.get(resource) - 1);
             }
         }
     }
+
+//    private void generateCostBasedResourceCombinations(HashMap<EverdellParameters.ResourceTypes, Integer> currentCombination, int remaining, List<AbstractAction> actions, HashMap<EverdellParameters.ResourceTypes, Integer> amountOwned) {
+//        if (remaining < 0) return;
+//        if (remaining == 0 || (!isStrict && remaining <= maxAmount)) {
+//            actions.add(new ResourceSelect(playerId, cardId, locationId, new HashMap<>(currentCombination), new ArrayList<>(resourcesToSelectFor), currentCombination.values().stream().mapToInt(Integer::intValue).sum(), isCostBased, true, false));
+//            if (remaining == 0) return;
+//        }
+//        for (EverdellParameters.ResourceTypes resource : resourcesToSelectFor) {
+//            int maxResourceAmount = Math.min(maxAmount, amountOwned.getOrDefault(resource, 0));
+//            if (currentCombination.getOrDefault(resource, 0) < maxResourceAmount) {
+//                currentCombination.put(resource, currentCombination.getOrDefault(resource, 0) + 1);
+//                generateCostBasedResourceCombinations(currentCombination, remaining - 1, actions, amountOwned);
+//                currentCombination.put(resource, currentCombination.get(resource) - 1);
+//            }
+//        }
+//    }
 
 
 

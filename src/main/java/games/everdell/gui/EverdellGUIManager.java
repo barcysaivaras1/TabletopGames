@@ -1154,7 +1154,7 @@ public class EverdellGUIManager extends AbstractGUIManager {
 
                         //Find all location in which the player has a worker on
                         for(var location : state.everdellLocations){
-                            if(location.isPlayerOnLocation(state) && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
+                            if(location.isPlayerOnLocation(state.getCurrentPlayer()) && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.CEMETERY_DESTINATION && location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){
                                 locationsToDisplayRanger.add(location);
                             }
                         }

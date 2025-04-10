@@ -8,15 +8,12 @@ import core.components.Counter;
 import core.components.Deck;
 import core.components.FrenchCard;
 import games.GameType;
-import games.everdell.components.ConstructionCard;
-import games.everdell.components.CritterCard;
-import games.everdell.components.EverdellCard;
+import games.everdell.components.*;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.ForestLocations;
-import games.everdell.components.EverdellLocation;
 import org.apache.spark.internal.config.R;
 
 import java.util.*;
@@ -141,7 +138,16 @@ public class EverdellGameState extends AbstractGameState {
         for(var hand : playerHands){
             components.add(hand);
 //            for(var card : hand){
-//                if(card instanceof ConstructionCard cc){
+//                if(card instanceof PostOfficeCard pc){
+//                    components.add(pc);
+//                }
+//                else if(card instanceof RangerCard rc){
+//                    components.add(rc);
+//                }
+//                else if(card instanceof InnCard ic){
+//                    components.add(ic);
+//                }
+//                else if(card instanceof ConstructionCard cc){
 //                    components.add(cc);
 //                }
 //                else if(card instanceof CritterCard cc){
@@ -150,7 +156,7 @@ public class EverdellGameState extends AbstractGameState {
 //                else {
 //                    components.add(card);
 //                }
-//            }
+  //          }
         }
         components.addAll(playerVillage);
         for(var resource : PlayerResources.keySet()){
@@ -158,12 +164,10 @@ public class EverdellGameState extends AbstractGameState {
                 components.add(PlayerResources.get(resource)[i]);
             }
         }
-        for(int i = 0; i< cardCount.length; i++){
-            components.add(cardCount[i]);
-            components.add(workers[i]);
-            components.add(pointTokens[i]);
-            components.add(villageMaxSize[i]);
-        }
+        components.addAll(Arrays.asList(cardCount));
+        components.addAll(Arrays.asList(workers));
+        components.addAll(Arrays.asList(pointTokens));
+        components.addAll(Arrays.asList(villageMaxSize));
 
         components.addAll(everdellLocations);
 
@@ -234,9 +238,12 @@ public class EverdellGameState extends AbstractGameState {
         copy.villageMaxSize = new Counter[villageMaxSize.length];
         for(int i = 0; i< cardCount.length; i++){
             copy.workers[i] = workers[i].copy();
-            copy.pointTokens[i] = pointTokens[i].copy();
             copy.cardCount[i] = cardCount[i].copy();
             copy.villageMaxSize[i] = villageMaxSize[i].copy();
+        }
+
+        for(int i=0; i< pointTokens.length; i++){
+            copy.pointTokens[i] = pointTokens[i].copy();
         }
 
 

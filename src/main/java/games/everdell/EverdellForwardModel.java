@@ -297,9 +297,13 @@ public class EverdellForwardModel extends StandardForwardModel {
         if(egs.workers[playerId].getValue() == 0 && egs.currentSeason[playerId] != EverdellParameters.Seasons.AUTUMN) {
             actions.add(new BeforeMoveSeasonAction(playerId));
         }
-        if(actions.isEmpty()){
-            actions.add(new EndGame());
 
+//        if(actions.isEmpty()){
+//            actions.add(new EndGame());
+//        }
+        if(egs.currentSeason[playerId] == EverdellParameters.Seasons.AUTUMN){
+            actions.clear();
+            actions.add(new EndGame());
         }
 
         return actions;
@@ -311,6 +315,8 @@ public class EverdellForwardModel extends StandardForwardModel {
 
         EverdellGameState egs = (EverdellGameState) currentState;
         int playerId = egs.getCurrentPlayer();
+
+        resetValues(egs);
 
 
         updatePurpleProsperityCards(egs);
@@ -345,17 +351,29 @@ public class EverdellForwardModel extends StandardForwardModel {
             return;
         }
 
-        egs.temporaryDeck.clear();
+
 
         endPlayerTurn(egs);
     }
     private boolean checkEndForPlayer(EverdellGameState state, AbstractAction action){
-        if(action instanceof EndGame){
-            return true;
-        }
-        return false;
+        return action instanceof EndGame;
     }
 
+    public void resetValues(EverdellGameState state){
+        //Reset the resource selection
+        state.resourceSelection = new HashMap<>();
+        for(var resource : EverdellParameters.ResourceTypes.values()){
+            state.resourceSelection.put(resource, new Counter());
+            state.resourceSelection.get(resource).setValue(0);
+        }
+        state.cardSelection.clear();
+        state.temporaryDeck.clear();
+        state.copyMode = false;
+        state.copyID = -1;
+        state.greenProductionMode = false;
+        state.rangerCardMode = false;
+
+    }
 
     private boolean checkEnd(EverdellGameState state){
         for (var result : state.getPlayerResults()) {

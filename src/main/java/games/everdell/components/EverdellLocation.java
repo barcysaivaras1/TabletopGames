@@ -8,6 +8,7 @@ import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.AbstractLocations;
 import games.everdell.EverdellParameters.BasicLocations;
 import games.everdell.EverdellParameters.ForestLocations;
+import org.apache.spark.sql.sources.In;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class EverdellLocation extends Component {
 
     private Consumer<EverdellGameState> locationEffect;
 
-    public ArrayList<Integer> playersOnLocation;
+    private ArrayList<Integer> playersOnLocation;
 
 
     //STANDARD CONSTRUCTOR
@@ -50,6 +51,7 @@ public class EverdellLocation extends Component {
     }
 
     public void applyLocationEffect(EverdellGameState state){
+        System.out.println("STATE Card Selection in PlaceWorker 3: " + state.cardSelection);
         locationEffect.accept(state);
     }
     public void setLocationEffect(Consumer<EverdellGameState> locationEffect){
@@ -73,8 +75,8 @@ public class EverdellLocation extends Component {
         return (isThereSpace && !playersOnLocation.contains(state.getCurrentPlayer())) || (canTheSamePlayerBeOnLocationMultipleTimes  && isThereSpace);
     }
 
-    public boolean isPlayerOnLocation(EverdellGameState state){
-        return playersOnLocation.contains(state.getCurrentPlayer());
+    public boolean isPlayerOnLocation(int playerId){
+        return playersOnLocation.contains(playerId);
     }
 
     public AbstractLocations getAbstractLocation(){
@@ -88,15 +90,23 @@ public class EverdellLocation extends Component {
     }
 
     //Red Destination Helper Function
-    public static Integer findCardLinkedToLocation(EverdellGameState state, EverdellLocation locationToLookFor){
+    public static int findCardLinkedToLocation(EverdellGameState state, EverdellLocation locationToLookFor){
         if(!(locationToLookFor.getAbstractLocation() instanceof EverdellParameters.RedDestinationLocation)){
             throw new RuntimeException("Location provided is not a Red Destination Location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
         }
         for(var playerDeck : state.playerVillage) {
             for (var card : playerDeck) {
+                System.out.println("Card: "+card.getCardEnumValue());
+
                 if (card instanceof ConstructionCard cc) {
+                    System.out.println("Is Construction Card");
+
                     if (cc.getLocation(state) != null) {
+                        System.out.println("Location: "+cc.getLocation(state).getAbstractLocation());
+                        System.out.println("Location ID: "+cc.getLocation(state).getComponentID());
+                        System.out.println("Location to look for ID: "+locationToLookFor.getComponentID());
                         if (cc.getLocation(state).getComponentID() == locationToLookFor.getComponentID()) {
+                            System.out.println("Found Location ID: "+cc.getLocation(state).getComponentID());
                             return cc.getComponentID();
                         }
                     }
@@ -112,6 +122,24 @@ public class EverdellLocation extends Component {
             }
         }
         throw new RuntimeException("There is no card placed that matches this location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
+    }
+
+    public void removePlayerFromLocation(int playerId){
+        //If the location is a basic event, we need to remove the player from the location
+        //And make it no longer available, as it has been claimed
+        //(This will most likely apply to special events aswell)
+        if(getAbstractLocation() instanceof EverdellParameters.BasicEvent){
+            setNumberOfSpaces(0);
+        }
+        playersOnLocation.removeIf(player -> player == playerId);
+    }
+
+    public void addPlayerToLocation(int playerId){
+        playersOnLocation.add(playerId);
+    }
+
+    public ArrayList<Integer> getPlayersOnLocation(){
+        return playersOnLocation;
     }
 
     public void setNumberOfSpaces(int numberOfSpaces){

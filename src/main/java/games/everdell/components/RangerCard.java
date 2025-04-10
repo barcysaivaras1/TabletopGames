@@ -49,7 +49,7 @@ public class RangerCard extends CritterCard{
             }
 
             System.out.println("Ranger Card Mode");
-            locationFrom.playersOnLocation.remove((Integer) state.getCurrentPlayer());
+            locationFrom.removePlayerFromLocation(state.getCurrentPlayer());
             state.workers[state.getCurrentPlayer()].increment();
             return;
         }
@@ -58,9 +58,9 @@ public class RangerCard extends CritterCard{
             return;
         }
 
-        locationFrom.playersOnLocation.remove((Integer) state.getCurrentPlayer());
+        locationFrom.removePlayerFromLocation(state.getCurrentPlayer());
         locationTo.applyLocationEffect(state);
-        locationTo.playersOnLocation.add(state.getCurrentPlayer());
+        locationTo.addPlayerToLocation(state.getCurrentPlayer());
         state.workers[state.getCurrentPlayer()].decrement();
 
     }
@@ -79,10 +79,13 @@ public class RangerCard extends CritterCard{
         return locationFrom;
     }
 
-
+    @Override
     public void removeCardEffect(EverdellGameState state) {
-        DungeonCard dc = (DungeonCard) state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof DungeonCard).findFirst().get();
-        dc.lockSecondCell();
+        for(var card : state.playerVillage.get(state.getCurrentPlayer())){
+            if(card instanceof DungeonCard dc){
+                dc.lockSecondCell();
+            }
+        }
     }
 
     @Override
