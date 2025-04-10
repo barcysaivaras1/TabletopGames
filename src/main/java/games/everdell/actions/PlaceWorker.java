@@ -165,11 +165,11 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             state.workers[state.getCurrentPlayer()].decrement();
             System.out.println("STATE Card Selection in PlaceWorker 2: " + state.cardSelection);
             locationToPlaceIn.applyLocationEffect(state);
-            locationToPlaceIn.playersOnLocation.add(state.getCurrentPlayer());
+            locationToPlaceIn.addPlayerToLocation(state.getCurrentPlayer());
 
             System.out.println("****************PLACE WORKER ACTION****************");
             System.out.println("Player : " + state.getCurrentPlayer()+" Placed Worker in : " + locationToPlaceIn);
-            System.out.println("Players on Location : " + locationToPlaceIn.playersOnLocation);
+            System.out.println("Players on Location : " + locationToPlaceIn.getPlayersOnLocation());
             System.out.println("**************************************************");
 
 

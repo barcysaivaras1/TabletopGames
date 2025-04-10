@@ -89,19 +89,21 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
                     }
 
                     //If no players are on the location, skip
-                    if (location.playersOnLocation.isEmpty()) continue;
+                    if (location.getPlayersOnLocation().isEmpty()) continue;
 
-                    if(location.getAbstractLocation() instanceof EverdellParameters.BasicEvent){
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer()) && location.getAbstractLocation() instanceof EverdellParameters.BasicEvent){
+                        location.removePlayerFromLocation(state.getCurrentPlayer());
                         state.workers[state.getCurrentPlayer()].increment();
                         continue;
                     }
 
-                    System.out.println("Players on Location : "+ location.playersOnLocation);
+                    System.out.println("Players on Location : "+ location.getPlayersOnLocation());
                     //If player is on the location, remove them and increment their workers
-                    if(location.playersOnLocation.contains(state.getCurrentPlayer())){
-                        location.playersOnLocation.remove((Integer)state.getCurrentPlayer());
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer())){
+                        location.removePlayerFromLocation(state.getCurrentPlayer());
                         state.workers[state.getCurrentPlayer()].increment();
                     }
+
                 }
 
                 return true;

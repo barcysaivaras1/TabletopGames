@@ -839,7 +839,7 @@ public class EverdellParameters extends AbstractParameters {
                     if(card.getCardEnumValue() == CardDetails.MONASTERY){
                         MonasteryCard mc = (MonasteryCard) card;
                         EverdellLocation location = mc.getLocation(state);
-                        state.pointTokens[state.getCurrentPlayer()].increment( 3*location.playersOnLocation.size());
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*location.getPlayersOnLocation().size());
                     }
                 }
 
@@ -855,7 +855,7 @@ public class EverdellParameters extends AbstractParameters {
                 for(EverdellCard card : state.playerVillage.get(state.getCurrentPlayer())){
                     if(card.getCardEnumValue() == CardDetails.CEMETERY){
                         CemeteryCard cc = (CemeteryCard) card;
-                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.getLocation(state).playersOnLocation.size());
+                        state.pointTokens[state.getCurrentPlayer()].increment( 3*cc.getLocation(state).getPlayersOnLocation().size());
                     }
                 }
 
@@ -889,7 +889,7 @@ public class EverdellParameters extends AbstractParameters {
             };
             A_WELL_RUN_CITY.applyLocationEffect = (state) -> {
                 //Bring Back A Deployed Worker
-                A_WELL_RUN_CITY.selectedLocation.playersOnLocation.remove(state.getCurrentPlayer());
+                A_WELL_RUN_CITY.selectedLocation.removePlayerFromLocation(state.getCurrentPlayer());
                 state.workers[state.getCurrentPlayer()].increment();
 
                 //Give player 4 points
@@ -1196,12 +1196,12 @@ public class EverdellParameters extends AbstractParameters {
                 int counter = 0;
 
                 for (var loc : state.everdellLocations) {
-                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
+                    if (loc.getAbstractLocation() instanceof BasicEvent && loc.isPlayerOnLocation(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }
                 for (var loc : state.everdellLocations) {
-                    if (loc.getAbstractLocation() instanceof SpecialEvent && loc.playersOnLocation.contains(state.getCurrentPlayer())) {
+                    if (loc.getAbstractLocation() instanceof SpecialEvent && loc.isPlayerOnLocation(state.getCurrentPlayer())) {
                         counter++;
                     }
                 }

@@ -706,7 +706,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     //Create a list of locations that the player is ON
                     ArrayList<Integer> locationsToSelect = new ArrayList<>();
                     for(EverdellLocation location : egs.everdellLocations){
-                        if(location.isPlayerOnLocation(egs)){
+                        if(location.isPlayerOnLocation(egs.getCurrentPlayer())){
                             System.out.println("Location that is being selected for FROM : " + location.getAbstractLocation()+ " with ID : " + location.getComponentID());
                             locationsToSelect.add(location.getComponentID());
                         }

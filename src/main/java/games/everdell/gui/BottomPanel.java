@@ -723,7 +723,7 @@ public class BottomPanel extends JPanel {
             if(location.getAbstractLocation() == ForestLocations.TWO_ANY || location.getAbstractLocation() == ForestLocations.TWO_CARDS_ONE_ANY){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer()) && !copyMode) {return;}
 
                     int numOfResource = (location.getAbstractLocation() == ForestLocations.TWO_ANY) ? 2 : 1;
 
@@ -742,7 +742,7 @@ public class BottomPanel extends JPanel {
             else if (location.getAbstractLocation() == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED || location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode) {return;}
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer()) && !copyMode) {return;}
 
                     ForestLocations.cardChoices = new ArrayList<>();
 
@@ -787,7 +787,7 @@ public class BottomPanel extends JPanel {
             else if (location.getAbstractLocation() == ForestLocations.COPY_BASIC_LOCATION_DRAW_CARD){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer()) && !copyMode){return;}
 
                     this.remove(locationPanel);
 
@@ -808,7 +808,7 @@ public class BottomPanel extends JPanel {
             else if (location.getAbstractLocation() == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
                 button.addActionListener(k -> {
                     //If the player is already on the location, return
-                    if(location.playersOnLocation.contains(state.getCurrentPlayer()) && !copyMode){return;}
+                    if(location.isPlayerOnLocation(state.getCurrentPlayer()) && !copyMode){return;}
 
                     this.remove(locationPanel);
 
@@ -895,7 +895,7 @@ public class BottomPanel extends JPanel {
             }
             JButton button = new JButton(location.getAbstractLocation().name());
             if(!location.isLocationFreeForPlayer(state)) {
-                button.setBackground(EverdellParameters.playerColour.get(location.playersOnLocation.get(0)));
+                button.setBackground(EverdellParameters.playerColour.get(location.getPlayersOnLocation().get(0)));
             }
 
             button.addActionListener(k -> {
@@ -927,10 +927,10 @@ public class BottomPanel extends JPanel {
 
             JButton button = new JButton(location.getAbstractLocation().name());
             if(!location.isLocationFreeForPlayer(state)) {
-                button.setBackground(EverdellParameters.playerColour.get(location.playersOnLocation.get(0)));
+                button.setBackground(EverdellParameters.playerColour.get(location.getPlayersOnLocation().get(0)));
             }
             //Button should not have any effect if the player is on the location
-            if(!location.isPlayerOnLocation(state)) {
+            if(!location.isPlayerOnLocation(state.getCurrentPlayer())) {
                 if (location.getAbstractLocation() == SpecialEvent.CROAK_WARE_CURE) {
                     button.addActionListener(k -> {
                         if (SpecialEvent.CROAK_WARE_CURE.checkIfConditionMet.apply(state)) {
@@ -1096,7 +1096,7 @@ public class BottomPanel extends JPanel {
                             //Display all Locations that the player has occupied so that they can select 1 worker to bring back
                             ArrayList<EverdellLocation> locations = new ArrayList<>();
                             for (var loc : state.everdellLocations) {
-                                if (loc.isPlayerOnLocation(state) && loc.getAbstractLocation() != RedDestinationLocation.CEMETERY_DESTINATION && loc.getAbstractLocation() != RedDestinationLocation.MONASTERY_DESTINATION) {
+                                if (loc.isPlayerOnLocation(state.getCurrentPlayer()) && loc.getAbstractLocation() != RedDestinationLocation.CEMETERY_DESTINATION && loc.getAbstractLocation() != RedDestinationLocation.MONASTERY_DESTINATION) {
                                     locations.add(loc);
                                 }
                             }
