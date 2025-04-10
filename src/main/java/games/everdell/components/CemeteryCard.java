@@ -30,7 +30,7 @@ public class CemeteryCard extends ConstructionCard{
         });
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //Initialise the Location Effect
 
         //Cemetery, the player must choose to reveal 4 cards from the discard or draw pile.
@@ -42,7 +42,7 @@ public class CemeteryCard extends ConstructionCard{
         //cardSelection[0] will represent the card that they want to choose to play
         //Anything after that will be discarded
 
-        return k -> {
+        return state -> {
             if(!state.cardSelection.isEmpty()) {
                 state.cardSelection.get(0).payForCard();
                 //state.temporaryDeck.add(state.cardSelection.get(0));

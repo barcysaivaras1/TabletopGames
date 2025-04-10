@@ -118,7 +118,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 actions.addAll(getBasicEventActions(egs));
                 //actions.addAll(getSpecialEventActions(egs));
                 actions.addAll(getRedDestinationActions(egs));
-                //actions.addAll(getHavenActions(egs));
+                actions.addAll(getHavenActions(egs));
                 actions.addAll(getJourneyActions(egs));
             }
         }
@@ -307,7 +307,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
         //First Action
         if(loopAction){
-            System.out.println("Location ID : " + locationId);
+            System.out.println("Location ID : " + selectLocation.locationId);
             //Basic Location
             if(location.getAbstractLocation() instanceof EverdellParameters.BasicLocations){
 
@@ -420,6 +420,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
                     ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(playerId).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+                    System.out.println("UNIVERSITY CARD TO SELECT FROM :"+ cardsToSelectFrom);
                     new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.INN_DESTINATION){

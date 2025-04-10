@@ -26,13 +26,13 @@ public abstract class EverdellCard extends Card {
     private  Function<EverdellGameState, Boolean> applyCardEffect;
     private Consumer<EverdellGameState> removeCardEffect;
 
-    private boolean isCardPayedFor;
+    protected boolean isCardPayedFor;
     private boolean isUnique;
 
     public int roundCardWasBought = -1;  // -1 is not bought
     //public final String cardDescription;
 
-    public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
+    public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isCardPayedFor, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name);
         this.name = name;
         this.cardEnumValue = cardEnumValue;
@@ -43,7 +43,7 @@ public abstract class EverdellCard extends Card {
         this.applyCardEffect = applyCardEffect;
         this.removeCardEffect = removeCardEffect;
         this.isUnique = isUnique;
-        this.isCardPayedFor = false;
+        this.isCardPayedFor = isCardPayedFor;
     }
 
     protected EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, int id) {

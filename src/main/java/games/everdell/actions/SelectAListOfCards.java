@@ -111,6 +111,8 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         if(actions.isEmpty()){
             actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
         }
+
+        System.out.println("SELECTLISTOFCARDS ACTIONS: "+actions);
         return actions;
     }
 

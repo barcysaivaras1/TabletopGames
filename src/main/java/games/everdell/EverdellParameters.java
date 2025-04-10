@@ -118,8 +118,8 @@ public class EverdellParameters extends AbstractParameters {
         //Card Selection will hold the cards that the player wants to discard
 
         @Override
-        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            return state1 -> {
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState k) {
+            return state -> {
                 if(state.currentSeason[state.getCurrentPlayer()] != Seasons.AUTUMN){
                     return;
                 }
@@ -188,28 +188,34 @@ public class EverdellParameters extends AbstractParameters {
     public enum HavenLocation implements AbstractLocations{
         HAVEN;
 
+
+        //The haven location has unlimited spots for workers. It can even take workers of the same colour
+        //When a worker is placed here, the player may discard as many cards as they like
+        //For every 2 cards they discard, they may select 1 of any resource
+
+        //Card Selection will represent which cards they would like to discard
+        //Resource selection will represent which resources they have selected
+
+        public Consumer<EverdellGameState> applyLocationEffect;
         @Override
         public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            //The haven location has unlimited spots for workers. It can even take workers of the same colour
-            //When a worker is placed here, the player may discard as many cards as they like
-            //For every 2 cards they discard, they may select 1 of any resource
-
-            //Card Selection will represent which cards they would like to discard
-            //Resource selection will represent which resources they have selected
-            return state1 -> {
+            return applyLocationEffect;
+        }
+        static {
+            HAVEN.applyLocationEffect = (state) -> {
                 //Remove cards from player hand
-                for(EverdellCard card : state1.cardSelection){
+                for(EverdellCard card : state.cardSelection){
                     state.playerHands.get(state.getCurrentPlayer()).remove(card);
                     state.cardCount[state.getCurrentPlayer()].decrement();
                 }
 
-                int numbOfResources = state1.cardSelection.size()/2;
+                int numbOfResources = state.cardSelection.size()/2;
                 int counter = 0;
 
                 //Give the player the resources they selected
-                for(var resource : state1.resourceSelection.keySet()){
-                    for(int i =0; i< state1.resourceSelection.get(resource).getValue(); i++){
-                        state1.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
+                for(var resource : state.resourceSelection.keySet()){
+                    for(int i =0; i< state.resourceSelection.get(resource).getValue(); i++){
+                        state.PlayerResources.get(resource)[state.getCurrentPlayer()].increment();
                         counter++;
 
                         if(counter == numbOfResources){
@@ -222,6 +228,7 @@ public class EverdellParameters extends AbstractParameters {
                 }
             };
         }
+
     }
     public enum ForestLocations implements AbstractLocations{
         THREE_BERRY,TWO_BERRY_ONE_CARD,TWO_RESIN_ONE_TWIG,THREE_CARDS_ONE_PEBBLE,ONE_TWIG_ONE_RESIN_ONE_BERRY, TWO_ANY, TWO_CARDS_ONE_ANY,
@@ -433,8 +440,8 @@ public class EverdellParameters extends AbstractParameters {
         public Consumer<EverdellGameState> applyLocationEffect;
 
         @Override
-        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState state) {
-            return k -> state.pointTokens[state.getCurrentPlayer()].increment(3);
+        public Consumer<EverdellGameState> getLocationEffect(EverdellGameState k) {
+            return state -> state.pointTokens[state.getCurrentPlayer()].increment(3);
         }
 
         public static Boolean defaultCheckIfConditionMet(EverdellGameState state, BasicEvent event){

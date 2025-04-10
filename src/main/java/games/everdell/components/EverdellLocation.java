@@ -50,6 +50,7 @@ public class EverdellLocation extends Component {
     }
 
     public void applyLocationEffect(EverdellGameState state){
+        System.out.println("STATE Card Selection in PlaceWorker 3: " + state.cardSelection);
         locationEffect.accept(state);
     }
     public void setLocationEffect(Consumer<EverdellGameState> locationEffect){

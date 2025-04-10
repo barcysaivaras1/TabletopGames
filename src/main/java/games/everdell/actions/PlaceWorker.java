@@ -77,7 +77,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
         for(var cardId : cardSelectionID){
             state.cardSelection.add((EverdellCard) state.getComponentById(cardId));
         }
-        System.out.println("STATE Card Selection in PlaceWorker : " + state.cardSelection);
+        System.out.println("STATE Card Selection in PlaceWorker 1: " + state.cardSelection);
 
         HashMap<EverdellParameters.ResourceTypes, Counter> resourceSelection = new HashMap<>();
         for(var resource : resourceSelectionValues.keySet()){
@@ -163,6 +163,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
             }
 
             state.workers[state.getCurrentPlayer()].decrement();
+            System.out.println("STATE Card Selection in PlaceWorker 2: " + state.cardSelection);
             locationToPlaceIn.applyLocationEffect(state);
             locationToPlaceIn.playersOnLocation.add(state.getCurrentPlayer());
 
@@ -189,7 +190,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
                     System.out.println("Card Selection ID In PLACEWORKER AI PLAY: " + cardSelectionID.get(0));
                     System.out.println("Is card paid for ? : " + cardToPlay.isCardPayedFor());
-                    new SelectCard(playerId, cardToPlay.getComponentID(), new ArrayList<>()).execute(state);
+                    new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
                 }
             }
 

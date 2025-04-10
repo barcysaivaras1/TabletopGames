@@ -472,16 +472,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         EverdellCard card = (EverdellCard) state.getComponentById(cardID);
         PlayCard pc = new PlayCard(playerId, cardID, new ArrayList<>(), new HashMap<>());
 
-        //Fool is a special case, as it can be placed anywhere
-        if(card.getCardEnumValue() == CardDetails.FOOL){
-            return ((FoolCard) card).canFoolBePlaced(state, playerId) && card.checkIfPlayerCanBuyCard(state, playerId);
-        }
-        //Green Production card is not played. If the card is being copied, it is not played. We are only activating the effect
-        if (state.greenProductionMode || state.copyMode){
-            System.out.println("GREEN PROD OR COPY MODE IN SELECTCARD");
-            return true;
-        }
-
         //Checking if we are using a location to apply a discount
         if(locationId != -1){
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
@@ -494,6 +484,17 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 System.out.println("Can Player buy with discount : "+ card.checkIfPlayerCanBuyCardWithDiscount(state, 1));
                 return pc.checkIfVillageHasSpace(state, playerId) && card.checkIfPlayerCanBuyCardWithDiscount(state, 1) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
             }
+        }
+
+        //Green Production card is not played. If the card is being copied, it is not played. We are only activating the effect
+        if (state.greenProductionMode || state.copyMode){
+            System.out.println("GREEN PROD OR COPY MODE IN SELECTCARD");
+            return true;
+        }
+
+        //Fool is a special case, as it can be placed anywhere
+        if(card.getCardEnumValue() == CardDetails.FOOL){
+            return ((FoolCard) card).canFoolBePlaced(state, playerId) && card.checkIfPlayerCanBuyCard(state, playerId);
         }
 
 
@@ -616,8 +617,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     new ResourceSelect(playerId, card.getComponentID(), -1, resources, 2, false, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.BARD){
-                    EverdellCard finalCard = card;
-                    ArrayList<EverdellCard> cardsToPickFrom = egs.playerHands.get(playerId).getComponents().stream().filter(bardCard -> bardCard != finalCard).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<EverdellCard> cardsToPickFrom = egs.playerHands.get(playerId).getComponents().stream().filter(bardCard -> bardCard != card).collect(Collectors.toCollection(ArrayList::new));
                     new SelectAListOfCards(playerId, -1, card.getComponentID(), cardsToPickFrom, cardsToPickFrom.size(), false).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.STORE_HOUSE){
@@ -661,8 +661,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                         if( copyCard.getCardEnumValue() == CardDetails.CHIP_SWEEP) {
                             for(int i=0; i<egs.getNPlayers(); i++){
                                 if( i == playerId) continue;
-                                cardIds = new ArrayList<>();
-                                cardIds.addAll(egs.playerVillage.get(i).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.MINER_MOLE).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new)));
+                                cardIds = new ArrayList<>(egs.playerVillage.get(i).stream().filter(greenCard -> greenCard.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.MINER_MOLE).filter(greenCard -> greenCard.getCardEnumValue() != CardDetails.CHIP_SWEEP).map(EverdellCard::getComponentID).collect(Collectors.toCollection(ArrayList::new)));
                             }
                             if(cardIds.isEmpty()){
                                 new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);

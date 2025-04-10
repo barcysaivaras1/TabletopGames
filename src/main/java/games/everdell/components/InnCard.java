@@ -30,7 +30,7 @@ public class InnCard extends ConstructionCard{
         super.applyCardEffect(state, setLocationEffect(state));
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //playerOwner is the player who owns the card
         //occupyingPlayer is the player who chose to place a worker on the card
 
@@ -42,7 +42,7 @@ public class InnCard extends ConstructionCard{
 
         //Card Selection index [0] will represent the card to play
 
-        return k -> {
+        return state -> {
             //If the occupying player is not the owner, they must pay 1 token to the owner
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();

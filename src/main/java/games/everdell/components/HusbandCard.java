@@ -91,7 +91,9 @@ public class HusbandCard extends CritterCard{
     }
 
     public void setWife(WifeCard wife){
-        this.wifeId = wife.getComponentID();
+        if (wife != null) {
+            this.wifeId = wife.getComponentID();
+        }
     }
 
     public void setIncreasedMaxSize(){

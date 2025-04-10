@@ -64,10 +64,10 @@ public class StorehouseCard extends ConstructionCard{
         }
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //When placing a worker, the player claims all the resources stored on this card
 
-        return k -> {
+        return state -> {
             for(EverdellParameters.ResourceTypes rt : resourceStorage.keySet()){
                 state.PlayerResources.get(rt)[state.getCurrentPlayer()].increment(resourceStorage.get(rt));
                 resourceStorage.put(rt, 0);

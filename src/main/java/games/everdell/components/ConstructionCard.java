@@ -21,14 +21,14 @@ public class ConstructionCard extends EverdellCard{
 
     //STANDARD CONSTRUCTOR
     public ConstructionCard(String name, CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
+        super(name, cardEnumValue, cardType, false, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
     }
 
     //RED DESTINATION CONSTRUCTOR
     public ConstructionCard(EverdellParameters.RedDestinationLocation rdl, String name, CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
-        super(name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
+        super(name, cardEnumValue, cardType, false, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect);
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         isOccupied = false;
 

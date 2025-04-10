@@ -30,12 +30,12 @@ public class MonasteryCard extends ConstructionCard{
         });
     }
 
-    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState state){
+    public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
         //Initialise the Location Effect
 
         //ResourceSelection will tell which resource they want to give up
 
-        return k -> {
+        return state -> {
 
             int counter = 0;
 

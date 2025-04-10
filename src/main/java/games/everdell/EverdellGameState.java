@@ -238,9 +238,12 @@ public class EverdellGameState extends AbstractGameState {
         copy.villageMaxSize = new Counter[villageMaxSize.length];
         for(int i = 0; i< cardCount.length; i++){
             copy.workers[i] = workers[i].copy();
-            copy.pointTokens[i] = pointTokens[i].copy();
             copy.cardCount[i] = cardCount[i].copy();
             copy.villageMaxSize[i] = villageMaxSize[i].copy();
+        }
+
+        for(int i=0; i< pointTokens.length; i++){
+            copy.pointTokens[i] = pointTokens[i].copy();
         }
 
 
