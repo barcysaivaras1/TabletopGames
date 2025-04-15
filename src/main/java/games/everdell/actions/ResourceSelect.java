@@ -263,7 +263,10 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
 
         HashMap<EverdellParameters.ResourceTypes, Integer> resources = null;
         if(this.resourcesSelected != null) {
-            resources = new HashMap<>(this.resourcesSelected);
+            resources = new HashMap<>();
+            for (var resource : this.resourcesSelected.keySet()) {
+                resources.put(resource, this.resourcesSelected.get(resource));
+            }
         }
 
         ResourceSelect retValue = new ResourceSelect(playerId, cardId, locationId, resources,new ArrayList<>(resourcesToSelectFor), maxAmount, isStrict, isCostBased, loopAction);

@@ -122,7 +122,7 @@ public class EverdellForwardModel extends StandardForwardModel {
         }
 
         //Set up values for Forest Locations
-        state.resourceSelection = new HashMap<ResourceTypes, Counter>();
+        state.resourceSelection = new HashMap<>();
         state.resourceSelection.put(ResourceTypes.TWIG, new Counter());
         state.resourceSelection.put(ResourceTypes.PEBBLE, new Counter());
         state.resourceSelection.put(ResourceTypes.BERRY, new Counter());
@@ -270,10 +270,6 @@ public class EverdellForwardModel extends StandardForwardModel {
         for (var location : egs.everdellLocations) {
             locationsToSelectFrom.add(location.getComponentID());
         }
-//
-//        if(!new SelectLocation(playerId, -1, locationsToSelectFrom)._computeAvailableActions(egs).isEmpty()) {
-//            actions.add(new SelectLocation(playerId, -1, locationsToSelectFrom));
-//        }
         if(egs.workers[playerId].getValue() > 0) {
             actions.add(new SelectLocation(playerId, -1, locationsToSelectFrom));
         }
@@ -298,13 +294,13 @@ public class EverdellForwardModel extends StandardForwardModel {
             actions.add(new BeforeMoveSeasonAction(playerId));
         }
 
-//        if(actions.isEmpty()){
-//            actions.add(new EndGame());
-//        }
-        if(egs.currentSeason[playerId] == EverdellParameters.Seasons.AUTUMN){
-            actions.clear();
+        if(actions.isEmpty()){
             actions.add(new EndGame());
         }
+//        if(egs.currentSeason[playerId] == EverdellParameters.Seasons.AUTUMN){
+//            actions.clear();
+//            actions.add(new EndGame());
+//        }
 
         return actions;
     }
@@ -335,24 +331,21 @@ public class EverdellForwardModel extends StandardForwardModel {
             egs.setPlayerResult(GAME_END, playerId);
             System.out.println("Player "+playerId+" has ENDED WITH RESULT : "+egs.getPlayerResults()[playerId]);
         }
-        if(checkEnd(egs)){
+        if(checkEnd(egs)) {
             System.out.println("Game End");
             int playerWithMostPoints = -1;
             int maxPoints = -1;
-            for(int i=0; i<egs.getNPlayers(); i++){
-                if(egs.score[i] > maxPoints){
+            for (int i = 0; i < egs.getNPlayers(); i++) {
+                if (egs.score[i] > maxPoints) {
                     maxPoints = egs.score[i];
                     playerWithMostPoints = i;
                 }
             }
-            egs.setPlayerResult(WIN_GAME, playerWithMostPoints);
+            egs.setPlayerResult(WIN_GAME, 1);
             System.out.println("Player "+playerWithMostPoints+" has WON WITH RESULT : "+egs.getPlayerResults()[playerWithMostPoints] + " with "+maxPoints+" points");
             endGame(egs);
             return;
         }
-
-
-
         endPlayerTurn(egs);
     }
     private boolean checkEndForPlayer(EverdellGameState state, AbstractAction action){

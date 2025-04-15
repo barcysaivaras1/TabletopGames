@@ -1329,14 +1329,9 @@ public class EverdellParameters extends AbstractParameters {
                     System.out.println("Removing card from village");
                     System.out.println(state.cardSelection.get(0));
 
-                    for (var card : state.playerVillage.get(playerID)) {
-                        if (card == state.cardSelection.get(0)) {
-                            card.removeCardEffect(state);
-                            state.playerVillage.get(playerID).remove(card);
-                            state.discardDeck.add(card);
-                            break;
-                        }
-                    }
+                    state.cardSelection.get(0).removeCardEffect(state);
+                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+                    state.discardDeck.add(state.cardSelection.get(0));
 
 
                     //Refund the Resources
@@ -1882,10 +1877,10 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.POST_OFFICE, 3);
         put(CardDetails.POSTAL_PIGEON, 3);
         put(CardDetails.QUEEN, 2);
-        put(CardDetails.RANGER, 2);
+        //put(CardDetails.RANGER, 2);
         put(CardDetails.RESIN_REFINERY, 3);
         put(CardDetails.RUINS, 3);
-        put(CardDetails.SCHOOL, 0);
+        put(CardDetails.SCHOOL, 2);
         put(CardDetails.SHEPHERD, 2);
         put(CardDetails.SHOP_KEEPER, 3);
         put(CardDetails.STORE_HOUSE, 3);
@@ -1903,23 +1898,23 @@ public class EverdellParameters extends AbstractParameters {
     @Override
     protected AbstractParameters _copy() {
         // TODO: deep copy of all variables.
+        EverdellParameters copy = new EverdellParameters();
+        copy.cardColour = new HashMap<>(this.cardColour);
+        copy.everdellCardCount = new HashMap<>(this.everdellCardCount);
 
-        return this;
+        return copy;
     }
-
-
 
 
     @Override
     public boolean _equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         EverdellParameters that = (EverdellParameters) o;
         return Objects.equals(cardColour, that.cardColour) && Objects.equals(everdellCardCount, that.everdellCardCount);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), cardColour, everdellCardCount);
+        return Objects.hash(cardColour, everdellCardCount);
     }
 }

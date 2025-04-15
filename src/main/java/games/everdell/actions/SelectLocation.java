@@ -14,7 +14,6 @@ import games.everdell.EverdellParameters.JourneyLocations;
 import games.everdell.components.EverdellLocation;
 import games.everdell.components.InnCard;
 import games.everdell.components.RangerCard;
-import org.apache.spark.sql.sources.In;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -490,6 +489,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
     @Override
     public SelectLocation copy() {
+        ArrayList<Integer> everdellLocationIDs = new ArrayList<>(this.everdellLocationIDs);
         SelectLocation retValue = new SelectLocation(playerId, locationId, everdellLocationIDs, loopAction, value);
         retValue.executed = executed;
         return retValue;

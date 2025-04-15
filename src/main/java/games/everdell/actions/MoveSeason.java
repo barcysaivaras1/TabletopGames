@@ -216,20 +216,20 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
         ArrayList<Integer> cardSelectionID = new ArrayList<>(this.cardSelectionID);
         MoveSeason ms = new MoveSeason(cardSelectionID, playerID);
         ms.executed = executed;
+        ms.seasonName = seasonName;
         return ms;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MoveSeason that = (MoveSeason) o;
-        return executed == that.executed && Objects.equals(cardSelectionID, that.cardSelectionID) && Objects.equals(seasonName, that.seasonName);
+        return playerID == that.playerID && executed == that.executed && Objects.equals(cardSelectionID, that.cardSelectionID) && Objects.equals(seasonName, that.seasonName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(cardSelectionID, executed, seasonName);
+        return Objects.hash(cardSelectionID, playerID, executed, seasonName);
     }
 
     @Override

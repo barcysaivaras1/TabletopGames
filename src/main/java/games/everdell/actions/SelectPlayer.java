@@ -167,12 +167,7 @@ public class SelectPlayer extends AbstractAction implements IExtendedSequence {
     @Override
     public SelectPlayer copy() {
         SelectPlayer retValue;
-        if(playerSelectedId != -1){
-            retValue = new SelectPlayer(playerId, cardId, locationId, playerSelectedId);
-        }
-        else {
-            retValue = new SelectPlayer(playerId, cardId, locationId);
-        }
+        retValue = new SelectPlayer(playerId, cardId, locationId, playerSelectedId);
         retValue.executed = executed;
         return retValue;
     }

@@ -221,7 +221,7 @@ public enum GameType {
             ToadGameState.class, ToadForwardModel.class, ToadParameters.class, ToadGUIManager.class),
     Everdell(2,4,
             Arrays.asList(Strategy,Cards),
-            Arrays.asList(Memory, GridMovement, ModularBoard),
+            Arrays.asList(Memory, ModularBoard),
             EverdellGameState.class, EverdellForwardModel.class, EverdellParameters.class, EverdellGUIManager.class);
 
 

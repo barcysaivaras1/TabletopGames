@@ -296,7 +296,6 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SelectAListOfCards that = (SelectAListOfCards) o;
         return playerId == that.playerId && locationId == that.locationId && cardId == that.cardId && isMovingSeason == that.isMovingSeason && maxAmount == that.maxAmount && isStrict == that.isStrict && loopAction == that.loopAction && executed == that.executed && Objects.equals(cardsToSelectFrom, that.cardsToSelectFrom) && Objects.equals(selectedCards, that.selectedCards);

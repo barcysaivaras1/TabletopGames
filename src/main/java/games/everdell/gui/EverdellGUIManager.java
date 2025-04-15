@@ -14,24 +14,12 @@ import games.everdell.actions.PlayCard;
 import games.everdell.components.*;
 import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.EverdellParameters.ForestLocations;
-import games.everdell.EverdellParameters.BasicLocations;
-import games.everdell.EverdellParameters.BasicEvent;
 
-import games.poker.actions.Call;
 import gui.AbstractGUIManager;
 import gui.GamePanel;
 
-import core.components.Counter;
-import gui.IScreenHighlight;
-import org.apache.hadoop.yarn.webapp.hamlet2.Hamlet;
-import org.apache.log4j.Layout;
-import org.apache.spark.sql.sources.In;
-import org.w3c.dom.css.RGBColor;
 import players.human.ActionController;
 import players.human.HumanGUIPlayer;
-import scala.collection.immutable.Stream;
-import shapeless.ops.function;
-import utilities.Hash;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

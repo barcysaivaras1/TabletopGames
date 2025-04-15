@@ -164,12 +164,12 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 System.out.println("SelectCard CardID: " + cardId);
                 EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
                 System.out.println("SelectCard Card Name : " + card.getCardEnumValue());
-                //Test **********
-                if(card == null){
-                    System.out.println("Player ID is : " + playerId);
-                    egs.printAllComponents();
-                }
-                //******
+//                //Test **********
+//                if(card == null){
+//                    System.out.println("Player ID is : " + playerId);
+//                    egs.printAllComponents();
+//                }
+//                //******
                 if (canCardBePlayed(cardId, egs)) {
                     actions.add(new SelectCard(playerId, cardId, locationId, cardsToSelectFromIds));
                 }
@@ -768,6 +768,14 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     @Override
     public SelectCard copy() {
+        ArrayList<Integer> cardsToSelectFromIds = new ArrayList<>(this.cardsToSelectFromIds);
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourcesSelected = null;
+        if(this.resourcesSelected != null){
+            resourcesSelected = new HashMap<>();
+            for(var resource : this.resourcesSelected.keySet()){
+                resourcesSelected.put(resource, this.resourcesSelected.get(resource));
+            }
+        }
         SelectCard sc = new SelectCard(playerId, cardId, locationId, occupationId, cardsToSelectFromIds, payWithResources, payWithDiscount, payWithOccupation, resourcesSelected);
         sc.executed = executed;
         sc.discountMethodID = discountMethodID;

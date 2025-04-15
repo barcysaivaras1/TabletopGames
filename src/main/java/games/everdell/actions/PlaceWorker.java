@@ -54,6 +54,8 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     private final ArrayList<Integer> cardSelectionID;
     private final HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues;
 
+    private boolean executed;
+
     public PlaceWorker(int playerId, int location, ArrayList<Integer> cardSelectionID, HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelection) {
         this.playerId = playerId;
         locationComponentID = location;
@@ -226,12 +228,12 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
 
     @Override
     public void _afterAction(AbstractGameState state, AbstractAction action) {
-        return;
+        executed = true;
     }
 
     @Override
     public boolean executionComplete(AbstractGameState state) {
-        return true;
+        return executed;
     }
 
     /**
@@ -244,8 +246,14 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     public PlaceWorker copy() {
         // TODO: copy non-final variables appropriately
         ArrayList<Integer> cardSelection = new ArrayList<>(this.cardSelectionID);
-        HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues = new HashMap<>(this.resourceSelectionValues);
-        return new PlaceWorker(playerId, locationComponentID, cardSelection, resourceSelectionValues);
+        HashMap<EverdellParameters.ResourceTypes, Integer> resourceSelectionValues = new HashMap<>();
+        for(var resource : this.resourceSelectionValues.keySet()){
+            resourceSelectionValues.put(resource, this.resourceSelectionValues.get(resource));
+        }
+        PlaceWorker pw = new PlaceWorker(playerId, locationComponentID, cardSelection, resourceSelectionValues);
+        pw.locationName = this.locationName;
+        pw.executed = this.executed;
+        return pw;
     }
 
 

@@ -395,7 +395,10 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
     public PlayCard copy() {
         // TODO: copy non-final variables appropriately
         ArrayList<Integer> csID = new ArrayList<>(cardSelectionID);
-        HashMap<EverdellParameters.ResourceTypes, Integer> rsID = new HashMap<>(resourceSelectionValues);
+        HashMap<EverdellParameters.ResourceTypes, Integer> rsID = new HashMap<>();
+        for(var resource : this.resourceSelectionValues.keySet()){
+            rsID.put(resource, this.resourceSelectionValues.get(resource));
+        }
         PlayCard retValue = new PlayCard(playerId, currentCardID, csID, rsID);
         retValue.executed = executed;
         return retValue;
@@ -403,7 +406,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
     @Override
     public boolean equals(Object o) {
-
         if (o == null || getClass() != o.getClass()) return false;
         PlayCard playCard = (PlayCard) o;
         return executed == playCard.executed && currentCardID == playCard.currentCardID && playerId == playCard.playerId && Objects.equals(cardSelectionID, playCard.cardSelectionID) && Objects.equals(resourceSelectionValues, playCard.resourceSelectionValues);

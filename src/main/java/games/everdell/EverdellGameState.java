@@ -11,10 +11,8 @@ import games.GameType;
 import games.everdell.components.*;
 import games.everdell.EverdellParameters;
 import games.everdell.EverdellParameters.ResourceTypes;
-import games.everdell.EverdellParameters.BasicLocations;
-import games.everdell.EverdellParameters.AbstractLocations;
-import games.everdell.EverdellParameters.ForestLocations;
-import org.apache.spark.internal.config.R;
+import org.checkerframework.checker.units.qual.C;
+
 
 import java.util.*;
 import java.util.function.Function;
@@ -104,18 +102,18 @@ public class EverdellGameState extends AbstractGameState {
 
     public void printAllComponents(){
         System.out.println("Printing all components");
-//        for(var component : _getAllComponents()){
-//            System.out.println(component+" : "+component.getComponentID()+" : "+component.getComponentID());
-//        }
+        for(var component : _getAllComponents()){
+            System.out.println(component+" : "+component.getComponentID()+" : "+component.getComponentID());
+        }
 
-        System.out.println("Hand: ");
-        for(var card : playerHands.get(getCurrentPlayer()).getComponents()){
-            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
-        }
-        System.out.println("Meadow");
-        for(var card : meadowDeck.getComponents()){
-            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
-        }
+//        System.out.println("Hand: ");
+//        for(var card : playerHands.get(getCurrentPlayer()).getComponents()){
+//            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
+//        }
+//        System.out.println("Meadow");
+//        for(var card : meadowDeck.getComponents()){
+//            System.out.println(card+" : "+card.getComponentID()+" : "+card.getCardEnumValue());
+//        }
         System.out.println("End of components");
     }
 
@@ -159,11 +157,23 @@ public class EverdellGameState extends AbstractGameState {
   //          }
         }
         components.addAll(playerVillage);
+
         for(var resource : PlayerResources.keySet()){
             for(int i = 0; i< this.getNPlayers(); i++){
                 components.add(PlayerResources.get(resource)[i]);
             }
         }
+
+        components.add(PlayerResources.get(ResourceTypes.TWIG)[0]);
+        components.add(PlayerResources.get(ResourceTypes.TWIG)[1]);
+        components.add(PlayerResources.get(ResourceTypes.BERRY)[0]);
+        components.add(PlayerResources.get(ResourceTypes.BERRY)[1]);
+        components.add(PlayerResources.get(ResourceTypes.PEBBLE)[0]);
+        components.add(PlayerResources.get(ResourceTypes.PEBBLE)[1]);
+        components.add(PlayerResources.get(ResourceTypes.RESIN)[0]);
+        components.add(PlayerResources.get(ResourceTypes.RESIN)[1]);
+
+
         components.addAll(Arrays.asList(cardCount));
         components.addAll(Arrays.asList(workers));
         components.addAll(Arrays.asList(pointTokens));
@@ -240,9 +250,6 @@ public class EverdellGameState extends AbstractGameState {
             copy.workers[i] = workers[i].copy();
             copy.cardCount[i] = cardCount[i].copy();
             copy.villageMaxSize[i] = villageMaxSize[i].copy();
-        }
-
-        for(int i=0; i< pointTokens.length; i++){
             copy.pointTokens[i] = pointTokens[i].copy();
         }
 
@@ -264,8 +271,9 @@ public class EverdellGameState extends AbstractGameState {
         }
 
         copy.PlayerResources = new HashMap<>();
+
         for(var resource : PlayerResources.keySet()){
-            copy.PlayerResources.put(resource, new Counter[PlayerResources.get(resource).length]);
+            copy.PlayerResources.put(resource, new Counter[this.getNPlayers()]);
             for(int i = 0; i< this.getNPlayers(); i++){
                 copy.PlayerResources.get(resource)[i] = PlayerResources.get(resource)[i].copy();
             }
@@ -279,10 +287,11 @@ public class EverdellGameState extends AbstractGameState {
         if(currentCard != null){
             copy.currentCard = currentCard.copy();
         }
-        copy.score = new Integer[score.length];
-        for(int i = 0; i< score.length; i++){
-            copy.score[i] = score[i];
-        }
+        copy.score = score.clone();
+//        copy.score = new Integer[score.length];
+//        for(int i = 0; i< score.length; i++){
+//            copy.score[i] = score[i];
+//        }
         return copy;
     }
 
@@ -321,7 +330,32 @@ public class EverdellGameState extends AbstractGameState {
 
     @Override
     public int hashCode() {
-        return hash(cardDeck, discardDeck, temporaryDeck, meadowDeck, playerHands, playerVillage, Arrays.hashCode(currentSeason), everdellLocations, PlayerResources, Arrays.hashCode(cardCount), Arrays.hashCode(workers), Arrays.hashCode(pointTokens), Arrays.hashCode(villageMaxSize), Arrays.hashCode(score), copyMode, copyID, greenProductionMode, greenProductionCards, clockTowerMode, rangerCardMode, currentCard, resourceSelection, cardSelection);
+        int result = Objects.hash(
+                cardDeck, discardDeck, temporaryDeck, meadowDeck,
+                playerHands, playerVillage,
+                Arrays.hashCode(currentSeason),
+                everdellLocations,
+                Arrays.hashCode(cardCount),
+                Arrays.hashCode(workers),
+                Arrays.hashCode(pointTokens),
+                Arrays.hashCode(villageMaxSize),
+                Arrays.hashCode(score),
+                copyMode, copyID, greenProductionMode,
+                greenProductionCards, clockTowerMode,
+                rangerCardMode, currentCard,
+                resourceSelection, cardSelection
+        );
+
+        // Handle PlayerResources separately
+        int playerResourcesHash = 0;
+        for (Map.Entry<ResourceTypes, Counter[]> entry : PlayerResources.entrySet()) {
+            int keyHash = entry.getKey().hashCode();
+            int valueHash = Arrays.hashCode(entry.getValue()); // assumes Counter has good hashCode()
+            playerResourcesHash += keyHash ^ valueHash;
+        }
+
+        result = 31 * result + playerResourcesHash;
+        return result;
     }
 
     //    @Override
