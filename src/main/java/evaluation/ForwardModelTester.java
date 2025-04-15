@@ -75,23 +75,6 @@ public class ForwardModelTester {
                              game.getGameState().hashCode(), stateCopy.hashCode());
                     System.out.println(error);
                     System.out.printf("\tOrig: %s%n\tCopy: %s%n", game.getGameState().toString(), stateCopy);
-
-                    EverdellGameState egs = (EverdellGameState) game.getGameState();
-                    EverdellGameState egsCopy = (EverdellGameState) stateCopy;
-
-                    //Print out the cards in the hands
-                    egs.printAllComponents();
-                    egsCopy.printAllComponents();
-
-                    System.out.println("Hash Codes ");
-                    System.out.println("Original: " + egs.hashCode());
-                    System.out.println("Copy: " + egsCopy.hashCode());
-
-                    System.out.println("Hash Codes of the players Resources");
-                    System.out.println("Original: " + egs.PlayerResources.hashCode());
-                    System.out.println("Copy: " + egsCopy.PlayerResources.hashCode());
-                    
-
                     throw new AssertionError("Copy of game state should have same hashcode as original");
                 }
                 allFine = checkHistory();
