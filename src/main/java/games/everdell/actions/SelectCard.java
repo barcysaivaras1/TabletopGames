@@ -164,12 +164,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 System.out.println("SelectCard CardID: " + cardId);
                 EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
                 System.out.println("SelectCard Card Name : " + card.getCardEnumValue());
-//                //Test **********
-//                if(card == null){
-//                    System.out.println("Player ID is : " + playerId);
-//                    egs.printAllComponents();
-//                }
-//                //******
                 if (canCardBePlayed(cardId, egs)) {
                     actions.add(new SelectCard(playerId, cardId, locationId, cardsToSelectFromIds));
                 }

@@ -388,7 +388,6 @@ public class EverdellParameters extends AbstractParameters {
                 if(!state.cardSelection.isEmpty()){
                     if(state.cardSelection.get(0).getComponentID() == EverdellParameters.ForestLocations.cardChoices.get(0).getComponentID()){
                         EverdellParameters.ForestLocations.cardChoices.remove(0);
-                        state.temporaryDeck.add(state.cardSelection.get(0));
                     }
                 }
 
@@ -430,6 +429,8 @@ public class EverdellParameters extends AbstractParameters {
                     state.PlayerResources.get(resource)[playerID].decrement(finalCost);
                 }
                 state.cardSelection.get(0).payForCard();
+                state.temporaryDeck.add(state.cardSelection.get(0));
+                cardChoices.clear();
             };
         }
     }
@@ -1563,6 +1564,8 @@ public class EverdellParameters extends AbstractParameters {
 
                 if (state.playerHands.get(state.getCurrentPlayer()).getSize() < 8) {
                     state.playerHands.get(state.getCurrentPlayer()).add(state.cardSelection.get(0));
+                    state.meadowDeck.remove(state.cardSelection.get(0));
+                    state.meadowDeck.add(state.cardDeck.draw());
                     state.cardCount[state.getCurrentPlayer()].increment();
                 }
                 return true;
@@ -1848,7 +1851,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.BARD, 2);
         put(CardDetails.BARGE_TOAD, 3);
         put(CardDetails.CASTLE, 2);
-        //put(CardDetails.CEMETERY, 10);//2
+        put(CardDetails.CEMETERY, 2);
         put(CardDetails.CHAPEL, 2);
         put(CardDetails.CHIP_SWEEP, 3);
         put(CardDetails.CLOCK_TOWER, 3);
@@ -1877,14 +1880,14 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.POST_OFFICE, 3);
         put(CardDetails.POSTAL_PIGEON, 3);
         put(CardDetails.QUEEN, 2);
-        //put(CardDetails.RANGER, 2);
+        put(CardDetails.RANGER, 2);
         put(CardDetails.RESIN_REFINERY, 3);
         put(CardDetails.RUINS, 3);
         put(CardDetails.SCHOOL, 2);
         put(CardDetails.SHEPHERD, 2);
         put(CardDetails.SHOP_KEEPER, 3);
         put(CardDetails.STORE_HOUSE, 3);
-        put(CardDetails.TEACHER, 3);
+        //put(CardDetails.TEACHER, 3);
         put(CardDetails.THEATRE, 2);
         put(CardDetails.TWIG_BARGE, 3);
         put(CardDetails.UNDERTAKER, 2);

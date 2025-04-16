@@ -3,7 +3,6 @@ package evaluation;
 import core.*;
 import core.actions.AbstractAction;
 import games.GameType;
-import games.everdell.EverdellGameState;
 import players.PlayerFactory;
 import utilities.Utils;
 

@@ -35,6 +35,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
     //Basic Locations
     // All Locations -> PlaceWorker
 
+
     //Forest Locations
     /* THREE_BEERY -> PlaceWorker
     *  TWO_RESIN_ONE_TWIG -> PlaceWorker
@@ -189,7 +190,7 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationID);
             if(location.getAbstractLocation() instanceof BasicEvent){
                 if(locationIsFree(state, location)){
-                    if(BasicEvent.defaultCheckIfConditionMet(state, (BasicEvent)location.getAbstractLocation())){
+                    if(BasicEvent.defaultCheckIfConditionMet(state, (BasicEvent)location.getAbstractLocation()) || state.rangerCardMode){
                         actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs ,false, false));
                     }
                 }
@@ -243,12 +244,15 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
     private List<AbstractAction> getJourneyActions(EverdellGameState state){
         List<AbstractAction> actions = new ArrayList<>();
 
+        System.out.println("Journey Locations");
+        System.out.println("IS range card mode activated !? : " + state.rangerCardMode);
         //Journey Locations
         for(int locationID : everdellLocationIDs){
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationID);
             if(location.getAbstractLocation() instanceof JourneyLocations jl){
+                System.out.println("Is location free ? : " + locationIsFree(state, location));
                 if(locationIsFree(state, location)){
-                    if(JourneyLocations.defaultCheckIfConditionMet(state, jl)) {
+                    if(JourneyLocations.defaultCheckIfConditionMet(state, jl) || state.rangerCardMode) {
                         actions.add(new SelectLocation(playerId, location.getComponentID(), everdellLocationIDs, false, false));
                     }
                 }
@@ -399,11 +403,16 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                                 if(egs.discardDeck.getComponents().isEmpty()){
                                     break;
                                 }
-                                cardsToSelectFrom.add(egs.discardDeck.draw());
+                                EverdellCard drawnCard = egs.discardDeck.draw();
+                                cardsToSelectFrom.add(drawnCard);
+                                egs.temporaryDeck.add(drawnCard);
+
                             }
                         } else {
                             for (int i = 0; i < 4; i++) {
-                                cardsToSelectFrom.add(egs.cardDeck.draw());
+                                EverdellCard drawnCard = egs.cardDeck.draw();
+                                cardsToSelectFrom.add(drawnCard);
+                                egs.temporaryDeck.add(drawnCard);
                             }
                         }
                         if(cardsToSelectFrom.isEmpty()){

@@ -45,7 +45,7 @@ public class CemeteryCard extends ConstructionCard{
         return state -> {
             if(!state.cardSelection.isEmpty()) {
                 state.cardSelection.get(0).payForCard();
-                //state.temporaryDeck.add(state.cardSelection.get(0));
+                state.temporaryDeck.add(state.cardSelection.get(0));
                 ArrayList<EverdellCard> cardsToDiscard = new ArrayList<>(state.cardSelection);
                 cardsToDiscard.remove(state.cardSelection.get(0));
                 discardCards(state, cardsToDiscard);

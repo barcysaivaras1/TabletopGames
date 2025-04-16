@@ -25,7 +25,7 @@ public class TeacherCard extends CritterCard{
     public void applyCardEffect(EverdellGameState state) {
         //The player draw 2 cards from the deck, and then gives 1 card to another player
 
-        //Card Selection holds the 2 cards, Card [0[ is the card the player will keep
+        //Card Selection holds the 2 cards, Card [0] is the card the player will keep
         //Card [1] is the card the player will give to another player
 
         System.out.println("Applying Teacher Card Effect");

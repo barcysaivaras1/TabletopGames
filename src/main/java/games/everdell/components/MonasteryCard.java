@@ -61,8 +61,6 @@ public class MonasteryCard extends ConstructionCard{
                 System.out.println("Location : MonasteryCard");
                 System.out.println("Problem : Not enough resources selected");
             }
-
-
         };
     }
 
@@ -79,7 +77,6 @@ public class MonasteryCard extends ConstructionCard{
     //Players NEED to be set before the location EFFECT is called
     public void setPlayers(int selectedPlayer){
         this.selectedPlayer = selectedPlayer;
-
     }
 
     @Override

@@ -155,13 +155,6 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                 if(!BasicEvent.defaultCheckIfConditionMet(state, be)){
                     return false;
                 }
-//                for(var card : state.playerVillage.get(state.getCurrentPlayer())){
-//                    //If there is a King Card Present we must apply the effect after a basic Event claim
-//                    if(card.getCardEnumValue() == EverdellParameters.CardDetails.KING){
-//                        CritterCard kingCard = (CritterCard) card;
-//                        kingCard.applyCardEffect(state);
-//                    }
-//                }
             }
 
             state.workers[state.getCurrentPlayer()].decrement();
@@ -188,11 +181,21 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                 if(!cardSelectionID.isEmpty()) {
                     //Ensure we have a pointer in the state to the card
                     EverdellCard cardToPlay = (EverdellCard) state.getComponentById(cardSelectionID.get(0));
-                    state.temporaryDeck.add(cardToPlay);
+
+                    for(var card : state.temporaryDeck){
+                        if(card.getComponentID() == cardToPlay.getComponentID()){
+                            System.out.println("Card in temporary deck : " + card.getComponentID()+ " "+ card.getCardEnumValue());
+                            System.out.println("IS THIS CARD THAT IS IN TEMPORARY DECK PAID FOR : " + card.isCardPayedFor());
+
+                            break;
+                        }
+                    }
+                    //state.temporaryDeck.add(cardToPlay);
 
                     System.out.println("Card Selection ID In PLACEWORKER AI PLAY: " + cardSelectionID.get(0));
                     System.out.println("Is card paid for ? : " + cardToPlay.isCardPayedFor());
-                    new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
+
+                    new SelectCard(playerId, cardToPlay.getComponentID(), new ArrayList<>()).execute(state);
                 }
             }
 

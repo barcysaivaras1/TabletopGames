@@ -107,7 +107,8 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         System.out.println("SelectAListOfCards: _computeAvailableActions");
         List<AbstractAction> actions = new ArrayList<>();
 
-        generateCardCombinations(new ArrayList<>(), 0, actions);
+        Set<Set<EverdellCard>> uniqueCombinations = new HashSet<>();
+        generateCardCombinations(new ArrayList<>(), 0, actions, uniqueCombinations);
         if(actions.isEmpty()){
             actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(), false));
         }
@@ -116,14 +117,18 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
         return actions;
     }
 
-    private void generateCardCombinations(List<EverdellCard> currentCombination, int start, List<AbstractAction> actions) {
+    private void generateCardCombinations(List<EverdellCard> currentCombination, int start, List<AbstractAction> actions, Set<Set<EverdellCard>> uniqueCombinations) {
         if (currentCombination.size() == maxAmount || (!isStrict && currentCombination.size() <= maxAmount)) {
-            actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(currentCombination), false));
+            Set<EverdellCard> combinationSet = new HashSet<>(currentCombination);
+            if (!uniqueCombinations.contains(combinationSet)) {
+                uniqueCombinations.add(combinationSet);
+                actions.add(new SelectAListOfCards(playerId, locationId, cardId, isMovingSeason, cardsToSelectFrom, maxAmount, isStrict, new ArrayList<>(currentCombination), false));
+            }
             if (isStrict && currentCombination.size() == maxAmount) return;
         }
         for (int i = start; i < cardsToSelectFrom.size(); i++) {
             currentCombination.add(cardsToSelectFrom.get(i));
-            generateCardCombinations(currentCombination, i + 1, actions);
+            generateCardCombinations(currentCombination, i + 1, actions, uniqueCombinations);
             currentCombination.remove(currentCombination.size() - 1);
         }
     }
