@@ -120,7 +120,7 @@ public abstract class EverdellCard extends Card {
         //Check if the player has enough resources to buy the card
 
         //The card can be paid with occupation.
-        if(isCardPayedFor()){
+        if(isCardPayedFor){
             return true;
         }
         for(var resource : getResourceCost().keySet()){

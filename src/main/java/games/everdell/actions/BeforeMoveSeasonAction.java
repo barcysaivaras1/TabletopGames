@@ -131,8 +131,6 @@ public class BeforeMoveSeasonAction extends AbstractAction implements IExtendedS
 
 
         executed = true;
-        return;
-
     }
 
     @Override

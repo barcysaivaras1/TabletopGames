@@ -210,7 +210,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     System.out.println("There is a cell free");
                     for(EverdellCard card : egs.playerVillage.get(playerId)){
                         System.out.println("card in village for dungeon : " + card.getCardEnumValue());
-                        if(card instanceof CritterCard && card.getCardEnumValue() != CardDetails.RANGER){
+                        if(card instanceof RangerCard)continue;
+                        if(card instanceof CritterCard){
                             actions.add(new SelectCard(playerId, cardId, locationId, -1, new ArrayList<>(), false, true, false, resourcesSelected, discountMethodID, card.getComponentID()));
                         }
                     }
@@ -242,6 +243,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 //If the card is paid for, we default to paying with resources
                 if(card.isCardPayedFor()){
                     System.out.println("Card is paid for in SELECTCARD");
+//                    if(card instanceof RangerCard){
+//                        throw new RuntimeException("RangerCard debugging");
+//                    }
                     return actions;
                 }
             }
@@ -394,7 +398,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         //Is there a critter card that can be placed in the dungeon
         boolean critterCardInVillage = false;
         for(var card : state.playerVillage.get(playerId)){
-            if (card instanceof CritterCard && card.getCardEnumValue() != CardDetails.RANGER) {
+            if(card instanceof RangerCard) continue;
+            if (card instanceof CritterCard) {
                 critterCardInVillage = true;
                 break;
             }
@@ -470,9 +475,15 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         if(locationId != -1){
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationId);
             if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.INN_DESTINATION){
+                if(card.getCardEnumValue() == CardDetails.FOOL){
+                    return card.checkIfPlayerCanBuyCardWithDiscount(state, 3) && ((FoolCard) card).canFoolBePlaced(state, playerId);
+                }
                 return pc.checkIfVillageHasSpace(state, playerId) && card.checkIfPlayerCanBuyCardWithDiscount(state, 3) && card.checkIfPlayerCanPlaceThisUniqueCard(state, playerId);
             }
             else if(location.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                if(card.getCardEnumValue() == CardDetails.FOOL){
+                    return card.checkIfPlayerCanBuyCardWithDiscount(state, 1) && ((FoolCard) card).canFoolBePlaced(state, playerId);
+                }
                 System.out.println("Within locationId -1");
                 System.out.println("Card LOOKING AT : "+ card.getCardEnumValue());
                 System.out.println("Can Player buy with discount : "+ card.checkIfPlayerCanBuyCardWithDiscount(state, 1));
@@ -531,6 +542,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     InnCard innCard = (InnCard) egs.getComponentById(locationCardID);
                     innCard.setPlayers(playerId);
                 }
+                System.out.println("Card choices in Forest Locations : "+ EverdellParameters.ForestLocations.cardChoices);
                 new PlaceWorker(playerId, selectCard.locationId, new ArrayList<>(List.of(c.getComponentID())), selectCard.resourcesSelected).execute(state);
                 executed = true;
                 return;
@@ -676,6 +688,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     //Draw 2 Cards
                     cardsToPickFrom.add(egs.cardDeck.draw());
                     cardsToPickFrom.add(egs.cardDeck.draw());
+                    egs.temporaryDeck.add(cardsToPickFrom);
                     new SelectAListOfCards(playerId, -1, card.getComponentID(), cardsToPickFrom, 1, true).execute(state);
                 }
                 else if(card.getCardEnumValue() == CardDetails.FOOL){
@@ -720,14 +733,31 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();
                     for(int i = 0; i < 2; i++){
                         EverdellCard ppCard = egs.cardDeck.draw();
-                        if(ppCard.getPoints() <=3){
-                            cardsToPickFrom.add(ppCard);
-                            egs.temporaryDeck.add(ppCard);
+                        //FOOL card edge case
+                        if(ppCard instanceof FoolCard fc){
+                            System.out.println("Postal Pigeon - Fool Card case");
+                            if(fc.canFoolBePlaced(egs, playerId)){
+                                System.out.println("Fool Card can be placed");
+                                cardsToPickFrom.add(ppCard);
+                                egs.temporaryDeck.add(ppCard);
+                            }
+                            else{
+                                ppCard.discardCard(egs);
+                            }
+                        }
+                        else if(ppCard.getPoints() <=3){
+                            //Standard case
+                            if(ppCard.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId) && egs.playerVillage.get(playerId).getSize() < egs.villageMaxSize[playerId].getValue()) {
+                                cardsToPickFrom.add(ppCard);
+                                egs.temporaryDeck.add(ppCard);
+                            }
                         }
                         else{
                             ppCard.discardCard(egs);
                         }
                     }
+
+
                     //If the revealed cards are not valid the effect is not triggered
                     if(cardsToPickFrom.isEmpty()){
                         new PlayCard(playerId, selectCard.cardId, new ArrayList<>(), new HashMap<>()).execute(state);

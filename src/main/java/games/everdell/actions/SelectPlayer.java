@@ -63,8 +63,11 @@ public class SelectPlayer extends AbstractAction implements IExtendedSequence {
         if(cardId !=-1){
             EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
             if(card.getCardEnumValue() == CardDetails.FOOL){
+                System.out.println("Fool card in select Player");
                 FoolCard fc = (FoolCard) card;
                 for(int i = 0; i < egs.getNPlayers(); i++){
+                    if(i == playerId) continue;
+                    System.out.println("Fool card in select Player, playerId: " + playerId + " i: " + i);
                     if(fc.canFoolBePlacedInThisPlayersVillage(egs, i)){
                         actions.add(new SelectPlayer(playerId, cardId, locationId, i));
                     }

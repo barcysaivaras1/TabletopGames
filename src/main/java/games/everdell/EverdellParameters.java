@@ -205,6 +205,7 @@ public class EverdellParameters extends AbstractParameters {
             HAVEN.applyLocationEffect = (state) -> {
                 //Remove cards from player hand
                 for(EverdellCard card : state.cardSelection){
+                    state.discardDeck.add(card);
                     state.playerHands.get(state.getCurrentPlayer()).remove(card);
                     state.cardCount[state.getCurrentPlayer()].decrement();
                 }
@@ -429,7 +430,7 @@ public class EverdellParameters extends AbstractParameters {
                     state.PlayerResources.get(resource)[playerID].decrement(finalCost);
                 }
                 state.cardSelection.get(0).payForCard();
-                state.temporaryDeck.add(state.cardSelection.get(0));
+                //state.temporaryDeck.add(state.cardSelection.get(0));
                 cardChoices.clear();
             };
         }
@@ -1778,7 +1779,7 @@ public class EverdellParameters extends AbstractParameters {
                 //Dungeon allows the player to draw 2 cards from the deck
                 return true;
             }, (everdellGameState -> {
-            }), new ArrayList<>(List.of(RANGER)));
+            }), new ArrayList<>(List.of(RANGER)));//Ranger
 
             MINER_MOLE.createEverdellCard = (gameState) -> new CopyCard("Miner Mole", MINER_MOLE, CardType.GREEN_PRODUCTION, false, false, 1, new HashMap<>() {{
                 put(ResourceTypes.BERRY, 3);
@@ -1880,7 +1881,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.POST_OFFICE, 3);
         put(CardDetails.POSTAL_PIGEON, 3);
         put(CardDetails.QUEEN, 2);
-        put(CardDetails.RANGER, 2);
+        //put(CardDetails.RANGER, 2);
         put(CardDetails.RESIN_REFINERY, 3);
         put(CardDetails.RUINS, 3);
         put(CardDetails.SCHOOL, 2);
@@ -1895,7 +1896,6 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.WANDERER, 3);
         put(CardDetails.WIFE, 4);
         put(CardDetails.WOOD_CARVER, 3);
-
     }};
 
     @Override

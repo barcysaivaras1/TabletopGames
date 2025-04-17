@@ -140,7 +140,8 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             }
 
 
-
+            System.out.println("Current Card is : " + currentCard.getCardEnumValue());
+            System.out.println("Is current card paid for : " + currentCard.isCardPayedFor());
             //Check if the player can buy the card
             if(!currentCard.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
                 System.out.println("You don't have enough resources to buy this card");
@@ -174,7 +175,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                     new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
                 }
             }
-            if(state.rangerCardMode){
+            else if(state.rangerCardMode){
                 RangerCard rc = (RangerCard) currentCard;
                 ArrayList<Integer> locationsToSelectFrom = new ArrayList<>();
                 for (var location : state.everdellLocations) {
@@ -204,9 +205,9 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             state.resourceSelection.get(resource).setValue(0);
         }
         //Reset Card Selection
-        for (var card : state.cardSelection){
-            state.temporaryDeck.add(card);
-        }
+//        for (var card : state.cardSelection){
+//            state.temporaryDeck.add(card);
+//        }
         state.cardSelection.clear();
         state.currentCard = null;
     }

@@ -1,0 +1,11 @@
+GameSeed,GameName,Round,Event,Tick,Turn,PlayerCount,GameID,FinalScore(PlayerName-0),FinalScore(Player-1),FinalScore(Player-0),FinalScore(PlayerName-1),OrdinalPosition(Player-1 rank),OrdinalPosition(PlayerName-0),OrdinalPosition(Player-1),OrdinalPosition(Player-0),OrdinalPosition(Player-0 rank),OrdinalPosition(PlayerName-1),PlayerType(PlayerType-1),PlayerType(PlayerType-0),Winner(PlayerIdx)
+-1945639775,Everdell,0,GAME_OVER,225,63,2,2,BasicMCTS,52.0,44.0,MCTSPlayer,1,BasicMCTS,1,2,2,MCTSPlayer,MCTSPlayer,BasicMCTS,1
+-1132735465,Everdell,0,GAME_OVER,223,61,2,3,MCTSPlayer,36.0,29.0,BasicMCTS,1,MCTSPlayer,1,2,2,BasicMCTS,BasicMCTS,MCTSPlayer,1
+878032411,Everdell,0,GAME_OVER,241,61,2,4,MCTSPlayer,38.0,40.0,BasicMCTS,2,MCTSPlayer,2,1,1,BasicMCTS,BasicMCTS,MCTSPlayer,0
+1334627027,Everdell,0,GAME_OVER,201,59,2,5,BasicMCTS,33.0,33.0,MCTSPlayer,1,BasicMCTS,1,1,1,MCTSPlayer,MCTSPlayer,BasicMCTS,-1
+234615929,Everdell,0,GAME_OVER,202,56,2,6,MCTSPlayer,39.0,43.0,BasicMCTS,2,MCTSPlayer,2,1,1,BasicMCTS,BasicMCTS,MCTSPlayer,0
+2141453832,Everdell,0,GAME_OVER,194,59,2,7,BasicMCTS,49.0,27.0,MCTSPlayer,1,BasicMCTS,1,2,2,MCTSPlayer,MCTSPlayer,BasicMCTS,1
+747188701,Everdell,0,GAME_OVER,229,62,2,8,BasicMCTS,48.0,47.0,MCTSPlayer,1,BasicMCTS,1,2,2,MCTSPlayer,MCTSPlayer,BasicMCTS,1
+4476364,Everdell,0,GAME_OVER,250,64,2,9,BasicMCTS,36.0,44.0,MCTSPlayer,2,BasicMCTS,2,1,1,MCTSPlayer,MCTSPlayer,BasicMCTS,0
+783004037,Everdell,0,GAME_OVER,205,59,2,10,MCTSPlayer,33.0,45.0,BasicMCTS,2,MCTSPlayer,2,1,1,BasicMCTS,BasicMCTS,MCTSPlayer,0
+-1819073218,Everdell,0,GAME_OVER,217,67,2,11,BasicMCTS,49.0,40.0,MCTSPlayer,1,BasicMCTS,1,2,2,MCTSPlayer,MCTSPlayer,BasicMCTS,1

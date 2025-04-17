@@ -315,6 +315,8 @@ public class EverdellForwardModel extends StandardForwardModel {
         resetValues(egs);
 
 
+        checkIfDiscardDeckNeedsToBeShuffledIntoDeck(egs);
+
         updatePurpleProsperityCards(egs);
 
         //Calculate the score for each player
@@ -393,6 +395,19 @@ public class EverdellForwardModel extends StandardForwardModel {
             }
         }
 
+    }
+
+    private void checkIfDiscardDeckNeedsToBeShuffledIntoDeck(EverdellGameState state){
+        //Check if the discard deck is empty
+        if(state.cardDeck.getSize() <= 5){
+            //Shuffle the discard deck into the main deck
+            state.cardDeck.shuffle(state.getRnd());
+            state.discardDeck.shuffle(state.getRnd());
+            for (var card : state.discardDeck){
+                state.cardDeck.add(card);
+            }
+            state.discardDeck.clear();
+        }
     }
 
     private int calculatePoints(EverdellGameState state, int playerId){

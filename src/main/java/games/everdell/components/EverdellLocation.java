@@ -47,7 +47,7 @@ public class EverdellLocation extends Component {
         this.locationEffect = locationEffect;
         this.numberOfSpaces = numberOfSpaces;
         this.canTheSamePlayerBeOnLocationMultipleTimes = canTheSamePlayerBeOnLocationMultipleTimes;
-        this.playersOnLocation = new ArrayList<>(playersOnLocation);
+        this.playersOnLocation = playersOnLocation;
     }
 
     public void applyLocationEffect(EverdellGameState state){
@@ -97,6 +97,7 @@ public class EverdellLocation extends Component {
         for(var playerDeck : state.playerVillage) {
             for (var card : playerDeck) {
                 System.out.println("Card: "+card.getCardEnumValue());
+                System.out.println("Card ID: "+card.getComponentID());
 
                 if (card instanceof ConstructionCard cc) {
                     System.out.println("Is Construction Card");
@@ -121,6 +122,13 @@ public class EverdellLocation extends Component {
                 }
             }
         }
+        //Print out all the locations and their IDS
+        System.out.println("Locations in the game:");
+        for(var locations : state.everdellLocations){
+            System.out.println("Location: "+locations.getAbstractLocation());
+            System.out.println("Location ID: "+locations.getComponentID());
+        }
+
         throw new RuntimeException("There is no card placed that matches this location || Invalid Call || Location Given -> "+locationToLookFor.getAbstractLocation());
     }
 
@@ -147,6 +155,9 @@ public class EverdellLocation extends Component {
     }
 
     public EverdellLocation copy(){
+        //Create a copy of players on location
+        ArrayList<Integer> playersOnLocation = new ArrayList<>(this.playersOnLocation);
+
         EverdellLocation copy = new EverdellLocation(location, numberOfSpaces, canTheSamePlayerBeOnLocationMultipleTimes, locationEffect, playersOnLocation, componentID);
         copyComponentTo(copy);
         return copy;

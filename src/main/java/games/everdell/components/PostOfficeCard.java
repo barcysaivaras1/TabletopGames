@@ -110,6 +110,9 @@ public class PostOfficeCard extends ConstructionCard{
 
     @Override
     public void removeCardEffect(EverdellGameState state){
+        System.out.println("Removing Post Office Card Effect");
+        System.out.println("Post Office Card Location : " + getLocation(state));
+        System.out.println("Post Office Card Location ID : " + getLocation(state).getComponentID());
         state.everdellLocations.remove(getLocation(state));
     }
 

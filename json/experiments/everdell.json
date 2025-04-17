@@ -1,0 +1,8 @@
+{
+  "game" : "Everdell",
+  "nPlayers" : 2,
+  "matchups" : 100,
+  "verbose" : false,
+  "listener" : "metrics/everdell.json",
+  "destDir" : "outputdir"
+}

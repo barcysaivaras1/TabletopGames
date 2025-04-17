@@ -14,7 +14,6 @@ public class MonasteryCard extends ConstructionCard{
 
     public MonasteryCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
-        selectedPlayer = -1;
     }
 
     private MonasteryCard(String name, int compID, int selectedPlayer) {
@@ -39,7 +38,7 @@ public class MonasteryCard extends ConstructionCard{
 
             int counter = 0;
 
-            System.out.println("Player selected to donate to is : " + selectedPlayer);
+            System.out.println("Player selected to donate to is : " + getSelectedPlayer());
 
             //Transfer 2 resources from the current player to the selected player
             for(var resource : state.resourceSelection.keySet()){
@@ -48,7 +47,7 @@ public class MonasteryCard extends ConstructionCard{
                         break;
                     }
                     state.PlayerResources.get(resource)[state.getCurrentPlayer()].decrement();
-                    state.PlayerResources.get(resource)[selectedPlayer].increment();
+                    state.PlayerResources.get(resource)[getSelectedPlayer()].increment();
                     counter++;
                 }
             }
@@ -76,7 +75,13 @@ public class MonasteryCard extends ConstructionCard{
 
     //Players NEED to be set before the location EFFECT is called
     public void setPlayers(int selectedPlayer){
+        System.out.println("Monastery : Player is being set to : " + selectedPlayer);
         this.selectedPlayer = selectedPlayer;
+        System.out.println("Monastery : Player in card is now : " + this.selectedPlayer);
+    }
+
+    private int getSelectedPlayer(){
+        return selectedPlayer;
     }
 
     @Override

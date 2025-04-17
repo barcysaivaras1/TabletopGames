@@ -27,6 +27,7 @@ public class InnCard extends ConstructionCard{
     public void applyCardEffect(EverdellGameState state) {
         //This means they are placing the card, we can assign the playerOwner
         playerOwner = state.getCurrentPlayer();
+        System.out.println("We are applying the card effect of InnCard");
         super.applyCardEffect(state, setLocationEffect(state));
     }
 
@@ -48,8 +49,6 @@ public class InnCard extends ConstructionCard{
                 state.pointTokens[playerOwner].increment();
             }
 
-
-            System.out.println("IN THE INNCARD WE ARE TRYING TO PLAY THE CARD, IS CARD SELECTIO EMPTY ? : " + state.cardSelection.isEmpty());
             //From gameState Resource Selection will tell us how much of a discount will be applied.
             //The card selection will hold the card that the player selected to play at a discount
             if(!state.cardSelection.isEmpty()) {
@@ -74,6 +73,9 @@ public class InnCard extends ConstructionCard{
 
     @Override
     public void removeCardEffect(EverdellGameState state){
+        System.out.println("Removing card effect of InnCard");
+        System.out.println("Inn Card Location : " + getLocation(state));
+        System.out.println("Inn Card Location ID : " + getLocation(state).getComponentID());
         state.everdellLocations.remove(getLocation(state));
     }
 

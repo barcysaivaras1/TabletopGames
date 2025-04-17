@@ -44,18 +44,14 @@ public class FoolCard extends CritterCard{
     }
 
     public boolean canFoolBePlacedInThisPlayersVillage(EverdellGameState state, int playerToPlaceIn){
-        boolean canPlace = true;
+        boolean canPlace = state.playerVillage.get(playerToPlaceIn).getSize() < state.villageMaxSize[playerToPlaceIn].getValue();
 
         //If village is full, we cannot place the card
-        PlayCard pc = new PlayCard(playerToPlaceIn, this.componentID, new ArrayList<>(), new HashMap<>());
-
-        if(!pc.checkIfVillageHasSpace(state, playerToPlaceIn)){
-            canPlace = false;
-        }
         //If the player has a fool card, we cannot place the card
         if(!checkIfPlayerCanPlaceThisUniqueCard(state, playerToPlaceIn)){
             canPlace = false;
         }
+        System.out.println("Can Fool Card be placed in Player " + playerToPlaceIn + "'s village: " + canPlace);
         return canPlace;
     }
 

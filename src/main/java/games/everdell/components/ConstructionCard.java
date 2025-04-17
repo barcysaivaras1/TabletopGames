@@ -74,10 +74,14 @@ public class ConstructionCard extends EverdellCard{
 
     //To be called by Card with Red Destination Locations
     public void applyCardEffect(EverdellGameState state, Consumer<EverdellGameState> specialLocationEffect) {
+        if (redDestinationLocationID != -1) {
+            return;
+        }
         EverdellLocation location = new EverdellLocation(redDestinationAbstractLocation,1, true, specialLocationEffect);
-        location.setOwnerId(state.getCurrentPlayer());
+        //location.setOwnerId(state.getCurrentPlayer());
         state.everdellLocations.add(location);
         redDestinationLocationID = location.getComponentID();
+        System.out.println("We are adding the red destination location to the game state with ID : " + redDestinationLocationID);
     }
 
 

@@ -186,7 +186,6 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                         if(card.getComponentID() == cardToPlay.getComponentID()){
                             System.out.println("Card in temporary deck : " + card.getComponentID()+ " "+ card.getCardEnumValue());
                             System.out.println("IS THIS CARD THAT IS IN TEMPORARY DECK PAID FOR : " + card.isCardPayedFor());
-
                             break;
                         }
                     }
@@ -206,16 +205,21 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     }
 
     public void resetValues(EverdellGameState state){
+        EverdellLocation location = (EverdellLocation) state.getComponentById(locationComponentID);
+
         //Reset the resource selection
         state.resourceSelection = new HashMap<>();
         for(var resource : EverdellParameters.ResourceTypes.values()){
             state.resourceSelection.put(resource, new Counter());
             state.resourceSelection.get(resource).setValue(0);
         }
+
         //Reset Card Selection
-        for (var card : state.cardSelection){
-            state.temporaryDeck.add(card);
-        }
+//        if(location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
+//            for (var card : state.cardSelection){
+//                state.temporaryDeck.add(card);
+//            }
+//        }
         state.cardSelection.clear();
     }
 

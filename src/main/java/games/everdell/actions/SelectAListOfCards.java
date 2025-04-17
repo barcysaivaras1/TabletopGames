@@ -191,6 +191,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                     canPlay = true;
                 }
                 if(canPlay) {
+                    System.out.println("FOrest locations card choices in SELECTLISTOFCARD : "+ForestLocations.cardChoices);
                     new SelectCard(playerId, -1, locationId, cardsToIDs(sa.selectedCards)).execute(egs);
                 }
                 else{ //No card we can play

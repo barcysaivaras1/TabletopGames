@@ -60,7 +60,7 @@ public class EndGame extends AbstractAction {
     @Override
     public boolean equals(Object obj) {
         // TODO: compare all other variables in the class
-        return obj instanceof EndTurn;
+        return obj instanceof EndGame;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class EndGame extends AbstractAction {
     @Override
     public String toString() {
         // TODO: Replace with appropriate string, including any action parameters
-        return "End Turn";
+        return "End Game";
     }
 
     /**
