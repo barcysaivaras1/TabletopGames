@@ -164,16 +164,16 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             EverdellLocation location = (EverdellLocation) egs.getComponentById(locationId);
             //Forest Locations
             if (location.getAbstractLocation() == ForestLocations.DISCARD_CARD_DRAW_TWO_FOR_EACH_DISCARDED) {
-                ForestLocations.cardChoices = sa.selectedCards;
-                new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(cardsToSelectFrom), new HashMap<>()).execute(egs);
+                ForestLocations.cardChoices = new ArrayList<>(sa.selectedCards);
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(sa.selectedCards), new HashMap<>()).execute(egs);
             } else if (location.getAbstractLocation() == ForestLocations.DISCARD_UP_TO_THREE_GAIN_ONE_ANY_FOR_EACH_CARD_DISCARDED) {
-                ForestLocations.cardChoices = sa.selectedCards;
+                ForestLocations.cardChoices = new ArrayList<>(sa.selectedCards);;
                 new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), sa.selectedCards.size(), true, false).execute(egs);
             }
             else if (location.getAbstractLocation() == ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT) {
                 //Check if any of the 2 cards can be played
-                ForestLocations.cardChoices = sa.selectedCards;
                 boolean canPlay = false;
+                ForestLocations.cardChoices = new ArrayList<>(sa.selectedCards);
                 for(EverdellCard card : sa.selectedCards){
                     //Check if its unique and can be played
                     if(!card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)){
@@ -210,33 +210,38 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
 
             //Journey
             if(location.getAbstractLocation() instanceof JourneyLocations){
-                new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(cardsToSelectFrom), new HashMap<>()).execute(egs);
+                new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(sa.selectedCards), new HashMap<>()).execute(egs);
             }
 
             //Red Destination
             if(location.getAbstractLocation() instanceof RedDestinationLocation){
                 if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
-                    new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(cardsToSelectFrom), new HashMap<>()).execute(egs);
+                    new PlaceWorker(state.getCurrentPlayer(), locationId, cardsToIDs(sa.selectedCards), new HashMap<>()).execute(egs);
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
                     if(egs.cardSelection.isEmpty()){
                         //Cards To Give Away
                         egs.cardSelection.addAll(sa.selectedCards);
                         System.out.println("Cards to give away POSTOFFICE SELECTALISTOFCARDS: "+egs.cardSelection);
-                        ArrayList<EverdellCard> cardsToSelectFrom = egs.playerHands.get(playerId).getComponents().stream().filter(cardToCheck -> !sa.selectedCards.contains(cardToCheck)).collect(Collectors.toCollection(ArrayList::new));
+                        //Remove the cards that are already selected
+                        cardsToSelectFrom.removeAll(sa.selectedCards);
+                        //ArrayList<EverdellCard> cardsToSelectFrom = egs.playerHands.get(playerId).getComponents().stream().filter(cardToCheck -> !sa.selectedCards.contains(cardToCheck)).collect(Collectors.toCollection(ArrayList::new));
                         new SelectAListOfCards(playerId, locationId, -1, cardsToSelectFrom, cardsToSelectFrom.size(), false).execute(egs);
                     }
                     else{
+                        //Add all the cards that the player wants to discard
+                        egs.cardSelection.addAll(sa.selectedCards);
                         new SelectPlayer(playerId, -1, locationId).execute(egs);
                     }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.CEMETERY_DESTINATION){
                     egs.cardSelection.addAll(cardsToSelectFrom);
+                    egs.cardSelection.remove(sa.selectedCards.get(0));
                     egs.cardSelection.add(0, sa.selectedCards.get(0));
                     new PlaceWorker(playerId, locationId, cardsToIDs(egs.cardSelection), new HashMap<>()).execute(egs);
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
-                    egs.cardSelection.addAll(cardsToSelectFrom);
+                    egs.cardSelection.add(sa.selectedCards.get(0));
                     new ResourceSelect(playerId, -1, locationId, new ArrayList<>(List.of(ResourceTypes.values())), 1, true, false).execute(egs);
                 }
             }
@@ -245,12 +250,12 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
             EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
             if(card.getCardEnumValue() == EverdellParameters.CardDetails.TEACHER){
                 //Must Add to Card Selection the card to keep and after the card to give away
-                egs.cardSelection.add(sa.selectedCards.get(0));
-                if(sa.cardsToSelectFrom.get(0) != sa.selectedCards.get(0)){
+                egs.cardSelection.add(0, sa.selectedCards.get(0));
+                if(sa.cardsToSelectFrom.get(0).getComponentID() != sa.selectedCards.get(0).getComponentID()){
                     egs.cardSelection.add(sa.cardsToSelectFrom.get(0));
                 }
                 else{
-                    egs.cardSelection.add(sa.cardsToSelectFrom.get(1));
+                    egs.cardSelection.add(1,sa.cardsToSelectFrom.get(1));
                 }
                 new SelectPlayer(playerId, cardId, -1).execute(egs);
             }
@@ -266,7 +271,7 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 new SelectAListOfCards(playerId, -1, cardId, isMovingSeason, new ArrayList<>(egs.meadowDeck.getComponents()), 1, true, null, true).execute(egs);
             }
             else {
-                new PlayCard(playerId, cardId, cardsToIDs(cardsToSelectFrom), new HashMap<>()).execute(egs);
+                new PlayCard(playerId, cardId, cardsToIDs(sa.selectedCards), new HashMap<>()).execute(egs);
             }
         }
         if(isMovingSeason){

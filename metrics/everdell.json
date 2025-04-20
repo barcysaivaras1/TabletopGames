@@ -6,6 +6,13 @@
       {"enum" : "evaluation.metrics.IDataLogger$ReportType", "value" : "RawDataPerEvent"}
     ],
     [
-      {"class": "games.everdell.metrics.EverdellMetrics$Score"}
+      {"class": "games.everdell.metrics.EverdellMetrics$EndScore"},
+      {"class": "games.everdell.metrics.EverdellMetrics$VillageAtEnd"},
+      {"class": "games.everdell.metrics.EverdellMetrics$LocationsAtEnd"},
+      {"class": "games.everdell.metrics.EverdellMetrics$CardsPlayedInSeason"},
+      {"class": "games.everdell.metrics.EverdellMetrics$NumberOfInstancesOfGatheringResourcesPerSeason"},
+      {"class": "games.everdell.metrics.EverdellMetrics$CardTypesPlayedInSeason"},
+      {"class": "games.everdell.metrics.EverdellMetrics$LocationsPlayedInSeason"},
+      {"class": "games.everdell.metrics.EverdellMetrics$OrderOfPassingSeasons"}
     ]]
 }

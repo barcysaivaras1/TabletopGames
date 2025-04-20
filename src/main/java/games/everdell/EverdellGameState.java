@@ -288,10 +288,6 @@ public class EverdellGameState extends AbstractGameState {
             copy.currentCard = currentCard.copy();
         }
         copy.score = score.clone();
-//        copy.score = new Integer[score.length];
-//        for(int i = 0; i< score.length; i++){
-//            copy.score[i] = score[i];
-//        }
         return copy;
     }
 

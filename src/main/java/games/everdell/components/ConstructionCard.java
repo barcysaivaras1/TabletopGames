@@ -141,9 +141,9 @@ public class ConstructionCard extends EverdellCard{
         ArrayList<CardDetails> cardsThatCanOccupy = new ArrayList<>(this.cardsThatCanOccupy);
         ConstructionCard card;
         if(redDestinationAbstractLocation != null){
-            card = new ConstructionCard(redDestinationAbstractLocation, redDestinationLocationID, getName(), isOccupied, cardsThatCanOccupy, componentID);
+            card = new ConstructionCard(redDestinationAbstractLocation, redDestinationLocationID, componentName, isOccupied, cardsThatCanOccupy, componentID);
         }else{
-            card = new ConstructionCard(cardsThatCanOccupy, getName(), isOccupied, componentID);
+            card = new ConstructionCard(cardsThatCanOccupy, componentName, isOccupied, componentID);
         }
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck

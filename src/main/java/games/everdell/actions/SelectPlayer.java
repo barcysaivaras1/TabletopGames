@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class SelectPlayer extends AbstractAction implements IExtendedSequence {
 
@@ -146,8 +145,11 @@ public class SelectPlayer extends AbstractAction implements IExtendedSequence {
             EverdellLocation location = (EverdellLocation) egs.getComponentById(locationId);
             if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.POST_OFFICE_DESTINATION){
                 int locationCardID = EverdellLocation.findCardLinkedToLocation(egs, location);
-                PostOfficeCard locationCard = (PostOfficeCard) egs.getComponentById(locationCardID);
-                locationCard.setPlayers(sp.playerSelectedId, playerId);
+                PostOfficeCard postOfficeCard = (PostOfficeCard) egs.getComponentById(locationCardID);
+                System.out.println("Selected Player: " + sp.playerSelectedId);
+                System.out.println("Current Player: " + playerId);
+                postOfficeCard.setPlayers(sp.playerSelectedId);
+                System.out.println("CHECKING SELECTED PLATYER : "+postOfficeCard.getSelectedPlayer());
                 new PlaceWorker(playerId, locationId, cardIds, new HashMap<>()).execute(state);
             }
             else if(location.getAbstractLocation() == EverdellParameters.RedDestinationLocation.MONASTERY_DESTINATION){

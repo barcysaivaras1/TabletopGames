@@ -118,6 +118,8 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                     EverdellParameters.Seasons nextSeason = EverdellParameters.Seasons.values()[(state.currentSeason[state.getCurrentPlayer()].ordinal() + 1) % EverdellParameters.Seasons.values().length];
                     System.out.println("Next Season: "+nextSeason);
 
+                    //resetValues(state);
+
                     //Green Production, Select the order in which to play the cards
                     if(nextSeason == EverdellParameters.Seasons.AUTUMN || nextSeason == EverdellParameters.Seasons.SPRING){
                         ArrayList<Integer> greenCardsToSelectFrom = state.playerVillage.get(state.getCurrentPlayer()).getComponents().stream().filter(card -> card.getCardType() == EverdellParameters.CardType.GREEN_PRODUCTION).mapToInt(Component::getComponentID).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
@@ -138,7 +140,7 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                             new MoveSeason(new ArrayList<>(), state.getCurrentPlayer()).execute(state);
                         }
                     }
-                    resetValues(state);
+                    //resetValues(state);
                     return true;
                 }
             }
@@ -181,14 +183,6 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                 if(!cardSelectionID.isEmpty()) {
                     //Ensure we have a pointer in the state to the card
                     EverdellCard cardToPlay = (EverdellCard) state.getComponentById(cardSelectionID.get(0));
-
-                    for(var card : state.temporaryDeck){
-                        if(card.getComponentID() == cardToPlay.getComponentID()){
-                            System.out.println("Card in temporary deck : " + card.getComponentID()+ " "+ card.getCardEnumValue());
-                            System.out.println("IS THIS CARD THAT IS IN TEMPORARY DECK PAID FOR : " + card.isCardPayedFor());
-                            break;
-                        }
-                    }
                     //state.temporaryDeck.add(cardToPlay);
 
                     System.out.println("Card Selection ID In PLACEWORKER AI PLAY: " + cardSelectionID.get(0));
@@ -205,21 +199,12 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
     }
 
     public void resetValues(EverdellGameState state){
-        EverdellLocation location = (EverdellLocation) state.getComponentById(locationComponentID);
-
         //Reset the resource selection
         state.resourceSelection = new HashMap<>();
         for(var resource : EverdellParameters.ResourceTypes.values()){
             state.resourceSelection.put(resource, new Counter());
             state.resourceSelection.get(resource).setValue(0);
         }
-
-        //Reset Card Selection
-//        if(location.getAbstractLocation() != EverdellParameters.RedDestinationLocation.QUEEN_DESTINATION){
-//            for (var card : state.cardSelection){
-//                state.temporaryDeck.add(card);
-//            }
-//        }
         state.cardSelection.clear();
     }
 

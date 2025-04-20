@@ -165,6 +165,23 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 EverdellCard card = (EverdellCard) egs.getComponentById(cardId);
                 System.out.println("SelectCard Card Name : " + card.getCardEnumValue());
                 if (canCardBePlayed(cardId, egs)) {
+
+                    //DEBUG
+                    //Check for duplicate actions
+                    if (actions.stream().anyMatch(a -> a instanceof SelectCard sc && sc.cardId == cardId)) {
+                        System.out.println("Duplicate action found for card: " + cardId + " Card name : " + card.getCardEnumValue());
+
+                        //print out all cards in the players hand :
+                        System.out.println("Cards in hand : ");
+                        for (int id : cardsToSelectFromIds) {
+                            System.out.println("Card ID : " + id);
+                            System.out.println("Card Name : " + ((EverdellCard) egs.getComponentById(id)).getCardEnumValue());
+                        }
+
+                        throw new RuntimeException("DUPLICATE ACTION FOUND");
+                    }
+                    //**********************
+
                     actions.add(new SelectCard(playerId, cardId, locationId, cardsToSelectFromIds));
                 }
             }
@@ -518,7 +535,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
 
     @Override
     public void _afterAction(AbstractGameState state, AbstractAction action) {
-
         System.out.println("SelectCard: _afterAction");
         SelectCard selectCard = (SelectCard) action;
         EverdellCard c = (EverdellCard) state.getComponentById(selectCard.cardId);
@@ -541,6 +557,14 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     int locationCardID = EverdellLocation.findCardLinkedToLocation(egs, location);
                     InnCard innCard = (InnCard) egs.getComponentById(locationCardID);
                     innCard.setPlayers(playerId);
+                }
+                else if(location.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+                    //Add the cards to cardChoices
+                    EverdellParameters.ForestLocations.cardChoices = new ArrayList<>();
+                    for(int cardID : cardsToSelectFromIds){
+                        EverdellCard card = (EverdellCard) egs.getComponentById(cardID);
+                        EverdellParameters.ForestLocations.cardChoices.add(card);
+                    }
                 }
                 System.out.println("Card choices in Forest Locations : "+ EverdellParameters.ForestLocations.cardChoices);
                 new PlaceWorker(playerId, selectCard.locationId, new ArrayList<>(List.of(c.getComponentID())), selectCard.resourcesSelected).execute(state);
@@ -684,7 +708,10 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     }
                 }
                 else if(card.getCardEnumValue() == CardDetails.TEACHER){
+                    System.out.println("Teacher card id : " + card.getComponentID());
+                    System.out.println("card selection in teacher : " + egs.cardSelection);
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();
+                    //egs.cardSelection.clear();
                     //Draw 2 Cards
                     cardsToPickFrom.add(egs.cardDeck.draw());
                     cardsToPickFrom.add(egs.cardDeck.draw());
@@ -733,6 +760,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     ArrayList<EverdellCard> cardsToPickFrom = new ArrayList<>();
                     for(int i = 0; i < 2; i++){
                         EverdellCard ppCard = egs.cardDeck.draw();
+
                         //FOOL card edge case
                         if(ppCard instanceof FoolCard fc){
                             System.out.println("Postal Pigeon - Fool Card case");
@@ -783,6 +811,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         }
         executed = true;
     }
+
 
 
     @Override

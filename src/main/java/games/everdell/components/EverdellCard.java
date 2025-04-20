@@ -1,5 +1,6 @@
 package games.everdell.components;
 
+import core.CoreConstants;
 import core.components.Card;
 import games.catan.components.CatanCard;
 import games.everdell.EverdellGameState;
@@ -30,7 +31,6 @@ public abstract class EverdellCard extends Card {
     private boolean isUnique;
 
     public int roundCardWasBought = -1;  // -1 is not bought
-    //public final String cardDescription;
 
     public EverdellCard(String name, CardDetails cardEnumValue, CardType cardType, boolean isCardPayedFor, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {
         super(name);
@@ -99,10 +99,11 @@ public abstract class EverdellCard extends Card {
     public boolean isCardPayedFor() { return isCardPayedFor; }
     public boolean isUnique() { return isUnique; }
 
+
     //Helper Functions
-    public Boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state, int playerId){
+    public boolean checkIfPlayerCanPlaceThisUniqueCard(EverdellGameState state, int playerId){
         //Check if the player has this Unique card in their village
-        if(this.isUnique()){
+        if(isUnique){
             for(EverdellCard card : state.playerVillage.get(playerId).getComponents()){
                 if(card.getCardEnumValue() == getCardEnumValue()){
                     return false;
@@ -114,9 +115,10 @@ public abstract class EverdellCard extends Card {
 
     public void discardCard(EverdellGameState state){
         state.discardDeck.add(this);
+        this.isCardPayedFor = false;
     }
 
-    public Boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
+    public boolean checkIfPlayerCanBuyCard(EverdellGameState state, int playerId){
         //Check if the player has enough resources to buy the card
 
         //The card can be paid with occupation.

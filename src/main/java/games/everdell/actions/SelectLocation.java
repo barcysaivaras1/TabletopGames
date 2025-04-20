@@ -57,7 +57,6 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
     //Red Destination
     /*QUEEN_DESTINATION -> SelectAListOfCards -> PlaceWorker -> SelectCard -> ...(Card Specific Actions)... -> PlayCard
-    * CEMETERY_DESTINATION -> SelectAListOfCards -> PlaceWorker -> SelectCard -> ...(Card Specific Actions)... -> PlayCard
     * CHAPEL_DESTINATION -> PlaceWorker
     * POST_OFFICE_DESTINATION -> SelectAListOfCard -> SelectAListOfCards -> SelectPlayer -> PlaceWorker
     * MONASTERY_DESTINATION -> ResourceSelect -> SelectPlayer -> PlaceWorker
@@ -170,9 +169,9 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             EverdellLocation location = (EverdellLocation) state.getComponentById(locationID);
 
             //DEBUGGING
-            if(location.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
-                continue;
-            }
+//            if(location.getAbstractLocation() == EverdellParameters.ForestLocations.DRAW_TWO_MEADOW_CARDS_PLAY_ONE_DISCOUNT){
+//                continue;
+//            }
             //*******
 
 
@@ -399,9 +398,20 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
             if(location.getAbstractLocation() instanceof RedDestinationLocation){
                 if(location.getAbstractLocation() == RedDestinationLocation.QUEEN_DESTINATION){
                     ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>();
-                    cardsToSelectFrom.addAll(egs.playerHands.get(playerId).getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
-                    cardsToSelectFrom.addAll(egs.meadowDeck.getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
-                    cardsToSelectFrom = cardsToSelectFrom.stream().filter(card -> card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)).collect(Collectors.toCollection(ArrayList::new));
+                    for(var card : egs.playerHands.get(playerId)){
+                        if(card.getPoints() <= 3){
+                            cardsToSelectFrom.add(card);
+                        }
+                    }
+                    for(var card : egs.meadowDeck){
+                        if(card.getPoints() <= 3){
+                            cardsToSelectFrom.add(card);
+                        }
+                    }
+//                    cardsToSelectFrom.addAll(egs.playerHands.get(playerId).getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
+//                    cardsToSelectFrom.addAll(egs.meadowDeck.getComponents().stream().filter(card -> card.getPoints() <= 3).toList());
+
+                    cardsToSelectFrom.removeIf(card -> !card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId));
 
                     //Look for fool to check for edge case
                     for(EverdellCard card : cardsToSelectFrom){
@@ -440,7 +450,13 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                                 egs.temporaryDeck.add(drawnCard);
                             }
                         }
-                        cardsToSelectFrom.removeIf(card -> !card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId));
+                        for(var card: cardsToSelectFrom){
+                            if(!card.checkIfPlayerCanPlaceThisUniqueCard(egs,playerId)){
+                                egs.discardDeck.add(card);
+                                cardsToSelectFrom.remove(card);
+                            }
+                        }
+                        //cardsToSelectFrom.removeIf(card -> !card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId));
 
 
                         //Look for fool to check for edge case
@@ -458,15 +474,23 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                         }
                         else {
                             //All invalid cards we place in the card selection for discarding
-                            egs.cardSelection.addAll(cardsToSelectFrom.stream().filter(card -> !card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)).collect(Collectors.toCollection(ArrayList::new)));
+                            //egs.cardSelection.addAll(cardsToSelectFrom.stream().filter(card -> !card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)).collect(Collectors.toCollection(ArrayList::new)));
                             new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
                         }
                     }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
-                    ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(playerId).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+                    //ArrayList<EverdellCard> cardsToSelectFrom = egs.playerVillage.get(playerId).getComponents().stream().filter(card -> card.getCardEnumValue() != CardDetails.UNIVERSITY).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerVillage.get(playerId).getComponents());
+                    cardsToSelectFrom.removeIf(card -> card.getCardEnumValue() == CardDetails.UNIVERSITY);
                     System.out.println("UNIVERSITY CARD TO SELECT FROM :"+ cardsToSelectFrom);
-                    new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
+                    if(cardsToSelectFrom.isEmpty()){
+                        //if university is the only card in the village, we can just place the worker
+                        new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
+                    }
+                    else {
+                        new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 1, true).execute(egs);
+                    }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.INN_DESTINATION){
                     ArrayList<Integer> cardsToSelectFrom = new ArrayList<>();
@@ -496,16 +520,17 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                         new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                     }
                     else {
+                        egs.cardSelection.clear();
                         new SelectCard(playerId, -1, selectLocation.locationId, cardsToSelectFrom).execute(egs);
                     }
                 }
                 else if(location.getAbstractLocation() == RedDestinationLocation.POST_OFFICE_DESTINATION){
-                    ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
                     if(egs.playerHands.get(playerId).getComponents().size() < 2){
                         //They need at least 2 cards to trigger the effect
                         new PlaceWorker(playerId, selectLocation.locationId, new ArrayList<>(), new HashMap<>()).execute(egs);
                     }
                     else {
+                        ArrayList<EverdellCard> cardsToSelectFrom = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
                         new SelectAListOfCards(playerId, selectLocation.locationId, -1, cardsToSelectFrom, 2, true).execute(egs);
                     }
                 }

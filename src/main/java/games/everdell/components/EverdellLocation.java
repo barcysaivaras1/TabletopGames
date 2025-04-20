@@ -85,6 +85,7 @@ public class EverdellLocation extends Component {
     public int getNumberOfSpaces(){
         return numberOfSpaces;
     }
+
     public boolean canTheSamePlayerBeOnLocationMultipleTimes(){
         return canTheSamePlayerBeOnLocationMultipleTimes;
     }

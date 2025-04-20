@@ -239,12 +239,6 @@ public class ResourceSelect extends AbstractAction implements IExtendedSequence 
                 }
                 new SelectPlayer(playerId, -1, locationId).execute(state);
             }
-            else if(location.getAbstractLocation() == RedDestinationLocation.UNIVERSITY_DESTINATION){
-                for(var resource : EverdellParameters.ResourceTypes.values()){
-                    egs.resourceSelection.get(resource).increment(resourceSelect.resourcesSelected.getOrDefault(resource, 0));
-                }
-                new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);
-            }
             else {
                 new PlaceWorker(state.getCurrentPlayer(), locationId, cardIds, resourceSelect.resourcesSelected).execute(state);
             }

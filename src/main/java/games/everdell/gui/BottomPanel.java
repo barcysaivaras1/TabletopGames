@@ -13,10 +13,7 @@ import games.everdell.EverdellParameters.ResourceTypes;
 import games.everdell.FunctionWrapper;
 import games.everdell.actions.MoveSeason;
 import games.everdell.actions.PlaceWorker;
-import games.everdell.actions.PlayCard;
 import games.everdell.components.*;
-import org.apache.spark.sql.sources.In;
-import scala.collection.immutable.Stream;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -507,7 +502,7 @@ public class BottomPanel extends JPanel {
                             //Find the card that aligns with the location
                             int pocID = EverdellLocation.findCardLinkedToLocation(state, location);
                             PostOfficeCard poc = (PostOfficeCard) state.getComponentById(pocID);
-                            poc.setPlayers(player, state.getCurrentPlayer());
+                            poc.setPlayers(player);
                             if(copyMode){
                                 copyAction.accept(location.getComponentID());
                             }

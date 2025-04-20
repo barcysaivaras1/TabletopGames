@@ -9,7 +9,6 @@ import games.everdell.EverdellGameState;
 import games.everdell.EverdellParameters;
 import games.everdell.components.*;
 import games.everdell.EverdellParameters.CardDetails;
-import utilities.Hash;
 
 import java.util.*;
 
@@ -122,6 +121,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 greenIds.add(card.getComponentID());
             }
 
+            resetValues(state);
             new SelectCard(playerId, -1, greenIds).execute(state);
             return true;
         }
@@ -143,9 +143,14 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             System.out.println("Current Card is : " + currentCard.getCardEnumValue());
             System.out.println("Is current card paid for : " + currentCard.isCardPayedFor());
             //Check if the player can buy the card
+
+            if(currentCard instanceof RangerCard){
+                System.out.println("Ranger Card");
+            }
             if(!currentCard.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
-                System.out.println("You don't have enough resources to buy this card");
-                return false;
+                //System.out.println("You don't have enough resources to buy this card");
+                throw new RuntimeException("You don't have enough resources to buy this card");
+                //return false;
             }
 
             //Make the player pay for the resources, it hasn't been paid for yet (via occupation)
@@ -179,7 +184,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                 RangerCard rc = (RangerCard) currentCard;
                 ArrayList<Integer> locationsToSelectFrom = new ArrayList<>();
                 for (var location : state.everdellLocations) {
-                    if(location.getComponentID() == rc.getLocationFrom().getComponentID()){
+                    if(location.getComponentID() == rc.getLocationFrom(state).getComponentID()){
                         continue;
                     }
                     System.out.println("Adding Location to Select TO : " + location.getAbstractLocation());
@@ -267,8 +272,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         //We remove the card from the meadow and add a new card to the meadow
 
         EverdellCard currentCard = (EverdellCard) state.getComponentById(currentCardID);
-
-
         if(!state.playerHands.get(state.getCurrentPlayer()).remove(currentCard)){
             state.meadowDeck.remove(currentCard);
             if(state.meadowDeck.getSize() < state.meadowDeck.getCapacity()) {
@@ -363,6 +366,10 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 
         System.out.println("You have placed a card");
         return true;
+    }
+
+    public int getCurrentCardID() {
+        return currentCardID;
     }
 
 

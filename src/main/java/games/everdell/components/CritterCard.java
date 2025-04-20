@@ -13,7 +13,7 @@ public class CritterCard extends EverdellCard{
 
     //RED DESTINATION VARIABLE
     private EverdellParameters.RedDestinationLocation redDestinationAbstractLocation;
-    private Integer redDestinationLocationID;
+    private int redDestinationLocationID;
 
 
     public CritterCard(String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect) {

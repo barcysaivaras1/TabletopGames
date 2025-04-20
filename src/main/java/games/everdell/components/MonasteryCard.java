@@ -14,6 +14,7 @@ public class MonasteryCard extends ConstructionCard{
 
     public MonasteryCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
+        this.selectedPlayer = -1;
     }
 
     private MonasteryCard(String name, int compID, int selectedPlayer) {
@@ -24,6 +25,7 @@ public class MonasteryCard extends ConstructionCard{
 
     public void applyCardEffect(EverdellGameState state) {
         super.applyCardEffect(state, setLocationEffect(state));
+
         state.playerVillage.get(state.getCurrentPlayer()).stream().filter(c -> c instanceof MonkCard).forEach(c -> {
             unlockSecondLocation(state);
         });
@@ -65,12 +67,12 @@ public class MonasteryCard extends ConstructionCard{
 
     public void unlockSecondLocation(EverdellGameState state){
         System.out.println("Unlocking Second Location");
-        super.getLocation(state).setNumberOfSpaces(2);
+        getLocation(state).setNumberOfSpaces(2);
         System.out.println(super.getLocation(state).getNumberOfSpaces());
     }
 
     public void lockSecondLocation(EverdellGameState state){
-        super.getLocation(state).setNumberOfSpaces(1);
+        getLocation(state).setNumberOfSpaces(1);
     }
 
     //Players NEED to be set before the location EFFECT is called

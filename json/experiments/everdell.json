@@ -1,7 +1,7 @@
 {
   "game" : "Everdell",
-  "nPlayers" : 2,
-  "matchups" : 100,
+  "nPlayers" : 4,
+  "matchups" : 25,
   "verbose" : false,
   "listener" : "metrics/everdell.json",
   "destDir" : "outputdir"

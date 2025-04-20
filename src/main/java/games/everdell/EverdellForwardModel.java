@@ -297,10 +297,6 @@ public class EverdellForwardModel extends StandardForwardModel {
         if(actions.isEmpty()){
             actions.add(new EndGame());
         }
-//        if(egs.currentSeason[playerId] == EverdellParameters.Seasons.AUTUMN){
-//            actions.clear();
-//            actions.add(new EndGame());
-//        }
 
         return actions;
     }
@@ -399,9 +395,8 @@ public class EverdellForwardModel extends StandardForwardModel {
 
     private void checkIfDiscardDeckNeedsToBeShuffledIntoDeck(EverdellGameState state){
         //Check if the discard deck is empty
-        if(state.cardDeck.getSize() <= 5){
+        if(state.cardDeck.getSize() <= 10){
             //Shuffle the discard deck into the main deck
-            state.cardDeck.shuffle(state.getRnd());
             state.discardDeck.shuffle(state.getRnd());
             for (var card : state.discardDeck){
                 state.cardDeck.add(card);

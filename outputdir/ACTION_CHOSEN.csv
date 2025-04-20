@@ -1,0 +1,5 @@
+GameSeed,GameName,Round,Event,Tick,Turn,PlayerCount,GameID,CardsPlayedInSeason(SUMMER-CardsPlayed),CardsPlayedInSeason(WINTER-CardsPlayed),CardsPlayedInSeason(SPRING-CardsPlayed),CardsPlayedInSeason(AUTUMN-CardsPlayed)
+1132507085,Everdell,0,ACTION_CHOSEN,124,47,2,2,(),(),(),()
+1132507085,Everdell,0,ACTION_CHOSEN,136,52,2,2,(),(),(),()
+-159057284,Everdell,0,ACTION_CHOSEN,131,43,2,3,(),(),(),()
+-159057284,Everdell,0,ACTION_CHOSEN,165,52,2,3,(),(),(),()

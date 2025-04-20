@@ -366,3 +366,783 @@ Random got 100.00 points. Random won 95.0% of the 100 games of the tournament. R
 ---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
 Random: Win rate 0.50 +/- 0.034	Mean Ordinal 1.48 +/- 0.04
 
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 100, GamesPerMatchup: 1
+Random got 100.00 points. Random won 97.0% of the 100 games of the tournament. Random won 48.5% of the 200 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.035	Mean Ordinal 1.49 +/- 0.04
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 100, GamesPerMatchup: 1
+Random got 100.00 points. Random won 91.0% of the 100 games of the tournament. Random won 45.5% of the 200 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.034	Mean Ordinal 1.46 +/- 0.04
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 50.0% of the 2 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.354	Mean Ordinal 1.50 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1000, GamesPerMatchup: 1
+Random got 1000.00 points. Random won 96.5% of the 1000 games of the tournament. Random won 48.3% of the 2000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.011	Mean Ordinal 1.48 +/- 0.01
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 5, GamesPerMatchup: 1
+MCTSPlayer got 5.00 points. MCTSPlayer won 100.0% of the 5 games of the tournament. MCTSPlayer won 50.0% of the 10 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.158	Mean Ordinal 1.50 +/- 0.16
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 95.4% of the 10000 games of the tournament. Random won 47.7% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.48 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 95.8% of the 10000 games of the tournament. Random won 47.9% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.48 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 95.3% of the 10000 games of the tournament. Random won 47.6% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.48 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 5, GamesPerMatchup: 1
+MCTSPlayer got 5.00 points. MCTSPlayer won 100.0% of the 5 games of the tournament. MCTSPlayer won 50.0% of the 10 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.158	Mean Ordinal 1.50 +/- 0.16
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 95.7% of the 10000 games of the tournament. Random won 47.8% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.48 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 5, GamesPerMatchup: 1
+MCTSPlayer got 5.00 points. MCTSPlayer won 100.0% of the 5 games of the tournament. MCTSPlayer won 50.0% of the 10 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.158	Mean Ordinal 1.50 +/- 0.16
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10, GamesPerMatchup: 1
+MCTSPlayer got 10.00 points. MCTSPlayer won 90.0% of the 10 games of the tournament. MCTSPlayer won 45.0% of the 20 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.106	Mean Ordinal 1.45 +/- 0.11
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 66.7% of the 3 games of the tournament. MCTSPlayer won 33.3% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.167	Mean Ordinal 1.33 +/- 0.19
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 1000, GamesPerMatchup: 1
+Random got 1000.00 points. Random won 94.3% of the 1000 games of the tournament. Random won 47.2% of the 2000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.011	Mean Ordinal 1.47 +/- 0.01
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 94.9% of the 10000 games of the tournament. Random won 47.4% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.47 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10000, GamesPerMatchup: 1
+Random got 10000.00 points. Random won 95.8% of the 10000 games of the tournament. Random won 47.9% of the 20000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.003	Mean Ordinal 1.48 +/- 0.00
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 10, GamesPerMatchup: 1
+Random got 10.00 points. Random won 90.0% of the 10 games of the tournament. Random won 45.0% of the 20 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.106	Mean Ordinal 1.45 +/- 0.11
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+MCTSPlayer got 3.00 points. MCTSPlayer won 100.0% of the 3 games of the tournament. MCTSPlayer won 50.0% of the 6 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.204	Mean Ordinal 1.50 +/- 0.20
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 50.0% of the 2 games of the tournament. Random won 25.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.177	Mean Ordinal 1.25 +/- 0.22
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 50.0% of the 2 games of the tournament. Random won 25.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.177	Mean Ordinal 1.25 +/- 0.22
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 50.0% of the 2 games of the tournament. Random won 25.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.177	Mean Ordinal 1.25 +/- 0.22
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+MCTSPlayer got 2.00 points. MCTSPlayer won 100.0% of the 2 games of the tournament. MCTSPlayer won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+MCTSPlayer got 2.00 points. MCTSPlayer won 100.0% of the 2 games of the tournament. MCTSPlayer won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.35
+
+Game: Everdell, Players: 2, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 50.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.50 +/- 0.250	Mean Ordinal 1.50 +/- 0.25
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.25 +/- 0.34
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 1, GamesPerMatchup: 1
+Random got 1.00 points. Random won 100.0% of the 1 games of the tournament. Random won 25.0% of the 4 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.217	Mean Ordinal 2.50 +/- 0.56
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.38 +/- 0.39
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 50.0% of the 2 games of the tournament. Random won 12.5% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.125	Mean Ordinal 2.38 +/- 0.43
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 2, GamesPerMatchup: 1
+Random got 2.00 points. Random won 100.0% of the 2 games of the tournament. Random won 25.0% of the 8 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.153	Mean Ordinal 2.50 +/- 0.40
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 1000, GamesPerMatchup: 1
+Random got 1000.00 points. Random won 91.6% of the 1000 games of the tournament. Random won 22.9% of the 4000 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.007	Mean Ordinal 2.42 +/- 0.02
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 100, GamesPerMatchup: 1
+Random got 100.00 points. Random won 87.0% of the 100 games of the tournament. Random won 21.8% of the 400 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.021	Mean Ordinal 2.41 +/- 0.06
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 3, GamesPerMatchup: 1
+Random got 3.00 points. Random won 100.0% of the 3 games of the tournament. Random won 25.0% of the 12 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.125	Mean Ordinal 2.42 +/- 0.32
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 50, GamesPerMatchup: 1
+Random got 50.00 points. Random won 94.0% of the 50 games of the tournament. Random won 23.5% of the 200 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+Random: Win rate 0.25 +/- 0.030	Mean Ordinal 2.43 +/- 0.08
+
+Game: Everdell, Players: 4, Mode: RANDOM, TotalGames: 25, GamesPerMatchup: 1
+MCTSPlayer got 25.00 points. MCTSPlayer won 92.0% of the 25 games of the tournament. MCTSPlayer won 23.0% of the 100 games it played during the tournament.
+
+---- Ranking ---- (+/- are standard errors on the mean calculated using a Normal approximation) 
+MCTSPlayer: Win rate 0.25 +/- 0.042	Mean Ordinal 2.45 +/- 0.11
+

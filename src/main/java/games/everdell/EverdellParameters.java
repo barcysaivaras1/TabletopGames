@@ -4,12 +4,8 @@ import core.AbstractGameState;
 import core.AbstractParameters;
 import core.components.Counter;
 import evaluation.optimisation.TunableParameters;
-import games.dominion.actions.Chapel;
-import games.everdell.actions.MoveSeason;
 import games.everdell.components.*;
-import org.apache.spark.sql.catalyst.expressions.Abs;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -127,8 +123,8 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard Cards
                 int numOfPoints = 0;
                 for (EverdellCard card : state.cardSelection) {
-                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
                     state.discardDeck.add(card);
+                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
                     state.cardCount[state.getCurrentPlayer()].decrement();
                     numOfPoints++;
                 }
@@ -310,8 +306,8 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard a card
                 for(var card : cardChoices){
                     try{
-                        state.playerHands.get(playerID).remove((EverdellCard) card);
                         state.discardDeck.add(card);
+                        state.playerHands.get(playerID).remove((EverdellCard) card);
                         state.cardCount[playerID].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
@@ -336,8 +332,8 @@ public class EverdellParameters extends AbstractParameters {
                 System.out.println("RESOURCES TO GAIN : "+state.resourceSelection);
                 for(var card : cardChoices){
                     try{
-                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
                         state.discardDeck.add(card);
+                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
                         state.cardCount[state.getCurrentPlayer()].decrement();
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
@@ -614,9 +610,9 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Discard Cards
                 for (EverdellCard card : state.cardSelection) {
+                    state.discardDeck.add(card);
                     state.playerVillage.get(state.getCurrentPlayer()).remove(card);
                     card.removeCardEffect(state);
-                    state.discardDeck.add(card);
                 }
 
 
@@ -972,9 +968,9 @@ public class EverdellParameters extends AbstractParameters {
 
                 if(!state.cardSelection.isEmpty()) {
                     //Discard the card
-                    state.cardSelection.get(0).removeCardEffect(state);
-                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
                     state.discardDeck.add(state.cardSelection.get(0));
+                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+                    state.cardSelection.get(0).removeCardEffect(state);
 
                     //Refund the cost of the card
                     for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
@@ -1036,6 +1032,17 @@ public class EverdellParameters extends AbstractParameters {
         COURTHOUSE, CRANE, INNKEEPER, UNIVERSITY, CHAPEL, SHEPHERD, CLOCK_TOWER, RANGER, DUNGEON, MINER_MOLE, EVER_TREE, STORE_HOUSE;
 
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
+
+        public void discardEverdellCard(EverdellGameState state, EverdellCard card){
+            //This will be called when the card is discarded
+            //The card will be removed from the players hand
+            //It will make a new card that is of the same type and add it to the discard pile
+            //This is so that any values are reset
+            EverdellCard newCard = card.getCardEnumValue().createEverdellCard.apply(state);
+            state.discardDeck.add(newCard);
+            state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+            card.removeCardEffect(state);
+        }
 
         static {
             FARM.createEverdellCard = (gamestate) -> new ConstructionCard("Farm", FARM, CardType.GREEN_PRODUCTION, true, false, 1,
@@ -1303,8 +1310,8 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard up to 5 cards, Give 1 point for each card discarded
                 for (var card : state.cardSelection) {
                     try {
-                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
                         state.discardDeck.add(card);
+                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
                         state.cardCount[state.getCurrentPlayer()].decrement();
                         counter++;
                     } catch (Exception e) {
@@ -1331,9 +1338,9 @@ public class EverdellParameters extends AbstractParameters {
                     System.out.println("Removing card from village");
                     System.out.println(state.cardSelection.get(0));
 
+                    state.discardDeck.add(state.cardSelection.get(0));
                     state.cardSelection.get(0).removeCardEffect(state);
                     state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
-                    state.discardDeck.add(state.cardSelection.get(0));
 
 
                     //Refund the Resources
@@ -1845,9 +1852,10 @@ public class EverdellParameters extends AbstractParameters {
 
 
     HashMap<CardDetails, Integer> everdellCardCount = new HashMap<CardDetails, Integer>() {{
-//        put(CardDetails.FARM, 32);
+        //put(CardDetails.FARM, 64);
 //        put(CardDetails.WIFE, 16);
 //        put(CardDetails.HUSBAND, 16);
+
         put(CardDetails.ARCHITECT, 2);
         put(CardDetails.BARD, 2);
         put(CardDetails.BARGE_TOAD, 3);
@@ -1878,7 +1886,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.MONK, 2);
         put(CardDetails.PALACE, 2);
         put(CardDetails.PEDDLER, 3);
-        put(CardDetails.POST_OFFICE, 3);
+        //put(CardDetails.POST_OFFICE, 3);
         put(CardDetails.POSTAL_PIGEON, 3);
         put(CardDetails.QUEEN, 2);
         //put(CardDetails.RANGER, 2);
@@ -1892,7 +1900,7 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.THEATRE, 2);
         put(CardDetails.TWIG_BARGE, 3);
         put(CardDetails.UNDERTAKER, 2);
-        put(CardDetails.UNIVERSITY, 2);
+        //put(CardDetails.UNIVERSITY, 2);
         put(CardDetails.WANDERER, 3);
         put(CardDetails.WIFE, 4);
         put(CardDetails.WOOD_CARVER, 3);

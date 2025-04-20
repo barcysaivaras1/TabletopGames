@@ -66,6 +66,7 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
             switch (newSeason) {
                 case SPRING:
                     //Production event
+                    state.cardSelection.clear();
                     state.workers[state.getCurrentPlayer()].increment();
                     productionEvent(state);
                     break;
@@ -76,6 +77,7 @@ public class MoveSeason extends AbstractAction implements IExtendedSequence{
                     break;
                 case AUTUMN:
                     //Production event
+                    state.cardSelection.clear();
                     state.workers[state.getCurrentPlayer()].increment(2);
                     productionEvent(state);
                     break;

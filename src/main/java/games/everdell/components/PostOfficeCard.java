@@ -1,10 +1,7 @@
 package games.everdell.components;
 
-
 import games.everdell.EverdellGameState;
-import games.everdell.EverdellParameters.CardDetails;
 import games.everdell.EverdellParameters;
-import games.everdell.EverdellParameters.CardType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,32 +11,25 @@ import java.util.function.Function;
 public class PostOfficeCard extends ConstructionCard{
 
     int playerOwner;
-    int selectedPlayer;
-    int occupyingPlayer;
+    private int selectedPlayer;
 
 
-    public PostOfficeCard(EverdellParameters.RedDestinationLocation rdl, String name, CardDetails cardEnumValue, CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<CardDetails> cardsThatCanOccupy) {
+    public PostOfficeCard(EverdellParameters.RedDestinationLocation rdl, String name, EverdellParameters.CardDetails cardEnumValue, EverdellParameters.CardType cardType, boolean isConstruction, boolean isUnique, int points, HashMap<EverdellParameters.ResourceTypes, Integer> resourceCost, Function<EverdellGameState, Boolean> applyCardEffect, Consumer<EverdellGameState> removeCardEffect, ArrayList<EverdellParameters.CardDetails> cardsThatCanOccupy) {
         super(rdl, name, cardEnumValue, cardType, isConstruction, isUnique, points, resourceCost, applyCardEffect, removeCardEffect, cardsThatCanOccupy);
+        this.playerOwner = -1;
+        this.selectedPlayer = -1;
     }
 
-    private PostOfficeCard(String name, int compID, int playerOwner, int selectedPlayer, int occupyingPlayer) {
+    public PostOfficeCard(String name, int compID, int playerOwner, int selectedPlayer) {
         super(name, compID);
         this.playerOwner = playerOwner;
         this.selectedPlayer = selectedPlayer;
-        this.occupyingPlayer = occupyingPlayer;
     }
 
 
     public void applyCardEffect(EverdellGameState state) {
-        //This means they are placing the card, we can assign the playerOwner
-        playerOwner = state.getCurrentPlayer();
-
-//        EverdellLocation location = new EverdellLocation(rdl,1, false, setLocationEffect(state));
-//        location.setOwnerId(state.getCurrentPlayer());
-//        state.everdellLocations.add(location);
+        this.playerOwner = state.getCurrentPlayer();
         super.applyCardEffect(state, setLocationEffect(state));
-//        EverdellLocation location = super.getLocation(state);
-//        locationId = location.getComponentID();
     }
 
     public Consumer<EverdellGameState> setLocationEffect(EverdellGameState k){
@@ -58,40 +48,55 @@ public class PostOfficeCard extends ConstructionCard{
 
         return state -> {
             //If the occupying player is not the owner, the owner gains 1 token
+            int occupyingPlayer = state.getCurrentPlayer();
+
+            PostOfficeCard card = (PostOfficeCard) state.getComponentById(getComponentID());
+            System.out.println("SELECTED PLAYER RETRIEVED FROM STATE : " + card.getSelectedPlayer());
+            selectedPlayer = card.getSelectedPlayer();
+
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();
             }
 
-            if(state.cardSelection.isEmpty()){
+            if(state.cardSelection.isEmpty()) {
                 System.out.println("No cards selected");
                 return;
             }
+            System.out.println("Select Player is : " + getSelectedPlayer());
+            System.out.println("Occupying Player is : " + occupyingPlayer);
 
             System.out.println("IN POSTOFFICE CARD, CARD SELECTION IS : " + state.cardSelection);
+            System.out.println("IN POSTOFFICE CARD, PLAYER HANDS ARE : " + state.playerHands.get(occupyingPlayer));
             //Move the cards from the occupying player to the selected player
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(0));
             state.playerHands.get(occupyingPlayer).remove(state.cardSelection.get(1));
+            System.out.println("IN POSTOFFICE CARD, PLAYER HANDS AFTER REMOVAL ARE : " + state.playerHands.get(occupyingPlayer));
             state.cardCount[occupyingPlayer].decrement(2);
 
             for (int i = 0; i < 2; i++) {
-                if (state.playerHands.get(selectedPlayer).getSize() == state.playerHands.get(state.getCurrentPlayer()).getCapacity()) {
+                if (state.playerHands.get(getSelectedPlayer()).getSize() == state.playerHands.get(getSelectedPlayer()).getCapacity()) {
                     break;
                 }
-                System.out.println("Adding card to player " + selectedPlayer);
-                System.out.println("Card: " + state.cardSelection.get(i).getName());
-                state.playerHands.get(selectedPlayer).add(state.cardSelection.get(i));
-                state.cardCount[selectedPlayer].increment();
+                System.out.println("Adding card to player " + getSelectedPlayer());
+                System.out.println("Card: " + state.cardSelection.get(i));
+                state.playerHands.get(getSelectedPlayer()).add(state.cardSelection.get(i));
+                state.cardCount[getSelectedPlayer()].increment();
             }
 
+            //Remove the cards that were given away from the card selection
+            state.cardSelection.remove(0);
+            state.cardSelection.remove(0);
 
+            System.out.println("Card Selection after removing cards: " + state.cardSelection);
 
             //Discard any selected cards
-            if (state.cardSelection.size() > 2) {
-                for(var c : state.cardSelection.subList(2, state.cardSelection.size())){
-                    state.playerHands.get(occupyingPlayer).remove(c);
-                    state.cardCount[occupyingPlayer].decrement();
-                }
+            for(var c : state.cardSelection){
+                if(state.discardDeck.contains(c)) continue;
+                state.discardDeck.add(c);
+                state.playerHands.get(occupyingPlayer).remove(c);
+                state.cardCount[occupyingPlayer].decrement();
             }
+
             //Draw to the Limit
             while(state.playerHands.get(occupyingPlayer).getSize() < state.playerHands.get(occupyingPlayer).getCapacity()){
                 state.playerHands.get(occupyingPlayer).add(state.cardDeck.draw());
@@ -99,32 +104,30 @@ public class PostOfficeCard extends ConstructionCard{
 
             state.cardCount[occupyingPlayer].setValue(8);
         };
+
     }
 
-    //Players NEED to be set before the location EFFECT is called
-    public void setPlayers(int selectedPlayer, int occupyingPlayer){
-        this.selectedPlayer = selectedPlayer;
-        this.occupyingPlayer = occupyingPlayer;
 
+    //Players NEED to be set before the location EFFECT is called
+    public void setPlayers(int selectedPlayer){
+        this.selectedPlayer = selectedPlayer;
+    }
+
+    public int getSelectedPlayer(){
+        return selectedPlayer;
     }
 
     @Override
     public void removeCardEffect(EverdellGameState state){
-        System.out.println("Removing Post Office Card Effect");
-        System.out.println("Post Office Card Location : " + getLocation(state));
-        System.out.println("Post Office Card Location ID : " + getLocation(state).getComponentID());
         state.everdellLocations.remove(getLocation(state));
     }
 
     @Override
     public PostOfficeCard copy() {
-        PostOfficeCard card;
-        card = new PostOfficeCard(getName(), componentID, playerOwner, selectedPlayer, occupyingPlayer);
+        PostOfficeCard card = new PostOfficeCard(getName(), componentID, playerOwner, selectedPlayer);
         super.copyTo(card);
         card.roundCardWasBought = -1;  // Assigned in game state copy of the deck
         return card;
     }
-
-
 
 }
