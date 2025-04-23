@@ -50,9 +50,8 @@ public class PostOfficeCard extends ConstructionCard{
             //If the occupying player is not the owner, the owner gains 1 token
             int occupyingPlayer = state.getCurrentPlayer();
 
-            PostOfficeCard card = (PostOfficeCard) state.getComponentById(getComponentID());
-            System.out.println("SELECTED PLAYER RETRIEVED FROM STATE : " + card.getSelectedPlayer());
-            selectedPlayer = card.getSelectedPlayer();
+//            PostOfficeCard card = (PostOfficeCard) state.getComponentById(getComponentID());
+//            selectedPlayer = card.getSelectedPlayer();
 
             if(occupyingPlayer != playerOwner){
                 state.pointTokens[playerOwner].increment();

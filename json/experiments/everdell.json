@@ -1,6 +1,6 @@
 {
   "game" : "Everdell",
-  "nPlayers" : 4,
+  "nPlayers" : 2,
   "matchups" : 25,
   "verbose" : false,
   "listener" : "metrics/everdell.json",
