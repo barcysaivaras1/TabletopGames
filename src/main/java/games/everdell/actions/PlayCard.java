@@ -144,13 +144,8 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             System.out.println("Is current card paid for : " + currentCard.isCardPayedFor());
             //Check if the player can buy the card
 
-            if(currentCard instanceof RangerCard){
-                System.out.println("Ranger Card");
-            }
             if(!currentCard.checkIfPlayerCanBuyCard(state, state.getCurrentPlayer())){
-                //System.out.println("You don't have enough resources to buy this card");
                 throw new RuntimeException("You don't have enough resources to buy this card");
-                //return false;
             }
 
             //Make the player pay for the resources, it hasn't been paid for yet (via occupation)
@@ -170,13 +165,14 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             //Apply Card Effect
             triggerCardEffect(state, currentCard);
 
-
             resetValues(state);
 
+            state.cardSelection.clear();
 
             //AI PLAY
             if(currentCard.getCardEnumValue() == CardDetails.POSTAL_PIGEON){
                 if(!cardSelectionID.isEmpty()) {
+                    System.out.println("Card selection in state is : " + state.cardSelection);
                     new SelectCard(playerId, cardSelectionID.get(0), new ArrayList<>()).execute(state);
                 }
             }
@@ -187,15 +183,15 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
                     if(location.getComponentID() == rc.getLocationFrom(state).getComponentID()){
                         continue;
                     }
-                    System.out.println("Adding Location to Select TO : " + location.getAbstractLocation());
+                    //System.out.println("Adding Location to Select TO : " + location.getAbstractLocation());
                     locationsToSelectFrom.add(location.getComponentID());
                 }
                 state.rangerCardMode = false;
                 new SelectLocation(playerId, -1, locationsToSelectFrom).execute(state);
             }
 
-
             checkForCardsThatNeedToActivateAfterPlayingACard(state);
+
             return true;
         }
         System.out.println("Cannot place card, village is full");
@@ -213,7 +209,9 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
 //        for (var card : state.cardSelection){
 //            state.temporaryDeck.add(card);
 //        }
+        System.out.println("Card Selection in PlayCard Before Clear: " + state.cardSelection);
         state.cardSelection.clear();
+        System.out.println("Card Selection in PlayCard After Clear: " + state.cardSelection);
         state.currentCard = null;
     }
 
@@ -285,7 +283,7 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
         }
     }
 
-    private Boolean checkForCardsThatNeedToActivateAfterPlayingACard(EverdellGameState state){
+    private void checkForCardsThatNeedToActivateAfterPlayingACard(EverdellGameState state){
         //Check if the card we played has any cards that need to be activated after playing a card
         //This is for cards that do NOT need GUI elements to be function
         //There is a separate function for cards that need GUI elements to function in the GUIManager
@@ -325,7 +323,6 @@ public class PlayCard extends AbstractAction implements IExtendedSequence{
             System.out.println("COURTHOUSE CARD TRIGGERED");
             new ResourceSelect(state.getCurrentPlayer(), courthouse.getComponentID(), -1, new ArrayList<>(List.of(EverdellParameters.ResourceTypes.values())), 1, true, false).execute(state);
         }
-        return false;
     }
 
     private void makePlayerPayForCard(EverdellGameState state){

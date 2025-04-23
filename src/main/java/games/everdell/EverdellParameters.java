@@ -123,9 +123,7 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard Cards
                 int numOfPoints = 0;
                 for (EverdellCard card : state.cardSelection) {
-                    state.discardDeck.add(card);
-                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
-                    state.cardCount[state.getCurrentPlayer()].decrement();
+                    CardDetails.discardEverdellCard(state, card);
                     numOfPoints++;
                 }
 
@@ -201,9 +199,10 @@ public class EverdellParameters extends AbstractParameters {
             HAVEN.applyLocationEffect = (state) -> {
                 //Remove cards from player hand
                 for(EverdellCard card : state.cardSelection){
-                    state.discardDeck.add(card);
-                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
-                    state.cardCount[state.getCurrentPlayer()].decrement();
+//                    state.discardDeck.add(card);
+//                    state.playerHands.get(state.getCurrentPlayer()).remove(card);
+//                    state.cardCount[state.getCurrentPlayer()].decrement();
+                    CardDetails.discardEverdellCard(state, card);
                 }
 
                 int numbOfResources = state.cardSelection.size()/2;
@@ -306,9 +305,10 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard a card
                 for(var card : cardChoices){
                     try{
-                        state.discardDeck.add(card);
-                        state.playerHands.get(playerID).remove((EverdellCard) card);
-                        state.cardCount[playerID].decrement();
+//                        state.discardDeck.add(card);
+//                        state.playerHands.get(playerID).remove((EverdellCard) card);
+//                        state.cardCount[playerID].decrement();
+                        CardDetails.discardEverdellCard(state, card);
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
                     }
@@ -332,9 +332,10 @@ public class EverdellParameters extends AbstractParameters {
                 System.out.println("RESOURCES TO GAIN : "+state.resourceSelection);
                 for(var card : cardChoices){
                     try{
-                        state.discardDeck.add(card);
-                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
-                        state.cardCount[state.getCurrentPlayer()].decrement();
+//                        state.discardDeck.add(card);
+//                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+//                        state.cardCount[state.getCurrentPlayer()].decrement();
+                        CardDetails.discardEverdellCard(state, card);
                     } catch (Exception e){
                         System.out.println("Error in Forest Locations, Choices did not contain cards");
                     }
@@ -610,9 +611,10 @@ public class EverdellParameters extends AbstractParameters {
 
                 //Discard Cards
                 for (EverdellCard card : state.cardSelection) {
-                    state.discardDeck.add(card);
-                    state.playerVillage.get(state.getCurrentPlayer()).remove(card);
-                    card.removeCardEffect(state);
+//                    state.discardDeck.add(card);
+//                    state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+//                    card.removeCardEffect(state);
+                    CardDetails.discardEverdellCard(state, card);
                 }
 
 
@@ -968,9 +970,10 @@ public class EverdellParameters extends AbstractParameters {
 
                 if(!state.cardSelection.isEmpty()) {
                     //Discard the card
-                    state.discardDeck.add(state.cardSelection.get(0));
-                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
-                    state.cardSelection.get(0).removeCardEffect(state);
+//                    state.discardDeck.add(state.cardSelection.get(0));
+//                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+//                    state.cardSelection.get(0).removeCardEffect(state);
+                    CardDetails.discardEverdellCard(state, state.cardSelection.get(0));
 
                     //Refund the cost of the card
                     for (var resource : state.cardSelection.get(0).getResourceCost().keySet()) {
@@ -1033,15 +1036,31 @@ public class EverdellParameters extends AbstractParameters {
 
         public Function<EverdellGameState, EverdellCard> createEverdellCard;
 
-        public void discardEverdellCard(EverdellGameState state, EverdellCard card){
+        public static void discardEverdellCard(EverdellGameState state, EverdellCard card){
             //This will be called when the card is discarded
-            //The card will be removed from the players hand
+            //The card will be removed from the player's hand, meadow or village
             //It will make a new card that is of the same type and add it to the discard pile
             //This is so that any values are reset
             EverdellCard newCard = card.getCardEnumValue().createEverdellCard.apply(state);
             state.discardDeck.add(newCard);
-            state.playerVillage.get(state.getCurrentPlayer()).remove(card);
-            card.removeCardEffect(state);
+
+            if(state.playerHands.get(state.getCurrentPlayer()).contains(card)){
+                state.playerHands.get(state.getCurrentPlayer()).remove(card);
+                state.cardCount[state.getCurrentPlayer()].decrement();
+            }
+            else if(state.meadowDeck.contains(card)){
+                state.playerHands.get(state.getCurrentPlayer()).remove(card);
+                state.cardCount[state.getCurrentPlayer()].decrement();
+            }
+            else if(state.playerVillage.get(state.getCurrentPlayer()).contains(card)) {
+                System.out.println("Card is being removed from the village");
+                card.removeCardEffect(state);
+                state.playerVillage.get(state.getCurrentPlayer()).remove(card);
+            }
+
+            if(state.temporaryDeck.contains(card)) {
+                state.temporaryDeck.remove(card);
+            }
         }
 
         static {
@@ -1310,9 +1329,10 @@ public class EverdellParameters extends AbstractParameters {
                 //Discard up to 5 cards, Give 1 point for each card discarded
                 for (var card : state.cardSelection) {
                     try {
-                        state.discardDeck.add(card);
-                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
-                        state.cardCount[state.getCurrentPlayer()].decrement();
+//                        state.discardDeck.add(card);
+//                        state.playerHands.get(state.getCurrentPlayer()).remove((EverdellCard) card);
+//                        state.cardCount[state.getCurrentPlayer()].decrement();
+                        discardEverdellCard(state, card);
                         counter++;
                     } catch (Exception e) {
                         System.out.println("Error in Bard, Choices did not contain cards");
@@ -1338,9 +1358,10 @@ public class EverdellParameters extends AbstractParameters {
                     System.out.println("Removing card from village");
                     System.out.println(state.cardSelection.get(0));
 
-                    state.discardDeck.add(state.cardSelection.get(0));
-                    state.cardSelection.get(0).removeCardEffect(state);
-                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+//                    state.discardDeck.add(state.cardSelection.get(0));
+//                    state.cardSelection.get(0).removeCardEffect(state);
+//                    state.playerVillage.get(state.getCurrentPlayer()).remove(state.cardSelection.get(0));
+                    discardEverdellCard(state, state.cardSelection.get(0));
 
 
                     //Refund the Resources
@@ -1495,7 +1516,7 @@ public class EverdellParameters extends AbstractParameters {
             }, (everdellGameState -> {
             }), new ArrayList<>(List.of(INNKEEPER)));
 
-            POST_OFFICE.createEverdellCard = (gameState) -> new PostOfficeCard(RedDestinationLocation.POST_OFFICE_DESTINATION, "Post Office", POST_OFFICE, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
+            POST_OFFICE.createEverdellCard = (gameState) -> new PostOfficeCard(RedDestinationLocation.POST_OFFICE_DESTINATION, "Post_Office", POST_OFFICE, CardType.RED_DESTINATION, true, false, 2, new HashMap<>() {{
                 put(ResourceTypes.TWIG, 1);
                 put(ResourceTypes.RESIN, 2);
             }}, (state) -> {
@@ -1601,7 +1622,7 @@ public class EverdellParameters extends AbstractParameters {
                 if (state.cardSelection.get(0).getPoints() <= 3) {
                     state.cardSelection.get(0).payForCard();
                     if(state.cardSelection.size() == 2) {
-                        state.discardDeck.add(state.cardSelection.get(1));
+                        discardEverdellCard(state, state.cardSelection.get(1));
                     }
                 }
                 return true;
@@ -1712,7 +1733,7 @@ public class EverdellParameters extends AbstractParameters {
                 return true;
             }, (everdellGameState -> {
                 //Remove Effect
-
+                System.out.println("Chapel Remove card Effect");
                 //Find Chapel Card in players village
                 for (var card : everdellGameState.playerVillage.get(everdellGameState.getCurrentPlayer())) {
                     if (card.getCardEnumValue() == CHAPEL) {
@@ -1886,21 +1907,21 @@ public class EverdellParameters extends AbstractParameters {
         put(CardDetails.MONK, 2);
         put(CardDetails.PALACE, 2);
         put(CardDetails.PEDDLER, 3);
-        //put(CardDetails.POST_OFFICE, 3);
+        put(CardDetails.POST_OFFICE, 3);
         put(CardDetails.POSTAL_PIGEON, 3);
         put(CardDetails.QUEEN, 2);
-        //put(CardDetails.RANGER, 2);
+        put(CardDetails.RANGER, 2);
         put(CardDetails.RESIN_REFINERY, 3);
         put(CardDetails.RUINS, 3);
         put(CardDetails.SCHOOL, 2);
         put(CardDetails.SHEPHERD, 2);
         put(CardDetails.SHOP_KEEPER, 3);
         put(CardDetails.STORE_HOUSE, 3);
-        //put(CardDetails.TEACHER, 3);
+        put(CardDetails.TEACHER, 3);
         put(CardDetails.THEATRE, 2);
         put(CardDetails.TWIG_BARGE, 3);
         put(CardDetails.UNDERTAKER, 2);
-        //put(CardDetails.UNIVERSITY, 2);
+        put(CardDetails.UNIVERSITY, 2);
         put(CardDetails.WANDERER, 3);
         put(CardDetails.WIFE, 4);
         put(CardDetails.WOOD_CARVER, 3);

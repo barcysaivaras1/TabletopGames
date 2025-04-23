@@ -193,6 +193,9 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 if(card instanceof ConstructionCard cc){
                     EverdellCard cardTryingToOccupy = (EverdellCard) egs.getComponentById(cardId);
                     if(cc.canCardOccupyThis(egs, cardTryingToOccupy)){
+                        System.out.println("Occupation Card : " + card.getCardEnumValue() + " Occupation ID : " + card.getComponentID());
+                        System.out.println("Is card occupied : " + cc.isOccupied());
+
                         actions.add(new SelectCard(playerId, cardId, locationId, card.getComponentID(), cardsToSelectFromIds, false, false, true, null));
                     }
                 }
@@ -260,9 +263,6 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 //If the card is paid for, we default to paying with resources
                 if(card.isCardPayedFor()){
                     System.out.println("Card is paid for in SELECTCARD");
-//                    if(card instanceof RangerCard){
-//                        throw new RuntimeException("RangerCard debugging");
-//                    }
                     return actions;
                 }
             }
@@ -338,18 +338,20 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
         }
     }
 
-    private boolean thisCardCanOccupy(Integer cardId, EverdellGameState state){
+    private boolean thisCardCanOccupy(int cardId, EverdellGameState state){
         EverdellCard card = (EverdellCard) state.getComponentById(cardId);
         if(card instanceof ConstructionCard){
             return false;
         }
 
         for(EverdellCard cardToOccupy : state.playerVillage.get(playerId)){
-            if(cardToOccupy == card){
-                continue;
-            }
+//            if(cardToOccupy == card){
+//                continue;
+//            }
             if(cardToOccupy instanceof ConstructionCard cc){
-                if(cc.canCardOccupyThis(state, card) && !cc.isOccupied()){
+                System.out.println("Card to occupy : " + cardToOccupy.getCardEnumValue() + " is it Occupied : " + cc.isOccupied());
+                if(cc.canCardOccupyThis(state, card)){
+                    System.out.println("Occupy Card ID : " + cc.getComponentID());
                     return true;
                 }
             }
@@ -587,8 +589,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 ConstructionCard cc = (ConstructionCard) cardApplyingDiscount;
                 egs.resourceSelection = resourcesSelection;
                 cc.applyCardEffect(egs);
-                egs.playerVillage.get(playerId).remove(cc);
-                egs.discardDeck.add(cc);
+                CardDetails.discardEverdellCard(egs, cc);
                 egs.resourceSelection.keySet().forEach(resource -> egs.resourceSelection.get(resource).setValue(0));
                 discountApplied = true;
             }
@@ -596,8 +597,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 CritterCard ic = (CritterCard) cardApplyingDiscount;
                 egs.resourceSelection = resourcesSelection;
                 ic.applyCardEffect(egs);
-                egs.playerVillage.get(playerId).remove(ic);
-                egs.discardDeck.add(ic);
+                CardDetails.discardEverdellCard(egs, ic);
                 egs.resourceSelection.keySet().forEach(resource -> egs.resourceSelection.get(resource).setValue(0));
                 discountApplied = true;
             }
@@ -630,7 +630,17 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                 if(selectCard.payWithOccupation){
                     //Need to pay for the card
                     ConstructionCard occupation = (ConstructionCard) egs.getComponentById(selectCard.occupationId);
+                    System.out.println("Occupation ID : " + occupation.getComponentID());
+                    System.out.println("Occupation Card : " + occupation.getCardEnumValue());
+                    if(occupation.isOccupied()){
+                        System.out.println("Card is already occupied????");
+                    }
+                    System.out.println("Before occupation is it occupied : " + occupation.isOccupied());
                     occupation.occupyConstruction((CritterCard) card);
+                    System.out.println("After occupation is it occupied : " + occupation.isOccupied());
+                    System.out.println("Construction Card Occupied : " + occupation.getCardEnumValue());
+                    System.out.println("Card Occupying : " + card.getCardEnumValue()+" is card paid for ? : " + card.isCardPayedFor());
+
                 }
 
                 //Check if the card would require additional steps
@@ -750,6 +760,8 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                     }
                     else {
                         egs.rangerCardMode = true;
+                        //Store the ranger card so we can reference this later
+                        egs.currentCard = card;
                         //Need to select a location to move FROM
                         System.out.println("Locations to select from : " + locationsToSelect);
                         new SelectLocation(playerId, -1, locationsToSelect).execute(egs);
@@ -770,7 +782,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                                 egs.temporaryDeck.add(ppCard);
                             }
                             else{
-                                ppCard.discardCard(egs);
+                                CardDetails.discardEverdellCard(egs, ppCard);
                             }
                         }
                         else if(ppCard.getPoints() <=3){
@@ -781,7 +793,7 @@ public class SelectCard extends AbstractAction implements IExtendedSequence {
                             }
                         }
                         else{
-                            ppCard.discardCard(egs);
+                            CardDetails.discardEverdellCard(egs, ppCard);
                         }
                     }
 

@@ -88,6 +88,7 @@ public class MonasteryCard extends ConstructionCard{
 
     @Override
     public void removeCardEffect(EverdellGameState state){
+        System.out.println("Monastery : Removing Card Effect");
         state.everdellLocations.remove(getLocation(state));
     }
 

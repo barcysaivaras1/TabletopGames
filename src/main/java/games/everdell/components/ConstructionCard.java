@@ -43,6 +43,9 @@ public class ConstructionCard extends EverdellCard{
     }
     public ConstructionCard(ArrayList<CardDetails> cardsThatCanOccupy, String name, boolean isOccupied, int compID) {
         super(name, compID);
+        if(this.isOccupied && !isOccupied){
+            System.out.println("Error: ConstructionCard is occupied but isOccupied is set to false");
+        }
         this.cardsThatCanOccupy = cardsThatCanOccupy;
         this.isOccupied = isOccupied;
     }

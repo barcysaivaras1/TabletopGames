@@ -92,9 +92,7 @@ public class PostOfficeCard extends ConstructionCard{
             //Discard any selected cards
             for(var c : state.cardSelection){
                 if(state.discardDeck.contains(c)) continue;
-                state.discardDeck.add(c);
-                state.playerHands.get(occupyingPlayer).remove(c);
-                state.cardCount[occupyingPlayer].decrement();
+                EverdellParameters.CardDetails.discardEverdellCard(state, c);
             }
 
             //Draw to the Limit

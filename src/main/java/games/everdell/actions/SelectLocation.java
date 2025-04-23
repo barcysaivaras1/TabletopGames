@@ -300,22 +300,10 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
 
         //This is a special case for the ranger card, as it is not a location
         if(egs.rangerCardMode){
-            //Find card
-            int cardID = -1;
-            ArrayList<EverdellCard> cardsToLookThrough = new ArrayList<>(egs.playerHands.get(playerId).getComponents());
-            cardsToLookThrough.addAll(egs.meadowDeck.getComponents());
-            cardsToLookThrough.addAll(egs.temporaryDeck.getComponents());
-            System.out.println("In Ranger Card Mode. PlayerID is : " + playerId);
-            for(EverdellCard card : cardsToLookThrough){
-                System.out.println("Looking for ranger card, card found : "+ card.getCardEnumValue());
-                if(card.getCardEnumValue() == CardDetails.RANGER){
-                    cardID = card.getComponentID();
-                    break;
-                }
-            }
-            RangerCard rc = (RangerCard) egs.getComponentById(cardID);
+            RangerCard rc = (RangerCard) egs.currentCard;
             rc.setLocationFrom(location);
-            new PlayCard(playerId, cardID, new ArrayList<>(), new HashMap<>()).execute(egs);
+
+            new PlayCard(playerId, rc.getComponentID(), new ArrayList<>(), new HashMap<>()).execute(egs);
             executed = true;
             return;
         }
@@ -452,7 +440,8 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                         }
                         for(var card: cardsToSelectFrom){
                             if(!card.checkIfPlayerCanPlaceThisUniqueCard(egs,playerId)){
-                                egs.discardDeck.add(card);
+                                CardDetails.discardEverdellCard(egs, card);
+                                //egs.discardDeck.add(card);
                                 cardsToSelectFrom.remove(card);
                             }
                         }
@@ -463,8 +452,8 @@ public class SelectLocation extends AbstractAction implements IExtendedSequence 
                         for(EverdellCard card : cardsToSelectFrom){
                             if(card instanceof FoolCard fc){
                                 if(!fc.canFoolBePlaced(egs, playerId)){
+                                    CardDetails.discardEverdellCard(egs, card);
                                     cardsToSelectFrom.remove(card);
-                                    egs.discardDeck.add(card);
                                 }
                             }
                         }

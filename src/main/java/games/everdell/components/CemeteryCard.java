@@ -56,7 +56,7 @@ public class CemeteryCard extends ConstructionCard{
         System.out.println("Card Selection in Cemetery is : " + state.cardSelection);
         System.out.println("Card to Place is : " + state.cardSelection.get(0));
         for (int i = 1; i < cardsToDiscard.size(); i++){
-            cardsToDiscard.get(i).discardCard(state);
+            EverdellParameters.CardDetails.discardEverdellCard(state, cardsToDiscard.get(i));
         }
     }
 

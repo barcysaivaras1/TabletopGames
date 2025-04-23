@@ -175,6 +175,16 @@ public class SelectAListOfCards extends AbstractAction implements IExtendedSeque
                 boolean canPlay = false;
                 ForestLocations.cardChoices = new ArrayList<>(sa.selectedCards);
                 for(EverdellCard card : sa.selectedCards){
+
+                    //If the card is a fool card, we must have a unique check for this
+                    if(card instanceof FoolCard fc){
+                        //Check if the player can play the card
+                        if(!fc.canFoolBePlaced(egs, playerId)){
+                            continue;
+                        }
+                    }
+
+
                     //Check if its unique and can be played
                     if(!card.checkIfPlayerCanPlaceThisUniqueCard(egs, playerId)){
                         continue;
