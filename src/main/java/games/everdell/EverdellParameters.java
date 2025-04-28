@@ -1857,18 +1857,18 @@ public class EverdellParameters extends AbstractParameters {
     }
 
     public HashMap<CardType, Color> cardColour = new HashMap<CardType, Color>() {{
-        put(CardType.BLUE_GOVERNANCE, new Color(45, 114, 173));
-        put(CardType.GREEN_PRODUCTION, new Color(48, 126, 38));
-        put(CardType.PURPLE_PROSPERITY, new Color(152, 53, 190));
-        put(CardType.RED_DESTINATION, new Color(201, 23, 23));
-        put(CardType.TAN_TRAVELER, new Color(162, 131, 93));
+        put(CardType.BLUE_GOVERNANCE, new Color(44, 115, 166));
+        put(CardType.GREEN_PRODUCTION, new Color(40, 112, 32));
+        put(CardType.PURPLE_PROSPERITY, new Color(145, 57, 186));
+        put(CardType.RED_DESTINATION, new Color(172, 21, 21));
+        put(CardType.TAN_TRAVELER, new Color(156, 125, 89));
     }};
 
     public static ArrayList<Color> playerColour = new ArrayList<>() {{
-        add(Color.RED);
-        add(Color.ORANGE);
-        add(Color.CYAN);
-        add(Color.GREEN);
+        add(new Color(220, 220, 220));
+        add(new Color(220, 220, 220));
+        add(new Color(220, 220, 220));
+        add(new Color(220, 220, 220));
     }};
 
 

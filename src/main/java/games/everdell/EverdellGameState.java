@@ -308,14 +308,15 @@ public class EverdellGameState extends AbstractGameState {
             //This will motivate the AI to place cards and gather resources in scenarios where
             //It would be more beneficial than just getting points. i.e get 1 point or get 3 resources
 
-            double resourceHeuristic = 0.0;
-            for(var resource : PlayerResources.keySet()){
-                resourceHeuristic += PlayerResources.get(resource)[playerId].getValue();
-            }
-            double cardHeuristic = playerVillage.get(playerId).getComponents().size() * 0.5;
-            double scoreHeuristic = getGameScore(playerId) * 2;
-
-            return resourceHeuristic + cardHeuristic + scoreHeuristic;
+//            double resourceHeuristic = 0.0;
+//            for(var resource : PlayerResources.keySet()){
+//                resourceHeuristic += PlayerResources.get(resource)[playerId].getValue();
+//            }
+//            double cardHeuristic = playerVillage.get(playerId).getComponents().size() * 0.5;
+//            double scoreHeuristic = getGameScore(playerId) * 2;
+//
+//            return resourceHeuristic + cardHeuristic + scoreHeuristic;
+            return getGameScore(playerId);
         } else {
             // The game finished, we can instead return the actual result of the game for the given player.
             return getPlayerResults()[playerId].value;

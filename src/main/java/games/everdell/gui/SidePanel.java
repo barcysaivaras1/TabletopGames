@@ -37,6 +37,7 @@ public class SidePanel extends JPanel {
             playerPanel.add(new JLabel(state.cardCount[i].getValue() + " Cards"));
             playerPanel.add(new JLabel(state.workers[i].getValue() + " Workers"));
             playerPanel.add(new JLabel(state.pointTokens[i].getValue() + " Point Tokens"));
+            playerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             this.add(playerPanel);
         }
 

@@ -140,7 +140,6 @@ public class PlaceWorker extends AbstractAction implements IExtendedSequence{
                             new MoveSeason(new ArrayList<>(), state.getCurrentPlayer()).execute(state);
                         }
                     }
-                    //resetValues(state);
                     return true;
                 }
             }

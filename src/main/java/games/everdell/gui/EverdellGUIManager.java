@@ -504,11 +504,11 @@ public class EverdellGUIManager extends AbstractGUIManager {
         gbc.weightx = 1.0;
 
         JPanel workerActionPanel = new JPanel();
-        workerActionPanel.setBackground(Color.YELLOW);
+        workerActionPanel.setBackground(new Color(165, 163, 163, 255));
         JPanel cardActionPanel = new JPanel();
-        cardActionPanel.setBackground(Color.BLUE);
+        cardActionPanel.setBackground(new Color(165, 163, 163, 255));
         JPanel seasonActionPanel = new JPanel();
-        seasonActionPanel.setBackground(Color.GREEN);
+        seasonActionPanel.setBackground(new Color(165, 163, 163, 255));
         JPanel endTurnPanel = new JPanel();
         endTurnPanel.setBackground(new Color(165, 163, 163, 255));
 
