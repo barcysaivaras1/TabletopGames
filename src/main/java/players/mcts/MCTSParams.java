@@ -12,9 +12,11 @@ import utilities.JSONUtils;
 import java.util.Arrays;
 import java.util.Random;
 
+import static java.util.Collections.emptyList;
 import static players.mcts.MCTSEnums.Information.*;
 import static players.mcts.MCTSEnums.MASTType.*;
 import static players.mcts.MCTSEnums.OpponentTreePolicy.OneTree;
+import static players.mcts.MCTSEnums.RolloutIncrement.*;
 import static players.mcts.MCTSEnums.RolloutTermination.DEFAULT;
 import static players.mcts.MCTSEnums.SelectionPolicy.SIMPLE;
 import static players.mcts.MCTSEnums.Strategies.*;
@@ -22,8 +24,8 @@ import static players.mcts.MCTSEnums.TreePolicy.*;
 
 public class MCTSParams extends PlayerParameters {
 
-    public double K = Math.sqrt(2);
-    public int rolloutLength = 10; // assuming we have a good heuristic
+    public double K = 1.0;
+    public int rolloutLength = 1000; // effectively to end of game
     public boolean rolloutLengthPerPlayer = false;  // if true, then rolloutLength is multiplied by the number of players
     public int maxTreeDepth = 1000; // effectively no limit
     public MCTSEnums.Information information = Information_Set;  // this should be the default in TAG, given that most games have hidden information
@@ -38,6 +40,7 @@ public class MCTSParams extends PlayerParameters {
     public MCTSEnums.TreePolicy treePolicy = UCB;
     public MCTSEnums.OpponentTreePolicy opponentTreePolicy = OneTree;
     public boolean paranoid = false;
+    public MCTSEnums.RolloutIncrement rolloutIncrementType = TICK;
     public MCTSEnums.Strategies rolloutType = RANDOM;
     public MCTSEnums.Strategies oppModelType = MCTSEnums.Strategies.DEFAULT;  // Default is to use the same as rolloutType
     public String rolloutClass, oppModelClass = "";
@@ -57,7 +60,7 @@ public class MCTSParams extends PlayerParameters {
     public IActionKey MASTActionKey;
     public IStateKey MCGSStateKey;
     public boolean MCGSExpandAfterClash = true;
-    public double firstPlayUrgency = 1000000000.0;
+    public double firstPlayUrgency = 10e6;
     @NotNull public IActionHeuristic actionHeuristic = IActionHeuristic.nullReturn;
     public int actionHeuristicRecalculationThreshold = 20;
     public boolean pUCT = false;  // in this case we multiply the exploration value in UCB by the probability that the action heuristic would take the action
@@ -74,12 +77,13 @@ public class MCTSParams extends PlayerParameters {
     public Class<?> instantiationClass;
 
     public MCTSParams() {
-        addTunableParameter("K", Math.sqrt(2), Arrays.asList(0.0, 0.1, 1.0, Math.sqrt(2), 3.0, 10.0));
+        addTunableParameter("K", 1.0, Arrays.asList(0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0, 100.0));
         addTunableParameter("MASTBoltzmann", 0.1);
         addTunableParameter("exp3Boltzmann", 0.1);
-        addTunableParameter("rolloutLength", 10, Arrays.asList(0, 3, 10, 30, 100));
+        addTunableParameter("rolloutLength", 1000, Arrays.asList(0, 3, 10, 30, 100, 1000));
         addTunableParameter("rolloutLengthPerPlayer", false);
-        addTunableParameter("maxTreeDepth", 1000, Arrays.asList(1, 3, 10, 30, 100));
+        addTunableParameter("maxTreeDepth", 1000, Arrays.asList(1, 3, 10, 30, 100, 1000));
+        addTunableParameter("rolloutIncrementType", TICK, Arrays.asList(MCTSEnums.RolloutIncrement.values()));
         addTunableParameter("rolloutType", RANDOM, Arrays.asList(MCTSEnums.Strategies.values()));
         addTunableParameter("oppModelType", RANDOM, Arrays.asList(MCTSEnums.Strategies.values()));
         addTunableParameter("rolloutClass", "");
@@ -93,7 +97,7 @@ public class MCTSParams extends PlayerParameters {
         addTunableParameter("treePolicy", UCB, Arrays.asList(MCTSEnums.TreePolicy.values()));
         addTunableParameter("opponentTreePolicy", OneTree, Arrays.asList(MCTSEnums.OpponentTreePolicy.values()));
         addTunableParameter("exploreEpsilon", 0.1);
-        addTunableParameter("heuristic", (IStateHeuristic) AbstractGameState::getHeuristicScore);
+        addTunableParameter("heuristic", IStateHeuristic.class, AbstractGameState::getHeuristicScore);
         addTunableParameter("MAST", None, Arrays.asList(MCTSEnums.MASTType.values()));
         addTunableParameter("MASTGamma", 0.0, Arrays.asList(0.0, 0.5, 0.9, 1.0));
         addTunableParameter("useMASTAsActionHeuristic", false);
@@ -108,8 +112,8 @@ public class MCTSParams extends PlayerParameters {
         addTunableParameter("MASTDefaultValue", 0.0);
         addTunableParameter("MCGSStateKey", IStateKey.class);
         addTunableParameter("MCGSExpandAfterClash", true);
-        addTunableParameter("FPU", 1000000000.0);
-        addTunableParameter("actionHeuristic",  IActionHeuristic.nullReturn);
+        addTunableParameter("FPU", 10e6);
+        addTunableParameter("actionHeuristic", IActionHeuristic.class,  IActionHeuristic.nullReturn);
         addTunableParameter("progressiveBias", 0.0);
         addTunableParameter("pUCT", false);
         addTunableParameter("pUCTTemperature", 0.0);
@@ -129,6 +133,7 @@ public class MCTSParams extends PlayerParameters {
         rolloutLength = (int) getParameterValue("rolloutLength");
         rolloutLengthPerPlayer = (boolean) getParameterValue("rolloutLengthPerPlayer");
         maxTreeDepth = (int) getParameterValue("maxTreeDepth");
+        rolloutIncrementType = (MCTSEnums.RolloutIncrement) getParameterValue("rolloutIncrementType");
         rolloutType = (MCTSEnums.Strategies) getParameterValue("rolloutType");
         rolloutTermination = (MCTSEnums.RolloutTermination) getParameterValue("rolloutTermination");
         oppModelType = (MCTSEnums.Strategies) getParameterValue("oppModelType");
@@ -183,6 +188,14 @@ public class MCTSParams extends PlayerParameters {
         rolloutPolicy = null;
         useMASTAsActionHeuristic = (boolean) getParameterValue("useMASTAsActionHeuristic");
         useMAST = MAST != None;
+        // If we are using MAST for rollout or action heuristic, then we need to collect the data
+        if (!useMAST && (rolloutType == MCTSEnums.Strategies.MAST ||
+                oppModelType == MCTSEnums.Strategies.MAST ||
+                useMASTAsActionHeuristic)) {
+            System.out.println("Setting MAST to Both instead of None given use of MAST in rollout or action heuristic");
+            useMAST = true;
+            MAST = Both;
+        }
     }
 
     @Override
